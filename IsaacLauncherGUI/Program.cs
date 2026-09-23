@@ -1,4 +1,4 @@
-﻿//Progran.cs
+﻿//Program.cs
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -44,6 +44,8 @@ namespace IsaacLauncherGUI
                 Process.Start(AdminStart);
             }
         }
+
+       
 
         public void changeIni(bool enableMods, bool forceWindowed)
         {
@@ -98,6 +100,12 @@ namespace IsaacLauncherGUI
             File.WriteAllLines(IniPath, Inilines);
         }
 
+        public void EnableFullscreen(bool enable)
+        {
+            if (enable) changeIni(true, true);
+            else changeIni(true, false);
+            LaunchGame();
+        }
         public void SmartStart(bool checksFullScreen)
         {
             if (!File.Exists("DailyStreak.txt"))
@@ -126,9 +134,14 @@ namespace IsaacLauncherGUI
                 File.WriteAllText("last_run.txt", DateTime.Now.ToString());
                 AreModsEnabled = false;
             }
-            if (checksFullScreen) changeIni(true, true);
-            else changeIni(true, false);
-            LaunchGame();
+            EnableFullscreen(checksFullScreen);
+        }
+
+        public void InstantLaunch(bool smartStart, bool modsEnabled, bool fullscreenEnabled)
+        {
+            if (smartStart) SmartStart(fullscreenEnabled);
+            else if (modsEnabled) EnableFullscreen(fullscreenEnabled);
+            else LaunchGame();
         }
     }
 

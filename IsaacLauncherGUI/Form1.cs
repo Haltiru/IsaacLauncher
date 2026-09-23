@@ -5,6 +5,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing.Text;
+using System.Drawing;
 
 namespace IsaacLauncherGUI
 {
@@ -20,10 +22,29 @@ namespace IsaacLauncherGUI
         static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
         private string savedOriginalFullscreen = "1";
+
+        private PrivateFontCollection customFont = new PrivateFontCollection();
         public IsaacLauncher()
         {
             InitializeComponent();
+            customFont.AddFontFile("upheavtt.ttf");
             this.Icon = Properties.Resources.beast;
+            ApplyCustomFont(this, customFont.Families[0]);
+        }
+
+        private void ApplyCustomFont(Control parentControl, FontFamily customFamily)
+        {
+            foreach (Control c in parentControl.Controls)
+            {
+                // Ráhúzzuk az új fontot, de a designerben beállított méretet és stílust meghagyjuk
+                c.Font = new Font(customFamily, c.Font.Size, c.Font.Style);
+
+                // Ha a controlban vannak további controlok (pl. a TabControl fülei)
+                if (c.HasChildren)
+                {
+                    ApplyCustomFont(c, customFamily);
+                }
+            }
         }
         public void updateStreak()
         {
@@ -43,18 +64,18 @@ namespace IsaacLauncherGUI
                 }
                 else
                 {
-                    await Task.Delay(500);
+                    await Task.Delay(250);
                 }
             }
             while (!singleIsaac.HasExited && singleIsaac.MainWindowHandle == IntPtr.Zero)
             {
-                await Task.Delay(500);
+                await Task.Delay(250);
                 singleIsaac.Refresh();
             }
             while (!singleIsaac.HasExited && !singleIsaac.Responding)
             {
                 singleIsaac.Refresh();
-                await Task.Delay(500);
+                await Task.Delay(250);
             }
             //MessageBox.Show("Isaac sikeresen felébredt bátyja! 💀");
             int style = GetWindowLong(singleIsaac.MainWindowHandle, -16);
@@ -74,11 +95,16 @@ namespace IsaacLauncherGUI
 
         private void launcherButton_Click_1(object sender, EventArgs e) {tabControl1.SelectedIndex = 0;}
         private void settingsButton_Click(object sender, EventArgs e) {tabControl1.SelectedIndex = 1;}
+
+        private void toolsButton_Click(object sender, EventArgs e) { tabControl1.SelectedIndex = 2; }
+
         private async void playButton_Click(object sender, EventArgs e)
         {
+            bool modsRequested = checkBox1.Checked;
             bool smartModeRequested = checkBox2.Checked;
             bool crackedModeRequested = checkBox3.Checked;
-            Launcher isaacLauncher = new Launcher(crackedModeRequested, checkBox1.Checked, textBox1.Text);
+            bool borderlessFullscreenRequested = checkBox4.Checked;
+            Launcher isaacLauncher = new Launcher(crackedModeRequested, modsRequested, textBox1.Text);
 
             System.Diagnostics.Process[] Isaac = Process.GetProcessesByName("isaac-ng");
             if (Isaac.Length > 0)
@@ -90,18 +116,15 @@ namespace IsaacLauncherGUI
 
             if (smartModeRequested)
             {
-                isaacLauncher.SmartStart(checkBox4.Checked);
+                isaacLauncher.SmartStart(borderlessFullscreenRequested);
                 updateStreak();
             }
             else
             {
-                isaacLauncher.changeIni(checkBox1.Checked, checkBox4.Checked);
+                isaacLauncher.changeIni(modsRequested, borderlessFullscreenRequested);
                 isaacLauncher.LaunchGame();
             }
-            if (checkBox4.Checked)
-            {
-                await FindIsaac();
-            }
+            if (borderlessFullscreenRequested) await FindIsaac();
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -114,14 +137,12 @@ namespace IsaacLauncherGUI
 
         private void IsaacLauncher_FormClosing(object sender, FormClosingEventArgs e)
         {
-            string settingsData = $"mods={checkBox1.Checked}\nsmart={checkBox2.Checked}\ngamePath={textBox1.Text}\ncracked={checkBox3.Checked}\nborderless={checkBox4.Checked}\noriginalFullscreen={savedOriginalFullscreen}";
+            string settingsData = $"mods={checkBox1.Checked}\nsmart={checkBox2.Checked}\ngamePath={textBox1.Text}\ncracked={checkBox3.Checked}\nborderless={checkBox4.Checked}\noriginalFullscreen={savedOriginalFullscreen}\ninstantLaunch={checkBox5.Checked}";
             File.WriteAllText("settings.txt", settingsData);
         }
 
-        private void IsaacLauncher_Load(object sender, EventArgs e)
+        private async void IsaacLauncher_Load(object sender, EventArgs e)
         {
-
-
             if (File.Exists("settings.txt"))
             {
                 string[] lines = File.ReadAllLines("settings.txt");
@@ -141,13 +162,19 @@ namespace IsaacLauncherGUI
                             checkBox4.Checked = bool.Parse(s.Substring("borderless=".Length)); break;
                         case string s when s.StartsWith("originalFullscreen="):
                             savedOriginalFullscreen = s.Substring("originalFullscreen=".Length); break;
+                        case string s when s .StartsWith("instantLaunch="):
+                            checkBox5.Checked = bool.Parse(s.Substring("instantLaunch=".Length)); break;
                     }
                 }
             }
 
+            if (checkBox5.Checked) 
+            {
+                Launcher instantLauncher = new Launcher(checkBox3.Checked, checkBox1.Checked, textBox1.Text);
+                instantLauncher.InstantLaunch(checkBox2.Checked, checkBox1.Checked, checkBox4.Checked);
+                if (checkBox4.Checked) await FindIsaac();
+            };
             updateStreak();
         }
-
     }
 }
-
