@@ -1,12 +1,14 @@
 ﻿//Form1.cs
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing.Text;
-using System.Drawing;
+using static IsaacLauncherGUI.Launcher;
+
 
 namespace IsaacLauncherGUI
 {
@@ -83,15 +85,14 @@ namespace IsaacLauncherGUI
             SetWindowPos(singleIsaac.MainWindowHandle, IntPtr.Zero, 0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, 0x0020);
         }
 
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox2.Checked)
-            {
-                checkBox1.Enabled = false;
-                checkBox1.Checked = false;
-            }
-            else checkBox1.Enabled = true;
-        }
+
+
+
+
+
+
+
+
 
         private void launcherButton_Click_1(object sender, EventArgs e) {tabControl1.SelectedIndex = 0;}
         private void settingsButton_Click(object sender, EventArgs e) {tabControl1.SelectedIndex = 1;}
@@ -100,11 +101,25 @@ namespace IsaacLauncherGUI
 
         private async void playButton_Click(object sender, EventArgs e)
         {
+
+            // A dinamikus útvonalak, amiket te is profin összeraktál
+            string docsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string originalRepPath = Path.Combine(docsFolder, "My Games", "Binding of Isaac Repentance+");
+            string originalOptionsIni = Path.Combine(originalRepPath, "options.ini");
+
+            string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
+            string portableOptionsIni = Path.Combine(portableDir, "options.ini");
+            string portableExe = Path.Combine(portableDir, "isaac-ng.exe");
+
+
             bool modsRequested = checkBox1.Checked;
             bool smartModeRequested = checkBox2.Checked;
-            bool crackedModeRequested = checkBox3.Checked;
-            bool borderlessFullscreenRequested = checkBox4.Checked;
-            Launcher isaacLauncher = new Launcher(crackedModeRequested, modsRequested, textBox1.Text);
+            LaunchMode ModeRequested;
+            if (checkBox3.Checked) ModeRequested = LaunchMode.Cracked;
+            else if (checkBox6.Checked) ModeRequested = LaunchMode.Portable;
+            else { ModeRequested = LaunchMode.Steam; }
+                bool borderlessFullscreenRequested = checkBox4.Checked;
+            Launcher isaacLauncher = new Launcher(ModeRequested, modsRequested, textBox1.Text);
 
             System.Diagnostics.Process[] Isaac = Process.GetProcessesByName("isaac-ng");
             if (Isaac.Length > 0)
@@ -116,28 +131,74 @@ namespace IsaacLauncherGUI
 
             if (smartModeRequested)
             {
-                isaacLauncher.SmartStart(borderlessFullscreenRequested);
+                isaacLauncher.SmartStart(borderlessFullscreenRequested, ModeRequested);
                 updateStreak();
             }
             else
             {
-                isaacLauncher.changeIni(modsRequested, borderlessFullscreenRequested);
+                isaacLauncher.changeIni(ModeRequested, modsRequested, borderlessFullscreenRequested);
                 isaacLauncher.LaunchGame();
             }
             if (borderlessFullscreenRequested) await FindIsaac();
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void smartStartChecked(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked)
+            {
+                checkBox1.Enabled = false;
+                checkBox1.Checked = false;
+            }
+            else checkBox1.Enabled = true;
+        }
+
+        private void usePortableVersionClick(object sender, EventArgs e)
+        {
+            if (checkBox6.Checked)
+            {
+                checkBox3.Enabled = false;
+                checkBox3.Checked = false;
+            }
+            else checkBox3.Enabled = true;
+        }
+
+        private void useCrackedVersion(object sender, EventArgs e)
+        {
+            if (checkBox3.Checked)
+            {
+                checkBox6.Enabled = false;
+                checkBox6.Checked = false;
+            }
+            else checkBox6.Enabled = true;
+        }
+        private void BrowseGamePath(object sender, EventArgs e)
         {
             using (FolderBrowserDialog fbd = new FolderBrowserDialog())
             {
                 if (fbd.ShowDialog() == DialogResult.OK) textBox1.Text = fbd.SelectedPath;
             }
         }
+        private async void startPortable(object sender, EventArgs e)
+        {
+            button3.Enabled = false;
+            PortableIsaacLauncher startPortable = new PortableIsaacLauncher(textBox1.Text);
+            await Task.Run(() => startPortable.MakeIsaacPortable());
+            button3.Enabled = true;
+        }
+
+
+
+
+
+
+
+
+
+
 
         private void IsaacLauncher_FormClosing(object sender, FormClosingEventArgs e)
         {
-            string settingsData = $"mods={checkBox1.Checked}\nsmart={checkBox2.Checked}\ngamePath={textBox1.Text}\ncracked={checkBox3.Checked}\nborderless={checkBox4.Checked}\noriginalFullscreen={savedOriginalFullscreen}\ninstantLaunch={checkBox5.Checked}";
+            string settingsData = $"mods={checkBox1.Checked}\nsmart={checkBox2.Checked}\ngamePath={textBox1.Text}\ncracked={checkBox3.Checked}\nborderless={checkBox4.Checked}\noriginalFullscreen={savedOriginalFullscreen}\ninstantLaunch={checkBox5.Checked}\nportable={checkBox6.Checked}";
             File.WriteAllText("settings.txt", settingsData);
         }
 
@@ -164,17 +225,24 @@ namespace IsaacLauncherGUI
                             savedOriginalFullscreen = s.Substring("originalFullscreen=".Length); break;
                         case string s when s .StartsWith("instantLaunch="):
                             checkBox5.Checked = bool.Parse(s.Substring("instantLaunch=".Length)); break;
+                        case string s when s.StartsWith("portable="):
+                            checkBox6.Checked = bool.Parse(s.Substring("portable=".Length)); break;
                     }
                 }
             }
 
             if (checkBox5.Checked) 
             {
-                Launcher instantLauncher = new Launcher(checkBox3.Checked, checkBox1.Checked, textBox1.Text);
-                instantLauncher.InstantLaunch(checkBox2.Checked, checkBox1.Checked, checkBox4.Checked);
+                LaunchMode ModeRequested = LaunchMode.Steam;
+                if (checkBox3.Checked) ModeRequested = LaunchMode.Cracked;
+                else if (checkBox6.Checked) ModeRequested = LaunchMode.Portable;
+                Launcher instantLauncher = new Launcher(ModeRequested, checkBox1.Checked, textBox1.Text);
+                instantLauncher.InstantLaunch(checkBox2.Checked, checkBox1.Checked, checkBox4.Checked, ModeRequested);
                 if (checkBox4.Checked) await FindIsaac();
             };
             updateStreak();
         }
+
+        
     }
 }

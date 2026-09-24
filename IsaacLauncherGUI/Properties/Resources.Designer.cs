@@ -69,5 +69,54 @@ namespace IsaacLauncherGUI.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] steam_api {
+            get {
+                object obj = ResourceManager.GetObject("steam_api", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to STEAMAPPS_INTERFACE_VERSION008
+        ///SteamClient017
+        ///SteamController008
+        ///SteamFriends017
+        ///SteamGameServerStats001
+        ///SteamGameServer015
+        ///STEAMHTMLSURFACE_INTERFACE_VERSION_005
+        ///STEAMHTTP_INTERFACE_VERSION003
+        ///SteamInput006
+        ///STEAMINVENTORY_INTERFACE_V003
+        ///SteamMatchMakingServers002
+        ///SteamMatchMaking009
+        ///SteamMatchGameSearch001
+        ///SteamParties002
+        ///STEAMMUSIC_INTERFACE_VERSION001
+        ///STEAMMUSICREMOTE_INTERFACE_VERSION001
+        ///SteamNetworkingMessages002
+        ///SteamNetworkingSockets012
+        ///SteamNetworkingUtils004
+        ///SteamNetworking006
+        ///S [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string steam_interfaces {
+            get {
+                return ResourceManager.GetString("steam_interfaces", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] steamless {
+            get {
+                object obj = ResourceManager.GetObject("steamless", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }
