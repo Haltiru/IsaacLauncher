@@ -1,43 +1,161 @@
 ﻿//Program.cs
+using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Principal;
-using System.Windows.Forms;
 using System.IO.Compression;
+using System.Security.Principal;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace IsaacLauncherGUI
 {
-    class Launcher
+    public class Launcher
     {
         public enum LaunchMode { Steam, Cracked, Portable }
         public LaunchMode CurrentMode { get; set; }
         public bool AreModsEnabled { get; set; }
+        public bool IsRepentogonEnabled { get; set; }
         public string GamePath { get; set; }
+        public string RepentogonPath { get; set; }
         public string IniPath { get; set; }
+        public string MyGames { get; set; }
+        public string RepPlus { get; set; }
+        public bool DoesMyGamesExist { get; set; }
+        public bool DoesRepPlusExist { get; set; }
+        public bool IsSmartStart { get; set; }
 
 
-        public Launcher(LaunchMode currentMode, bool areModsEnabled, string gamePath)
+        public Launcher(LaunchMode currentMode, bool areModsEnabled, string gamePath, bool isRepentogonEnabled, string repentogonPath, bool isSmartStart)
         {
             string user = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string correctPath = Path.Combine(user, "My Games", "Binding of Isaac Repentance+", "options.ini");
             AreModsEnabled = areModsEnabled;
+            IsSmartStart = isSmartStart;
             GamePath = gamePath;
             IniPath = correctPath;
             CurrentMode = currentMode;
-        } 
-        public void LaunchGame()
+            IsRepentogonEnabled = isRepentogonEnabled;
+            RepentogonPath = repentogonPath;
+            MyGames = Path.Combine(user, "My Games");
+            RepPlus = Path.Combine(MyGames, "Binding of Isaac Repentance+");
+            DoesMyGamesExist = Directory.Exists(MyGames);
+            DoesRepPlusExist = Directory.Exists(RepPlus);
+
+        }
+
+        public bool IsSteamProcessRunning()
+        {
+            Process[] steamProcesses = Process.GetProcessesByName("steam");
+            return steamProcesses.Length > 0;
+        }
+
+        private bool IsSteamReady()
+        {
+            // 1. Csekkoljuk, hogy létezik-e egyáltalán a steam processz a gépén
+            if (!IsSteamProcessRunning())
+            {
+                return false;
+            }
+
+            // 2. Kiolvassuk az ActiveUser értéket a registry-ből (alapértelmezett 0, ha nincs)
+            object activeUserObj = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess", "ActiveUser", 0);
+
+            // 3. Biztonságos castolás: kezeljük a null-t és az esetleges string/int konverziót
+            int activeUser = 0;
+            if (activeUserObj != null)
+            {
+                // A TryParse megvéd attól, hogy elszálljon, ha valami fura típust ad vissza
+                int.TryParse(activeUserObj.ToString(), out activeUser);
+            }
+
+            // 4. Akkor kész a Steam, ha a processz is fut ÉS az activeUser NEM nulla!
+            return activeUser != 0;
+        }
+
+        public async Task<string> EnsureSteamRunning()
+        {
+            if (IsSteamReady())
+            {
+                return null;
+            }
+            if (!IsSteamProcessRunning())
+            {
+                string steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamExe", null) as string;
+                if (File.Exists(steamPath))
+                {
+                    steamPath = Path.GetFullPath(steamPath);
+                    ProcessStartInfo AdminSteamStart = new ProcessStartInfo
+                    {
+                        FileName = steamPath,
+                        Arguments = "-silent",
+                        UseShellExecute = true,
+                    };
+                    Process.Start(AdminSteamStart);
+                }
+                else
+                {
+                    return "Steam executable not found!";
+                }
+            }
+
+
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            try
+            {
+                while (!IsSteamReady() && stopwatch.ElapsedMilliseconds < 60000)
+                {
+                    await Task.Delay(250);
+                }
+
+                if (!IsSteamReady())
+                {
+                    return "Timeout: Steam didn't start in time!";
+                }
+            }
+            catch
+            {
+                return "Timeout: Steam didn't start in time!";
+            }
+            return null;
+        }
+
+        public async Task<string> LaunchGame()
         {
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
             switch (CurrentMode)
             {
                 case LaunchMode.Steam:
-                    ProcessStartInfo AdminStart = new ProcessStartInfo
+                    if (IsRepentogonEnabled)
                     {
-                        FileName = "steam://rungameid/250900",
-                        UseShellExecute = true,
-                    };
-                    Process.Start(AdminStart);
+                        string isaacExe = Path.Combine(GamePath, "isaac-ng.exe");
+
+                        if (!File.Exists(RepentogonPath)) return "RepentogonLauncher.exe not found!";
+                        if (!File.Exists(isaacExe)) return "isaac-ng.exe not found in game folder!";
+
+                        string steamErr = await EnsureSteamRunning();
+                        if (steamErr != null) return steamErr;
+
+                        ProcessStartInfo AdminStart = new ProcessStartInfo
+                        {
+                            FileName = $"{RepentogonPath}",
+                            Arguments = $"--basement-renovator --isaac=\"{isaacExe}\"",
+                            UseShellExecute = true,
+                            WorkingDirectory = Path.GetDirectoryName(RepentogonPath)
+                        };
+                        Process.Start(AdminStart);
+                    }
+                    else
+                    {
+                        ProcessStartInfo AdminStart = new ProcessStartInfo
+                        {
+                            FileName = "steam://rungameid/250900",
+                            UseShellExecute = true,
+                        };
+                        Process.Start(AdminStart);
+                    }
                     break;
                 case LaunchMode.Cracked:
                     ProcessStartInfo AdminStartCracked = new ProcessStartInfo
@@ -56,14 +174,29 @@ namespace IsaacLauncherGUI
                     };
                     Process.Start(AdminStartPortable);
                     break;
-            }
+                default: return "Unknown launch mode selected!";
+            }      
+            return null;
         }
 
 
-
-        public void changeIni(LaunchMode startMode, bool enableMods, bool forceWindowed)
+        public void DeleteNotExistedFolders()
         {
+            if (!DoesMyGamesExist && Directory.Exists(MyGames))
+                Directory.Delete(MyGames, true);
+
+            if (!DoesRepPlusExist && Directory.Exists(RepPlus))
+                Directory.Delete(RepPlus, true);
+        }
+
+        public void ChangeIni(LaunchMode startMode, bool forceWindowed, AppSettings settings)
+        {
+            DeleteNotExistedFolders();
+
+            string user = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string correctPath = Path.Combine(user, "My Games", "Binding of Isaac Repentance+");
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
+            if (!Directory.Exists(correctPath)) Directory.CreateDirectory(correctPath);
             switch (startMode)
             {
                 case LaunchMode.Portable:
@@ -75,34 +208,40 @@ namespace IsaacLauncherGUI
                     break;
                 default: break;
             }
-            
-            string[] Inilines = File.ReadAllLines(IniPath);
-            string originalFullscreen = "1";
-            if (File.Exists("settings.txt"))
+            if (!File.Exists(IniPath))
             {
-                string[] settingLines = File.ReadAllLines("settings.txt");
-                bool foundInSettings = false;
-
-                foreach (string line in settingLines)
-                {
-                    if (line.StartsWith("originalFullscreen="))
-                    {
-                        originalFullscreen = line.Substring("originalFullscreen=".Length);
-                        foundInSettings = true;
-                        break;
-                    }
-                }
-                if (!foundInSettings)
+                File.WriteAllBytes(IniPath, Properties.Resources.iniOptions);
+            }
+            string[] Inilines = File.ReadAllLines(IniPath);
+            string originalFullscreen = settings.OriginalFullscreen;
+            if (forceWindowed)
+            {
+                if (string.IsNullOrWhiteSpace(settings.OriginalFullscreen))
                 {
                     foreach (string line in Inilines)
                     {
                         if (line.StartsWith("Fullscreen="))
                         {
                             originalFullscreen = line.Split('=')[1];
+                            settings.OriginalFullscreen = originalFullscreen;
+                            AppConfig.Save(settings);
                             break;
                         }
-                    }
-                    File.AppendAllText("settings.txt", $"\noriginalFullscreen={originalFullscreen}");
+                    } 
+                }
+                else
+                {
+                    originalFullscreen = settings.OriginalFullscreen;
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(settings.OriginalFullscreen))
+                {
+                    originalFullscreen = settings.OriginalFullscreen;
+                    settings.OriginalFullscreen = string.Empty;
+                    AppConfig.Save(settings);
+
                 }
             }
 
@@ -117,7 +256,7 @@ namespace IsaacLauncherGUI
 
                 {
                     if (forceWindowed == true) Inilines[i] = "Fullscreen=0";
-                    else
+                    else if (forceWindowed == false && !string.IsNullOrWhiteSpace(originalFullscreen))
                     {
                         Inilines[i] = $"Fullscreen={originalFullscreen}";
                     }
@@ -126,53 +265,50 @@ namespace IsaacLauncherGUI
 
             File.WriteAllLines(IniPath, Inilines);
         }
-
-        public void EnableFullscreen(bool enable, LaunchMode checkMode)
+        public void SmartStart(bool areModsEnabled, bool isRepentogonEnabled, AppSettings settings)
         {
-            if (enable) changeIni(checkMode , true, true);
-            else changeIni(checkMode, true, false);
-            LaunchGame();
-        }
-        public void SmartStart(bool checksFullScreen, LaunchMode checkMode)
-        {
-            if (!File.Exists("DailyStreak.txt"))
-            {
-                File.WriteAllText("DailyStreak.txt", "1");
-            }
-            DateTime today = DateTime.Now.Date;
             DateTime lastReset = DateTime.Now.Hour >= 12
              ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 0, 0)
              : new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 0, 0).AddDays(-1);
-            if (File.Exists("last_run.txt"))
+            if (!string.IsNullOrWhiteSpace(settings.LastRun) && DateTime.TryParse(settings.LastRun, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime content))
             {
-                DateTime Content = DateTime.Parse(File.ReadAllText("last_run.txt"));
-                if (Content < lastReset)
+                if (content < lastReset)
                 {
                     // If the last run was before today, disable mods and launch the game
                     AreModsEnabled = false;
-                    File.WriteAllText("last_run.txt", DateTime.Now.ToString());
-                    File.WriteAllText("DailyStreak.txt", (int.Parse(File.ReadAllText("DailyStreak.txt")) + 1).ToString());
+                    IsRepentogonEnabled = false;
+                    settings.LastRun = DateTime.Now.ToString("o");
+                    settings.DailyStreak++;
+                    AppConfig.Save(settings);
                 }
                 // If the last run was today, enable mods and launch the game
-                else AreModsEnabled = true;
+                else
+                {
+                    AreModsEnabled = areModsEnabled;
+                    IsRepentogonEnabled = isRepentogonEnabled;
+                }
             }
             else
             {
-                File.WriteAllText("last_run.txt", DateTime.Now.ToString());
+                settings.LastRun = DateTime.Now.ToString("o");
+                settings.DailyStreak = 1;
+                AppConfig.Save(settings);
                 AreModsEnabled = false;
+                IsRepentogonEnabled = false;
             }
-            EnableFullscreen(checksFullScreen, checkMode);
         }
 
-        public void InstantLaunch(bool smartStart, bool modsEnabled, bool fullscreenEnabled, LaunchMode checkMode)
+        public async Task<string> InitializeAndLaunch(bool fullscreenEnabled, bool areModsEnabled, bool isRepentogonEnabled, AppSettings settings)
         {
-            if (smartStart) SmartStart(fullscreenEnabled, checkMode);
-            else if (modsEnabled) EnableFullscreen(fullscreenEnabled, checkMode);
-            else LaunchGame();
+            if (IsSmartStart)
+            {
+                string steamErr = await EnsureSteamRunning();
+                if (steamErr != null) return steamErr;
+                SmartStart(AreModsEnabled, IsRepentogonEnabled, settings);
+            }
+            ChangeIni(CurrentMode, fullscreenEnabled, settings);
+            return await LaunchGame();
         }
-
-
-
     }
 
     class PortableIsaacLauncher
@@ -188,13 +324,12 @@ namespace IsaacLauncherGUI
             RepPlusPath = correctPath;
         }
 
-        public void CopyBaseGameFiles(string gamePath)
+        public string CopyBaseGameFiles(string gamePath)
         {
             string exePath = Path.Combine(gamePath, "isaac-ng.exe");
             if (!File.Exists(exePath))
             {
-                MessageBox.Show("Please add an acceptable folder!");
-                return;
+                return "isaac-ng.exe not found in the specified game folder!";
             }
             else
             {
@@ -210,9 +345,9 @@ namespace IsaacLauncherGUI
                         string newDirPath = dirPath.Replace(sourcePath, destinationPath);
                         Directory.CreateDirectory(@"\\?\" + Path.GetFullPath(newDirPath));
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        MessageBox.Show($"Error creating directory: {ex.Message}");
+                        return "Failed to create directory: " + dirPath;
                     }
                 }
                 foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
@@ -226,16 +361,17 @@ namespace IsaacLauncherGUI
                         string whereToPasteLong = @"\\?\" + Path.GetFullPath(whereToPaste);
                         File.Copy(fromWhere, whereToPasteLong, true);
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        MessageBox.Show($"Error copying file: {ex.Message}");
+                       return "Failed to copy file: " + newPath;
                     }
                 }
-                
+
             }
+            return null;
         }
 
-        public void SetupSteamEmulator()
+        public string SetupSteamEmulator()
         {
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
 
@@ -328,13 +464,14 @@ namespace IsaacLauncherGUI
 
                 if (Directory.Exists(tempFolder)) Directory.Delete(tempFolder, true);
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show($"Valami gáz van a crackeléssel, bátyja: {ex.Message}");
+                return "Failed to crack the game executable with Steamless!";
             }
+            return null;
         }
 
-        public void PortModsToEmulator()
+        public string PortModsToEmulator()
         {
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
             string settingsDir = Path.Combine(portableDir, "steam_settings");
@@ -367,9 +504,9 @@ namespace IsaacLauncherGUI
                         string newDirPath = dirPath.Replace(currentModPath, targetModDir);
                         Directory.CreateDirectory(@"\\?\" + Path.GetFullPath(newDirPath));
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        MessageBox.Show($"Error creating directory: {ex.Message}");
+                        return "Failed to create directory: " + dirPath;
                     }
                 }
                 foreach (string newPath in Directory.GetFiles(currentModPath, "*.*", SearchOption.AllDirectories))
@@ -382,13 +519,14 @@ namespace IsaacLauncherGUI
                         string whereToPasteLong = @"\\?\" + Path.GetFullPath(whereToPaste);
                         File.Copy(fromWhere, whereToPasteLong, true);
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        MessageBox.Show($"Error copying file: {ex.Message}");
+                        return "Failed to copy file: " + newPath;
                     }
                 }
 
             }
+            return null;
         }
 
         public void ConfigurePortableOptions()
@@ -400,7 +538,7 @@ namespace IsaacLauncherGUI
 
             if (File.Exists(optionsIniPath))
             {
-            File.Copy(optionsIniPath, portableIniPath);
+                File.Copy(optionsIniPath, portableIniPath, true);
 
                 string optionsContent = File.ReadAllText(portableIniPath);
 
@@ -409,6 +547,10 @@ namespace IsaacLauncherGUI
                     optionsContent = optionsContent.Replace("SteamCloud=0", "SteamCloud=1");
                     File.WriteAllText(portableIniPath, optionsContent);
                 }
+            }
+            else
+            {
+                File.WriteAllBytes(portableIniPath, Properties.Resources.iniOptions);
             }
 
             string remoteSavesDir = Path.Combine(portableDir, "portable_saves", "250900", "remote");
@@ -426,31 +568,25 @@ namespace IsaacLauncherGUI
                     File.Copy(sourceSave, Path.Combine(remoteSavesDir, repPlusSaveName), true);
                 }
             }
-
-
         }
 
-        public void MakeIsaacPortable()
+        public string MakeIsaacPortable()
         {
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
             if (!Directory.Exists(portableDir)) Directory.CreateDirectory(portableDir);
 
-            // 1. Létrehozza a mappát és átmásolja a nyers gamet
-            CopyBaseGameFiles(GamePath);
+            string err = CopyBaseGameFiles(GamePath);
+            if (err != null) return err;
 
-            // 2. Bepattintja a steam_api.dll-t és megcsinálja a steam_settings mappát a txt-kkel
-            SetupSteamEmulator();
+            err = SetupSteamEmulator();
+            if (err != null) return err;
 
-            // 3. Átrakja a modokat és levágja a nevüket számokra
-            PortModsToEmulator();
+            err = PortModsToEmulator();
+            if (err != null) return err;
 
-            //4.Legenerálja a portable options.ini - t(SteamCloud = 1)
             ConfigurePortableOptions();
-
-            MessageBox.Show("Portable Isaac is Ready to play!");
+            return null;
         }
-
-
 
     }
 

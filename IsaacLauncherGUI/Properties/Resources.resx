@@ -121,6 +121,30 @@
   <data name="beast" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\beast.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="blackbutton" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\blackbutton.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="hdsecretroom" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\hdsecretroom.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="hoverbutton" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\hoverbutton.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iniOptions" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\options.ini;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="postit" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\postit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="redbutton" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\redbutton.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="redbuttonhover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\redbuttonhover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="steamless" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\steamless.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
