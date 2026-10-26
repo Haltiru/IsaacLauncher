@@ -138,7 +138,7 @@ namespace IsaacLauncherGUI
 
                         string steamErr = await EnsureSteamRunning();
                         if (steamErr != null) return steamErr;
-                        
+
 
                         ProcessStartInfo AdminStart = new ProcessStartInfo
                         {
@@ -178,7 +178,7 @@ namespace IsaacLauncherGUI
                     Process.Start(AdminStartPortable);
                     break;
                 default: return "Unknown launch mode selected!";
-            }      
+            }
             return null;
         }
 
@@ -230,7 +230,7 @@ namespace IsaacLauncherGUI
                             AppConfig.Save(settings);
                             break;
                         }
-                    } 
+                    }
                 }
                 else
                 {
@@ -274,7 +274,7 @@ namespace IsaacLauncherGUI
             DateTime lastRun = DateTime.TryParse(settings.LastRun, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime content) ? content : DateTime.MinValue;
             DateTime today = DateTime.Now.Date;
             DateTime yesterday = today.AddDays(-1);
-            if ((content.Date == yesterday) && !string.IsNullOrWhiteSpace(settings.LastRun)) 
+            if ((content.Date == yesterday) && !string.IsNullOrWhiteSpace(settings.LastRun))
             {
                 settings.Streak++;
             }
@@ -353,67 +353,80 @@ namespace IsaacLauncherGUI
         [STAThread]
         static void Main(string[] args)
         {
-            try
-            {
-                string currentPath = AppDomain.CurrentDomain.BaseDirectory;
-                foreach (string oldFile in Directory.GetFiles(currentPath, "*.old", SearchOption.AllDirectories))
-                {
-                    try
-                    {
-                        File.Delete(oldFile);
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-
-
             if (args.Length > 0 && args[0] == "--update")
             {
-                System.Threading.Thread.Sleep(1000);
-                new Updater().FinishUpdateProcess().Wait();
-                Process.Start(Application.ExecutablePath);
+                try
+                {
+                    if (args.Length != 4 || !int.TryParse(args[1], out int originalPid) || originalPid <= 0)
+                        throw new InvalidOperationException("Invalid updater arguments.");
+
+                    try
+                    {
+                        using (Process original = Process.GetProcessById(originalPid))
+                        {
+                            if (!original.WaitForExit(60000))
+                                throw new TimeoutException("The original launcher did not close within 60 seconds.");
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        // Original process has already exited.
+                    }
+
+                    string installDirectory = Path.GetFullPath(args[2]);
+                    string updateDirectory = Path.GetFullPath(args[3]);
+                    new Updater(installDirectory, updateDirectory)
+                        .FinishUpdateProcess().GetAwaiter().GetResult();
+
+                    string updatedLauncher = Path.Combine(installDirectory, "IsaacLauncherGUI.exe");
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = updatedLauncher,
+                        WorkingDirectory = installDirectory,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("The update failed.\n\n" + ex,
+                        "IsaacLauncher updater", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 return;
             }
 
-            // Csekkoljuk, hogy adminok vagyunk-e már
+            // Clean up old temporary updater copies; do not delete arbitrary .old files.
+            Updater.CleanupOldWork();
+
             if (!IsRunningAsAdmin())
             {
                 try
                 {
-                    // Megpróbáljuk újraindítani magunkat Admin joggal
-                    ProcessStartInfo proc = new ProcessStartInfo
+                    Process.Start(new ProcessStartInfo
                     {
                         UseShellExecute = true,
                         FileName = Application.ExecutablePath,
-                        Verb = "runas" // Ez kéri ki a UAC ablakot!
-                    };
-                    Process.Start(proc);
-
-                    // Ha a user rányomott az "Igen"-re, a fő folyamat kilép, 
-                    // mert az új, adminként indult folyamat átveszi a helyét.
+                        Verb = "runas"
+                    });
                     return;
                 }
                 catch
-                {   
-                    // 💀 HA A USER A "MÉGSE" / "NEM" GOMBRA KATTINTOTT:
-                    // Nem történik semmi, a catch elkapja a hibát, 
-                    // és a kód fut tovább sima user joggal!
+                {
+                    // User declined elevation; run normally.
                 }
             }
 
-            // Innen folytatódik a normál Form indítás
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new IsaacLauncher());
         }
 
-        // Segédfüggvény az admin jog csekkolására
         private static bool IsRunningAsAdmin()
         {
-            WindowsIdentity identity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+            {
+                WindowsPrincipal principal = new WindowsPrincipal(identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
         }
     }
 }

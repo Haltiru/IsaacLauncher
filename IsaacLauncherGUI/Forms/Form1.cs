@@ -347,7 +347,7 @@ private async void StartPortable(object sender, EventArgs e)
                 if (DateTime.TryParse(_settings.LastUpdateCheck, out lastCheck))
                 {
                     TimeSpan timeSinceLastCheck = DateTime.Now - lastCheck;
-                    if (timeSinceLastCheck.TotalHours < 1)
+                    if (timeSinceLastCheck.TotalHours < 0.1)
                     {
                         return false;
                     }
