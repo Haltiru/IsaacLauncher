@@ -9506,31 +9506,31 @@
   <data name="&gt;&gt;portableToolTip.ZOrder" xml:space="preserve">
     <value>11</value>
   </data>
-  <data name="crackedToolTip.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+  <data name="customToolTip.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
     <value>Zoom</value>
   </data>
-  <data name="crackedToolTip.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="customToolTip.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="crackedToolTip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>279, 48</value>
+  <data name="customToolTip.Location" type="System.Drawing.Point, System.Drawing">
+    <value>265, 48</value>
   </data>
-  <data name="crackedToolTip.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="customToolTip.Size" type="System.Drawing.Size, System.Drawing">
     <value>15, 20</value>
   </data>
-  <data name="crackedToolTip.TabIndex" type="System.Int32, mscorlib">
-    <value>21</value>
+  <data name="customToolTip.TabIndex" type="System.Int32, mscorlib">
+    <value>35</value>
   </data>
-  <data name="&gt;&gt;crackedToolTip.Name" xml:space="preserve">
-    <value>crackedToolTip</value>
+  <data name="&gt;&gt;customToolTip.Name" xml:space="preserve">
+    <value>customToolTip</value>
   </data>
-  <data name="&gt;&gt;crackedToolTip.Type" xml:space="preserve">
+  <data name="&gt;&gt;customToolTip.Type" xml:space="preserve">
     <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;crackedToolTip.Parent" xml:space="preserve">
+  <data name="&gt;&gt;customToolTip.Parent" xml:space="preserve">
     <value>panel4</value>
   </data>
-  <data name="&gt;&gt;crackedToolTip.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;customToolTip.ZOrder" xml:space="preserve">
     <value>12</value>
   </data>
   <data name="startTray.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
@@ -9782,43 +9782,43 @@
   <data name="&gt;&gt;pathLine.ZOrder" xml:space="preserve">
     <value>19</value>
   </data>
-  <data name="cracked.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="custom.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>None</value>
   </data>
-  <data name="cracked.CheckAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+  <data name="custom.CheckAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleRight</value>
   </data>
-  <data name="cracked.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="custom.Font" type="System.Drawing.Font, System.Drawing">
     <value>Upheaval TT (BRK), 18pt</value>
   </data>
-  <data name="cracked.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="custom.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="cracked.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="custom.Location" type="System.Drawing.Point, System.Drawing">
     <value>19, 52</value>
   </data>
-  <data name="cracked.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+  <data name="custom.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
     <value>No</value>
   </data>
-  <data name="cracked.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="custom.Size" type="System.Drawing.Size, System.Drawing">
     <value>308, 42</value>
   </data>
-  <data name="cracked.TabIndex" type="System.Int32, mscorlib">
+  <data name="custom.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
-  <data name="cracked.Text" xml:space="preserve">
-    <value>Use Cracked version</value>
+  <data name="custom.Text" xml:space="preserve">
+    <value>Use Custom version</value>
   </data>
-  <data name="&gt;&gt;cracked.Name" xml:space="preserve">
-    <value>cracked</value>
+  <data name="&gt;&gt;custom.Name" xml:space="preserve">
+    <value>custom</value>
   </data>
-  <data name="&gt;&gt;cracked.Type" xml:space="preserve">
+  <data name="&gt;&gt;custom.Type" xml:space="preserve">
     <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;cracked.Parent" xml:space="preserve">
+  <data name="&gt;&gt;custom.Parent" xml:space="preserve">
     <value>panel4</value>
   </data>
-  <data name="&gt;&gt;cracked.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;custom.ZOrder" xml:space="preserve">
     <value>20</value>
   </data>
   <data name="pathText.Font" type="System.Drawing.Font, System.Drawing">
@@ -13841,7 +13841,7 @@
     <value>tabControl1</value>
   </data>
   <data name="&gt;&gt;tabControl1.Type" xml:space="preserve">
-    <value>IsaacLauncherGUI.NoBorderTabControl, IsaacLauncherGUI, Version=0.9.1.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>IsaacLauncherGUI.NoBorderTabControl, IsaacLauncherGUI, Version=0.9.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;tabControl1.Parent" xml:space="preserve">
     <value>$this</value>

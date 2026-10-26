@@ -13,7 +13,7 @@ namespace IsaacLauncherGUI
 {
     public class Launcher
     {
-        public enum LaunchMode { Steam, Cracked, Portable }
+        public enum LaunchMode { Steam, Custom, Portable }
         public LaunchMode CurrentMode { get; set; }
         public bool AreModsEnabled { get; set; }
         public bool IsRepentogonEnabled { get; set; }
@@ -159,13 +159,14 @@ namespace IsaacLauncherGUI
                         Process.Start(AdminStart);
                     }
                     break;
-                case LaunchMode.Cracked:
-                    ProcessStartInfo AdminStartCracked = new ProcessStartInfo
+                case LaunchMode.Custom:
+                    ProcessStartInfo AdminStartCustom = new ProcessStartInfo
                     {
                         FileName = Path.Combine(GamePath, "isaac-ng.exe"),
+                        WorkingDirectory = GamePath,
                         UseShellExecute = true,
                     };
-                    Process.Start(AdminStartCracked);
+                    Process.Start(AdminStartCustom);
                     break;
                 case LaunchMode.Portable:
                     ProcessStartInfo AdminStartPortable = new ProcessStartInfo

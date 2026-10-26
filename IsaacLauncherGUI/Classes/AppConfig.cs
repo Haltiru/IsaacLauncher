@@ -11,7 +11,7 @@ namespace IsaacLauncherGUI
         public bool Mods { get; set; } = true;
         public bool SmartStart { get; set; } = false;
         public string GamePath { get; set; } = "path to isaac-ng.exe";
-        public bool Cracked { get; set; } = false;
+        public bool Custom { get; set; } = false;
         public bool Borderless { get; set; } = false;
         public string OriginalFullscreen { get; set; } = string.Empty;
         public bool InstantLaunch { get; set; } = false;

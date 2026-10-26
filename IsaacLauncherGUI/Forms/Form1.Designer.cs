@@ -74,7 +74,7 @@
             this.systemTrayToolTip = new System.Windows.Forms.PictureBox();
             this.instantLaunchToolTip = new System.Windows.Forms.PictureBox();
             this.portableToolTip = new System.Windows.Forms.PictureBox();
-            this.crackedToolTip = new System.Windows.Forms.PictureBox();
+            this.customToolTip = new System.Windows.Forms.PictureBox();
             this.startTray = new System.Windows.Forms.CheckBox();
             this.trayBox = new System.Windows.Forms.CheckBox();
             this.label8 = new System.Windows.Forms.Label();
@@ -82,7 +82,7 @@
             this.instantLaunch = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.pathLine = new ReaLTaiizor.Controls.Panel();
-            this.cracked = new System.Windows.Forms.CheckBox();
+            this.custom = new System.Windows.Forms.CheckBox();
             this.pathText = new System.Windows.Forms.Label();
             this.toolsPage = new System.Windows.Forms.TabPage();
             this.panel6 = new System.Windows.Forms.Panel();
@@ -113,7 +113,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.systemTrayToolTip)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.instantLaunchToolTip)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.portableToolTip)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.crackedToolTip)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.customToolTip)).BeginInit();
             this.toolsPage.SuspendLayout();
             this.panel6.SuspendLayout();
             this.SuspendLayout();
@@ -416,7 +416,7 @@
             this.panel4.Controls.Add(this.systemTrayToolTip);
             this.panel4.Controls.Add(this.instantLaunchToolTip);
             this.panel4.Controls.Add(this.portableToolTip);
-            this.panel4.Controls.Add(this.crackedToolTip);
+            this.panel4.Controls.Add(this.customToolTip);
             this.panel4.Controls.Add(this.startTray);
             this.panel4.Controls.Add(this.trayBox);
             this.panel4.Controls.Add(this.label8);
@@ -424,7 +424,7 @@
             this.panel4.Controls.Add(this.instantLaunch);
             this.panel4.Controls.Add(this.label4);
             this.panel4.Controls.Add(this.pathLine);
-            this.panel4.Controls.Add(this.cracked);
+            this.panel4.Controls.Add(this.custom);
             this.panel4.Controls.Add(this.pathText);
             resources.ApplyResources(this.panel4, "panel4");
             this.panel4.Name = "panel4";
@@ -524,13 +524,13 @@
             this.portableToolTip.Name = "portableToolTip";
             this.portableToolTip.TabStop = false;
             // 
-            // crackedToolTip
+            // customToolTip
             // 
-            this.crackedToolTip.BackgroundImage = global::IsaacLauncherGUI.Properties.Resources.hdsecretroom;
-            resources.ApplyResources(this.crackedToolTip, "crackedToolTip");
-            this.crackedToolTip.Cursor = System.Windows.Forms.Cursors.Default;
-            this.crackedToolTip.Name = "crackedToolTip";
-            this.crackedToolTip.TabStop = false;
+            this.customToolTip.BackgroundImage = global::IsaacLauncherGUI.Properties.Resources.hdsecretroom;
+            resources.ApplyResources(this.customToolTip, "customToolTip");
+            this.customToolTip.Cursor = System.Windows.Forms.Cursors.Default;
+            this.customToolTip.Name = "customToolTip";
+            this.customToolTip.TabStop = false;
             // 
             // startTray
             // 
@@ -589,15 +589,15 @@
             this.pathLine.Name = "pathLine";
             this.pathLine.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             // 
-            // cracked
+            // custom
             // 
-            resources.ApplyResources(this.cracked, "cracked");
-            this.cracked.Cursor = System.Windows.Forms.Cursors.Default;
-            this.cracked.FlatAppearance.BorderSize = 100;
-            this.cracked.ForeColor = System.Drawing.Color.White;
-            this.cracked.Name = "cracked";
-            this.cracked.UseVisualStyleBackColor = true;
-            this.cracked.CheckedChanged += new System.EventHandler(this.UseCrackedVersion);
+            resources.ApplyResources(this.custom, "custom");
+            this.custom.Cursor = System.Windows.Forms.Cursors.Default;
+            this.custom.FlatAppearance.BorderSize = 100;
+            this.custom.ForeColor = System.Drawing.Color.White;
+            this.custom.Name = "custom";
+            this.custom.UseVisualStyleBackColor = true;
+            this.custom.CheckedChanged += new System.EventHandler(this.UseCustomVersion);
             // 
             // pathText
             // 
@@ -727,7 +727,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.systemTrayToolTip)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.instantLaunchToolTip)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.portableToolTip)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.crackedToolTip)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.customToolTip)).EndInit();
             this.toolsPage.ResumeLayout(false);
             this.toolsPage.PerformLayout();
             this.panel6.ResumeLayout(false);
@@ -743,7 +743,7 @@
         private System.Windows.Forms.TabPage settingsPage;
         private System.Windows.Forms.Button launcherButton;
         private System.Windows.Forms.Button playButton;
-        private System.Windows.Forms.CheckBox cracked;
+        private System.Windows.Forms.CheckBox custom;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button settingsButton;
         private System.Windows.Forms.Panel panel4;
@@ -775,7 +775,7 @@
         private System.Windows.Forms.PictureBox systemTrayToolTip;
         private System.Windows.Forms.PictureBox instantLaunchToolTip;
         private System.Windows.Forms.PictureBox portableToolTip;
-        private System.Windows.Forms.PictureBox crackedToolTip;
+        private System.Windows.Forms.PictureBox customToolTip;
         private System.Windows.Forms.PictureBox ghostModeTooltip;
         private System.Windows.Forms.CheckBox ghost;
         private System.Windows.Forms.Label label9;

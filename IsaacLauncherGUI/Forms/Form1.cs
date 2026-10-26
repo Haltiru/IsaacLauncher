@@ -94,14 +94,14 @@ private async void StartPortable(object sender, EventArgs e)
 
         public void UpdateUI()
         {
-            // 1. cracked <-> portable kölcsönös kizárás
-            SetCheckBoxEnabled(portable, !cracked.Checked);
-            SetCheckBoxEnabled(cracked, !portable.Checked);
+            // 1. custom <-> portable kölcsönös kizárás
+            SetCheckBoxEnabled(portable, !custom.Checked);
+            SetCheckBoxEnabled(custom, !portable.Checked);
 
             // az előző két sor után az állapotok megváltozhattak, ezért itt olvassuk ki
             bool isSmart = smart.Checked;
             bool isPortable = portable.Checked;
-            bool isSteam = !isPortable && !cracked.Checked;
+            bool isSteam = !isPortable && !custom.Checked;
 
             // 2. mi mit tilt
             //SetCheckBoxEnabled(mods, !isSmart);
@@ -118,10 +118,10 @@ private async void StartPortable(object sender, EventArgs e)
             pathLine.Visible = !isPortable;
             gameExeLabel.Visible = !isPortable;
 
-            //repentogonPathToolTip.Visible = !isPortable && !isCracked;
-            //repentogonExePathLabel.Visible = !isPortable && !isCracked;
-            //repentogonPathText.Visible = !isPortable && !isCracked;
-            //pathLine2.Visible = !isPortable && !isCracked;
+            //repentogonPathToolTip.Visible = !isPortable && !isCustom;
+            //repentogonExePathLabel.Visible = !isPortable && !isCustom;
+            //repentogonPathText.Visible = !isPortable && !isCustom;
+            //pathLine2.Visible = !isPortable && !isCustom;
 
             portableCreate.Enabled = !isPortable;
 
@@ -159,7 +159,7 @@ private async void StartPortable(object sender, EventArgs e)
             _settings.Mods = mods.Checked;
             _settings.SmartStart = smart.Checked;
             _settings.GamePath = pathText.Text;
-            _settings.Cracked = cracked.Checked;
+            _settings.Custom = custom.Checked;
             _settings.Borderless = borderless.Checked;
             _settings.InstantLaunch = instantLaunch.Checked;
             _settings.Portable = portable.Checked;
@@ -179,7 +179,7 @@ private async void StartPortable(object sender, EventArgs e)
             mods.Checked = _settings.Mods;
             smart.Checked = _settings.SmartStart;
             pathText.Text = _settings.GamePath;
-            cracked.Checked = _settings.Cracked;
+            custom.Checked = _settings.Custom;
             borderless.Checked = _settings.Borderless;
             instantLaunch.Checked = _settings.InstantLaunch;
             portable.Checked = _settings.Portable;
@@ -322,7 +322,7 @@ private async void StartPortable(object sender, EventArgs e)
 
         public LaunchMode GetLaunchMode()
         {
-            if (cracked.Checked) return LaunchMode.Cracked;
+            if (custom.Checked) return LaunchMode.Custom;
             else if (portable.Checked) return LaunchMode.Portable;
             else return LaunchMode.Steam;
         }
@@ -443,7 +443,7 @@ private async void StartPortable(object sender, EventArgs e)
 
         private void UsePortableVersionClick(object sender, EventArgs e) { UpdateUI(); }
 
-        private void UseCrackedVersion(object sender, EventArgs e) { UpdateUI(); }
+        private void UseCustomVersion(object sender, EventArgs e) { UpdateUI(); }
         private void BrowseGamePath(object sender, EventArgs e)
         {
             using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
@@ -605,7 +605,7 @@ private async void StartPortable(object sender, EventArgs e)
             mainToolTip.SetToolTip(modsToolTip, "If checked Isaac is going to start with mods.");
             mainToolTip.SetToolTip(smartStartTooltip, "If checked the launcher will try to start Isaac according to the daily challenge timer. (without mods and repentogon when a new daily is available on the first start)");
             mainToolTip.SetToolTip(borderlessFullscreenTooltip, "If checked Isaac will start in borderless fullscreen mode.");
-            mainToolTip.SetToolTip(crackedToolTip, "If checked the launcher will try to start the cracked version of Isaac.");
+            mainToolTip.SetToolTip(customToolTip, "If checked the launcher will try to start the custom version of Isaac.");
             mainToolTip.SetToolTip(portableToolTip, "If checked the launcher will try to start the portable version of Isaac.");
             mainToolTip.SetToolTip(instantLaunchToolTip, "If checked the launcher will try to start Isaac instantly when starting the app.");
             mainToolTip.SetToolTip(ghostModeTooltip, "If checked the launcher will delete My Games and/or Binding of Isaac Repentance+ folders if they did not exist before. (only works with portable version)");
