@@ -5,7 +5,7 @@
 
 IsaacLauncherGUI is an unofficial launcher designed to make launching *The Binding of Isaac: Repentance+*, managing mods, handling save backups, and customizing your gameplay experience easier — all from one application.
 
-**Current Version:** `v0.9.3`
+**Current Version:** `v0.9.2`
 
 [📥 Download Latest Release](https://github.com/Haltiru/IsaacLauncher/releases/latest) • [🐛 Report a Bug](https://github.com/Haltiru/IsaacLauncher/issues) • [💡 Suggest a Feature](https://github.com/Haltiru/IsaacLauncher/issues)
 
