@@ -1,11 +1,13 @@
 ﻿//Form1.cs
 using IsaacLauncherGUI.Classes;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using ReaLTaiizor.Util;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
+using System.Media;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,6 +18,7 @@ namespace IsaacLauncherGUI
     public partial class IsaacLauncher : Form
     {
         private AppSettings _settings;
+        private bool _loadingSettings = false;
 
         private ModmanagerForm _modManagerForm = null;
 
@@ -110,6 +113,10 @@ private async void StartPortable(object sender, EventArgs e)
             // 3. láthatóság
             label9.Visible = isSmart;
             label10.Visible = !isSmart;
+
+            label9.Text = _settings.DailyStreak.ToString();
+            label10.Text = _settings.Streak.ToString();
+
             ghost.Visible = isPortable;
             ghostModeTooltip.Visible = isPortable;
 
@@ -169,6 +176,10 @@ private async void StartPortable(object sender, EventArgs e)
             _settings.RepentogonChecked = repentogonCheckbox.Checked;
             _settings.RepentogonPath = repentogonPathText.Text;
 
+            Point location = this.WindowState == FormWindowState.Normal ? this.Location : this.RestoreBounds.Location;
+            _settings.OpenX = location.X;
+            _settings.OpenY = location.Y;
+
             AppConfig.Save(_settings);
         }
 
@@ -189,6 +200,25 @@ private async void StartPortable(object sender, EventArgs e)
             repentogonCheckbox.Checked = _settings.RepentogonChecked;
             repentogonPathText.Text = _settings.RepentogonPath;
 
+            if (_settings.OpenX.HasValue && _settings.OpenY.HasValue)
+            {
+                Point savedLocation = new Point(
+                    _settings.OpenX.Value,
+                    _settings.OpenY.Value
+                );
+
+                Rectangle windowBounds = new Rectangle(savedLocation, this.Size);
+
+                foreach (Screen screen in Screen.AllScreens)
+                {
+                    if (screen.WorkingArea.Contains(windowBounds))
+                    {
+                        this.StartPosition = FormStartPosition.Manual;
+                        this.Location = savedLocation;
+                        break;
+                    }
+                }
+            }
 
             label9.Text = _settings.DailyStreak.ToString();
             label10.Text = _settings.Streak.ToString();
@@ -200,8 +230,11 @@ private async void StartPortable(object sender, EventArgs e)
             // A teljes várakozási logikát átpakoljuk háttérszálra, hogy a UI soha ne fagyjon le!
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            string success = await Task.Run(async  () =>
+            try
             {
+                string success = await Task.Run(async  () =>
+            {
+
                 if (launcher.IsRepentogonEnabled)
                 {
                     Process singleRepentogon = null;
@@ -229,8 +262,6 @@ private async void StartPortable(object sender, EventArgs e)
 
                 }
 
-
-
                 Process singleIsaac = null;
 
                 // 1. Megvárjuk, amíg elindul a processz
@@ -250,30 +281,40 @@ private async void StartPortable(object sender, EventArgs e)
                 while (!singleIsaac.HasExited && singleIsaac.MainWindowHandle == IntPtr.Zero && stopwatch.ElapsedMilliseconds < 60000)
                 {
                     await Task.Delay(250);
-                    try { singleIsaac.Refresh(); } 
+                    try { singleIsaac.Refresh(); }
                     catch 
-                    {
-                        return "Isaac process exited unexpectedly!";
+                    { 
+                        return "Isaac exited unexpectedly!";
                     }
                 }
+                if (singleIsaac.HasExited)
+                    return "Isaac exited unexpectedly!";
+
+                if (singleIsaac.MainWindowHandle == IntPtr.Zero)
+                    return "Isaac window did not appear in time!";
 
                 // 3. Várjuk meg, hogy reagáljon is (itt tölt be a Repentogon és a modok)
                 while (!singleIsaac.HasExited && !singleIsaac.Responding && stopwatch.ElapsedMilliseconds < 60000)
                 {
-                    try { singleIsaac.Refresh(); } 
-                    catch 
+                    try { singleIsaac.Refresh(); }
+                    catch
                     {
-                        return "Isaac process exited unexpectedly!";
+                        return "Isaac exited unexpectedly!";
                     }
+
                     await Task.Delay(250);
                 }
+                    if (singleIsaac.HasExited)
+                        return "Isaac exited unexpectedly!";
 
-                stopwatch.Stop();
+                    if (!singleIsaac.Responding)
+                        return "Isaac did not become responsive in time!";
+
+
                 return null;
             });
 
-            try
-            {
+            
                 if (!string.IsNullOrEmpty(success))
                 {
                     return success;
@@ -297,27 +338,38 @@ private async void StartPortable(object sender, EventArgs e)
                     playButton.Text = "Stop";
                     playButton.ForeColor = Color.White;
                     playButton.Enabled = true;
+                    UpdateUI();
                     await Task.Run(() => target.WaitForExit());
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return success;
+                Debug.WriteLine($"FindIsaac error: {ex}");
+                return $"Failed to monitor Isaac: {ex.Message}";
             }
             finally
             {
+                stopwatch.Stop();
                 playButton.BackgroundImage = Properties.Resources.button;
                 playButton.Text = "Play";
                 playButton.ForeColor = Color.FromArgb(84, 76, 74);
                 UpdateUI();
 
-                if (ghost.Checked && portable.Checked)
+                try
                 {
-                    launcher.DeleteNotExistedFolders();
+                    if (ghost.Checked && portable.Checked && Process.GetProcessesByName("isaac-ng").Length == 0)
+                    {
+                        launcher.DeleteNotExistedFolders();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Ghost mode cleanup error: {ex}");
                 }
 
             }
-                return success;
+
+            return null;
         }
 
         public LaunchMode GetLaunchMode()
@@ -339,37 +391,184 @@ private async void StartPortable(object sender, EventArgs e)
             return false;
         }
 
+        private async Task<DialogResult> ShowUpdateDialogAsync()
+        {
+            // We create a custom user control for the update prompt, and use a TaskCompletionSource to await the user's choice.
+            UpdateUserControl updateUserControl = new UpdateUserControl();
+            TaskCompletionSource<DialogResult> result = new TaskCompletionSource<DialogResult>();
+            updateUserControl.ChoiceSelected += (choice) => result.TrySetResult(choice);
+
+            // We take a screenshot of the current form to use as the background for the modal panel.
+            Bitmap screenshot = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
+            Point topLeft = PointToScreen(Point.Empty);
+            using (Graphics g = Graphics.FromImage(screenshot))
+            {
+                g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
+                using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28)))
+                {
+                    g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
+                }
+            }
+
+
+            // We create a modal panel to host the update user control, and add it to the form.
+            Panel Modal = new Panel();
+
+            Modal.Dock = DockStyle.Fill;
+            //Modal.BackColor = Color.FromArgb(40, 30, 28);
+            Modal.BackgroundImage = screenshot;
+            Modal.TabStop = false;
+
+            this.Controls.Add(Modal);
+            Modal.Controls.Add(updateUserControl);
+
+            updateUserControl.Location = new Point(this.ClientSize.Width / 2 - updateUserControl.Width / 2, this.ClientSize.Height / 2 - updateUserControl.Height / 2);
+
+            // We bring the modal panel and the update user control to the front, and play a sound to alert the user.
+            Modal.BringToFront();
+            updateUserControl.BringToFront();
+            SystemSounds.Asterisk.Play();
+
+            DialogResult choiceSelected = await result.Task;
+
+            this.Controls.Remove(Modal);
+            Modal.BackgroundImage = null;
+            Modal.Dispose();
+            screenshot.Dispose();
+            return choiceSelected;
+        }
+
+        private async Task ShowUpdateProgressDialogAsync(Func<IProgress<int>, IProgress<string>, Task> operation)
+        {
+            // We take a screenshot of the current form to use as the background for the modal panel.
+            Bitmap screenshot = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
+            Point topLeft = PointToScreen(Point.Empty);
+            using (Graphics g = Graphics.FromImage(screenshot))
+            {
+                g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
+                using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28)))
+                {
+                    g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
+                }
+            }
+            bool isActive = true;
+            UpdateProgressUserControl updateProgressUserControl = new UpdateProgressUserControl();
+            Progress<int> progressReporter = new Progress<int>(percentage => {
+                //Debug.WriteLine($"Downloading update: {percentage}%");
+               if (isActive) updateProgressUserControl.UpdateProgress(percentage);
+            });
+            Progress<string> statusReporter = new Progress<string>(status =>
+            {
+                if (isActive) updateProgressUserControl.UpdateStatus(status);
+            });
+
+
+            // We create a modal panel to host the update user control, and add it to the form.
+            Panel Modal = new Panel();
+
+            Modal.Dock = DockStyle.Fill;
+            Modal.BackgroundImage = screenshot;
+            Modal.TabStop = false;
+
+            this.Controls.Add(Modal);
+            Modal.Controls.Add(updateProgressUserControl);
+
+            updateProgressUserControl.Location = new Point(this.ClientSize.Width / 2 - updateProgressUserControl.Width / 2, this.ClientSize.Height / 2 - updateProgressUserControl.Height / 2);
+
+            // We bring the modal panel and the update user control to the front, and play a sound to alert the user.
+            Modal.BringToFront();
+            updateProgressUserControl.BringToFront();
+            try
+            {
+                await operation(progressReporter, statusReporter);
+            }
+
+            finally
+            {
+                isActive = false;
+                this.Controls.Remove(Modal);
+                Modal.BackgroundImage = null;
+                Modal.Dispose();
+                screenshot.Dispose();
+            }
+        }
+
         private async Task<bool> CheckForUpdate(bool autoCheck)
         {
-            if (!string.IsNullOrEmpty(_settings.LastUpdateCheck))
+            // We check for updates only if the last check was more than 36 seconds ago (0.01 hours)
+            if (!string.IsNullOrEmpty(_settings.LastUpdateCheck) && !_settings.Reminder && autoCheck)
             {
                 DateTime lastCheck;
                 if (DateTime.TryParse(_settings.LastUpdateCheck, out lastCheck))
                 {
                     TimeSpan timeSinceLastCheck = DateTime.Now - lastCheck;
-                    if (timeSinceLastCheck.TotalHours < 0.1)
+                    if (timeSinceLastCheck.TotalHours < 0.01)
                     {
                         return false;
                     }
                 }
-            }
-            else
-            {
-                _settings.LastUpdateCheck = DateTime.Now.ToString("o");
-                AppConfig.Save(_settings);
-            }
 
+            }
+            
 
+            // We get the remote version and compare it with the local version. If the remote version is newer, we prompt the user to update.
             Updater updater = new Updater();
             bool isSuccess = await updater.GetRemoteVersion();
-            if (isSuccess && updater.IsUpdateAvailable()) 
+            string remoteVersion = null;
+            Version checkForNull = updater.RemoteVersion;
+            if (isSuccess && checkForNull != null)
             {
-                MessageBox.Show(this,$"A new version of the launcher is available: {updater.RemoteVersion}. You are currently using version {updater.LocalVersion}. Please update to the latest version.", "Update Available", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await updater.StartUpdateProcess();
+                // Update the last check time
+                _settings.LastUpdateCheck = DateTime.Now.ToString("o");
+                AppConfig.Save(_settings);
+                remoteVersion = updater.RemoteVersion.ToString();
             }
-            else if (!autoCheck)
+            // If the user has chosen to skip this version, we don't prompt them again unless they manually check for updates.
+            if (!_settings.Reminder && _settings.SkippedUpdateVersion == remoteVersion && autoCheck) return false;
+
+
+
+            if (isSuccess && updater.IsUpdateAvailable())
             {
-                MessageBox.Show(this,$"You are using the latest version of the launcher: {updater.LocalVersion}.", "No Update Available", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Task<DialogResult> choiceTask = ShowUpdateDialogAsync();
+                DialogResult choiceSelected = await choiceTask;
+
+                if (choiceSelected == DialogResult.Yes)
+                {
+                    _settings.Reminder = false;
+                    AppConfig.Save(_settings);
+                    try
+                    {
+                        await ShowUpdateProgressDialogAsync((progressReporter, statusReporter) => updater.StartUpdateProcess(progressReporter, statusReporter));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(this, $"The update failed: {ex.Message}", "Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+                else if (choiceSelected == DialogResult.No)
+                {
+                    //MessageBox.Show(this, "You have chosen to skip updating the launcher. You can check for updates again later.", "Update Skipped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _settings.Reminder = false;
+                    _settings.SkippedUpdateVersion = updater.RemoteVersion.ToString();
+                    AppConfig.Save(_settings);
+                }
+                else if (choiceSelected == DialogResult.Cancel)
+                {
+                    //MessageBox.Show(this, "You have canceled the update process. The launcher will continue to run without updating. The launcher will ask again on the next start.", "Update Canceled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _settings.Reminder = true;
+                    AppConfig.Save(_settings);
+                }
+            }
+            else if (isSuccess && !autoCheck)
+            {
+                MessageBox.Show(this, $"You are using the latest version of the launcher: {updater.LocalVersion}.", "No Update Available", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else if (!isSuccess && !autoCheck)
+            {
+                MessageBox.Show(this, "Failed to check for updates. Please check your internet connection and try again.", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return isSuccess;
         }
@@ -381,6 +580,7 @@ private async void StartPortable(object sender, EventArgs e)
             bool RepentogonEnabled = repentogonCheckbox.Checked;
 
             string hiba = await Task.Run(() => launcher.InitializeAndLaunch(BorderlessEnabled, ModsEnabled, RepentogonEnabled, _settings));
+            UpdateUI();
             if (CheckForErrors(hiba)) return; 
 
             hiba = await FindIsaac(BorderlessEnabled, launcher);
@@ -422,6 +622,7 @@ private async void StartPortable(object sender, EventArgs e)
                 Launcher isaacLauncher = new Launcher(ModeRequested, mods.Checked, pathText.Text, repentogonCheckbox.Checked, repentogonPathText.Text, smart.Checked);
 
                 await StartGame(isaacLauncher);
+
             }
             catch (Exception ex)
             {
@@ -429,7 +630,6 @@ private async void StartPortable(object sender, EventArgs e)
                 playButton.Text = "Play";
                 playButton.Enabled = true;
             }
-
         }
 
         private void BackupButton_Click(object sender, EventArgs e)
@@ -440,6 +640,26 @@ private async void StartPortable(object sender, EventArgs e)
         }
 
         private void SmartStartChecked(object sender, EventArgs e) { UpdateUI(); }
+
+        private void ghost_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!ghost.Checked || _loadingSettings) return;
+
+            DialogResult result = MessageBox.Show(
+                this,
+                "Ghost Mode automatically deletes temporary Isaac files from the My Games folder after the portable game closes.\n\n" +
+                "This includes options.ini, logs, and save backups stored in that folder.\n\n" +
+                "IMPORTANT: Only use Ghost Mode with a supported portable installation. Make sure your saves are backed up!\n\n" +
+                "Do you want to enable Ghost Mode?",
+                "Enable Ghost Mode?",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2
+            );
+
+            if (result != DialogResult.Yes)
+                ghost.Checked = false;
+        }
 
         private void UsePortableVersionClick(object sender, EventArgs e) { UpdateUI(); }
 
@@ -547,7 +767,7 @@ private async void StartPortable(object sender, EventArgs e)
         bool exit;
         private void IsaacLauncher_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SaveSettings();
+            
             if (trayBox.Checked && !exit)
             {
                 e.Cancel = true;
@@ -555,13 +775,14 @@ private async void StartPortable(object sender, EventArgs e)
                 notifyIcon1.Visible = true;
                 //notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
             }
+            else SaveSettings();
 
         }
 
         private async void IsaacLauncher_Shown(object sender, EventArgs e)
         {
+            
             await CheckForUpdate(true);
-
             if (startTray.Checked)
             {
                 this.Hide();
@@ -619,8 +840,13 @@ private async void StartPortable(object sender, EventArgs e)
             var __ = gamePathToolTip.Handle;
             UIHelper.ApplyHoverEffects(this);
             SetActiveButton(launcherButton);
-            LoadSettings();
+            _loadingSettings = true;
+            try { LoadSettings(); }
+            finally { _loadingSettings = false; }
+           
             UpdateUI();
         }
+
+        
     }
 }

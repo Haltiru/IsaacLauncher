@@ -1,4 +1,4 @@
-﻿// Updater.cs
+﻿// Updater.cs - IsaacLauncherGUI (.NET Framework 4.8)
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,6 +22,7 @@ namespace IsaacLauncherGUI.Classes
         private readonly string installPath;
         private readonly string workPath;
         private readonly List<string> createdFiles = new List<string>();
+        private AppSettings _settings;
 
         public Version LocalVersion { get; set; }
         public Version RemoteVersion { get; set; }
@@ -127,11 +128,10 @@ namespace IsaacLauncherGUI.Classes
             return destination;
         }
 
-        public async Task DownloadNewVersion()
+        public async Task  DownloadNewVersion(IProgress<int> progressReporter)
         {
             Uri uri;
-            if (!Uri.TryCreate(downloadUrl, UriKind.Absolute, out uri) || uri.Scheme != Uri.UriSchemeHttps)
-                throw new InvalidOperationException("Missing or insecure update URL.");
+            if (!Uri.TryCreate(downloadUrl, UriKind.Absolute, out uri) || uri.Scheme != Uri.UriSchemeHttps) throw new InvalidOperationException("Missing or insecure update URL.");
             Directory.CreateDirectory(workPath);
             using (var client = new HttpClient())
             {
@@ -139,19 +139,27 @@ namespace IsaacLauncherGUI.Classes
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("IsaacLauncherGUI/1.0");
                 using (var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead))
                 {
+                    long? totalBytes = response.Content.Headers.ContentLength;
+
                     response.EnsureSuccessStatusCode();
                     using (var source = await response.Content.ReadAsStreamAsync())
                     using (var target = new FileStream(ZipPath, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         byte[] buffer = new byte[81920];
-                        long total = 0;
+                        long downloadedBytes = 0;
                         int count;
                         while ((count = await source.ReadAsync(buffer, 0, buffer.Length)) > 0)
                         {
-                            total += count;
-                            if (total > MaxUnpackedBytes)
+                            downloadedBytes += count;
+                            if (downloadedBytes > MaxUnpackedBytes)
                                 throw new InvalidOperationException("Update ZIP is too large.");
                             await target.WriteAsync(buffer, 0, count);
+                            if (totalBytes.HasValue && totalBytes.Value > 0)
+                            {
+                                double percentage = downloadedBytes * 100.0 / totalBytes.Value;
+                                int progress = Math.Min(100, (int)percentage);
+                                progressReporter?.Report(progress);
+                            }
                         }
                     }
                 }
@@ -335,7 +343,7 @@ namespace IsaacLauncherGUI.Classes
             var start = new ProcessStartInfo
             {
                 FileName = helperExe,
-                Arguments = "--update " + Process.GetCurrentProcess().Id + " \"" + installPath + "\" \"" + workPath + "\"",
+                Arguments = "--update " + Process.GetCurrentProcess().Id+ " \"" + installPath.TrimEnd('\\') + "\""+ " \"" + workPath.TrimEnd('\\') + "\"",
                 WorkingDirectory = helperDirectory,
                 UseShellExecute = true
             };
@@ -353,11 +361,21 @@ namespace IsaacLauncherGUI.Classes
 
         public void CloseCurrentVersion() => Application.Exit();
 
-        public async Task StartUpdateProcess()
+        public async Task StartUpdateProcess(IProgress<int> progressReporter, IProgress<string> statusReporter)
         {
-            await DownloadNewVersion();
+            statusReporter?.Report("Downloading package...");
+            await DownloadNewVersion(progressReporter);
+
+            statusReporter?.Report("Extracting files...");
             await ExtractNewVersion();
+
+            statusReporter?.Report("Preparing installation...");
             StartNewVersion();
+
+            _settings = AppConfig.Load();
+            _settings.Reminder = false;
+            AppConfig.Save(_settings);
+
             CloseCurrentVersion();
         }
 

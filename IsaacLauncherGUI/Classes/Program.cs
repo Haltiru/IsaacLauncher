@@ -2,9 +2,11 @@
 using IsaacLauncherGUI.Classes;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -185,17 +187,31 @@ namespace IsaacLauncherGUI
 
         public void DeleteNotExistedFolders()
         {
-            if (!DoesMyGamesExist && Directory.Exists(MyGames))
-                Directory.Delete(MyGames, true);
+            string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
+            if (CurrentMode == LaunchMode.Portable && File.Exists(Path.Combine(portableDir, ".isaaclauncher-marker")))
+            {
+                try
+                {
+                    if (!DoesRepPlusExist && Directory.Exists(RepPlus)) Directory.Delete(RepPlus, true);
 
-            if (!DoesRepPlusExist && Directory.Exists(RepPlus))
-                Directory.Delete(RepPlus, true);
+                 if (!DoesMyGamesExist && Directory.Exists(MyGames) && Directory.GetFileSystemEntries(MyGames).Length == 0) Directory.Delete(MyGames, false);  
+                }
+                catch (IOException ex)
+                {
+                    Debug.WriteLine($"Ghost Mode IO error: {ex}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Debug.WriteLine($"Ghost Mode access denied: {ex}");
+                }
+
+            }
         }
+            
+            
 
         public void ChangeIni(LaunchMode startMode, bool forceWindowed, AppSettings settings)
         {
-            DeleteNotExistedFolders();
-
             string user = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string correctPath = Path.Combine(user, "My Games", "Binding of Isaac Repentance+");
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
@@ -204,7 +220,7 @@ namespace IsaacLauncherGUI
             {
                 case LaunchMode.Portable:
                     string portableIniPath = Path.Combine(portableDir, "options.ini");
-                    if (File.Exists(portableIniPath))
+                    if (File.Exists(portableIniPath) && !File.Exists(IniPath))
                     {
                         File.Copy(portableIniPath, IniPath, true);
                     }
@@ -350,15 +366,64 @@ namespace IsaacLauncherGUI
 
     internal static class Program
     {
+        
+        private static void CleanupLegacyFiles()
+        {
+            string installDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            string[] legacyFiles =
+            {
+                "IsaacLauncherGUI.exe.old",
+                "IsaacLauncherGUI.exe.config.old",
+                "System.Text.Json.dll.old",
+                "System.IO.Pipelines.dll.old",
+                "System.Text.Encodings.Web.dll.old",
+                "Microsoft.Bcl.AsyncInterfaces.dll.old",
+                "ReaLTaiizor.dll.old",
+                "System.Memory.dll.old",
+                "System.Runtime.CompilerServices.Unsafe.dll.old",
+                "System.Threading.Tasks.Extensions.dll.old",
+                "System.Numerics.Vectors.dll.old",
+                "System.Buffers.dll.old",
+                "Microsoft.WindowsAPICodePack.dll.old",
+                "Microsoft.WindowsAPICodePack.Shell.dll.old"
+            };
+
+            foreach (string file in legacyFiles)
+            {
+                string oldPath = Path.Combine(installDir, file);
+                string currentPath = oldPath.Substring(0, oldPath.Length - 4);
+
+                try
+                {
+                    if (File.Exists(oldPath) && File.Exists(currentPath) && (File.GetAttributes(oldPath) & FileAttributes.ReparsePoint) == 0)
+                    {
+                        File.Delete(oldPath);
+                        Debug.WriteLine($"Removed legacy file: {file}");
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Debug.WriteLine($"Legacy cleanup IO error: {ex}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Debug.WriteLine($"Legacy cleanup access denied: {ex}");
+                }
+            }
+        }
         [STAThread]
         static void Main(string[] args)
+
         {
+
+
             if (args.Length > 0 && args[0] == "--update")
             {
                 try
                 {
                     if (args.Length != 4 || !int.TryParse(args[1], out int originalPid) || originalPid <= 0)
-                        throw new InvalidOperationException("Invalid updater arguments.");
+                        throw new InvalidOperationException("Invalid updater arguments.\n" +"Received " + args.Length + " arguments:\n" +string.Join("\n", args));
 
                     try
                     {
@@ -375,8 +440,7 @@ namespace IsaacLauncherGUI
 
                     string installDirectory = Path.GetFullPath(args[2]);
                     string updateDirectory = Path.GetFullPath(args[3]);
-                    new Updater(installDirectory, updateDirectory)
-                        .FinishUpdateProcess().GetAwaiter().GetResult();
+                    new Updater(installDirectory, updateDirectory).FinishUpdateProcess().GetAwaiter().GetResult();
 
                     string updatedLauncher = Path.Combine(installDirectory, "IsaacLauncherGUI.exe");
                     Process.Start(new ProcessStartInfo
@@ -414,6 +478,8 @@ namespace IsaacLauncherGUI
                     // User declined elevation; run normally.
                 }
             }
+
+            CleanupLegacyFiles();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

@@ -13841,7 +13841,7 @@
     <value>tabControl1</value>
   </data>
   <data name="&gt;&gt;tabControl1.Type" xml:space="preserve">
-    <value>IsaacLauncherGUI.NoBorderTabControl, IsaacLauncherGUI, Version=0.9.0.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>IsaacLauncherGUI.NoBorderTabControl, IsaacLauncherGUI, Version=0.9.1.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;tabControl1.Parent" xml:space="preserve">
     <value>$this</value>

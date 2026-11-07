@@ -491,6 +491,7 @@
             this.ghost.ForeColor = System.Drawing.Color.White;
             this.ghost.Name = "ghost";
             this.ghost.UseVisualStyleBackColor = true;
+            this.ghost.CheckedChanged += new System.EventHandler(this.ghost_CheckedChanged);
             // 
             // startInSystemTrayToolTip
             // 

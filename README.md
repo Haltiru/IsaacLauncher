@@ -5,7 +5,7 @@
 
 IsaacLauncherGUI is an unofficial launcher designed to make launching *The Binding of Isaac: Repentance+*, managing mods, handling save backups, and customizing your gameplay experience easier — all from one application.
 
-**Current Version:** `v0.9.0` — First Public Release
+**Current Version:** `v0.10.0` — Updater & Stability Release
 
 [📥 Download Latest Release](https://github.com/Haltiru/IsaacLauncher/releases/latest) • [🐛 Report a Bug](https://github.com/Haltiru/IsaacLauncher/issues) • [💡 Suggest a Feature](https://github.com/Haltiru/IsaacLauncher/issues)
 
@@ -59,7 +59,7 @@ IsaacLauncherGUI supports launching and managing existing portable game installa
 
 - Launch an existing compatible portable game copy.
 - Support portable save locations.
-- **Ghost Mode** — Clean up game-related folders created during portable sessions.
+- **Ghost Mode** — Optionally clean up newly created Isaac folders after a supported portable session, using a compatibility marker and a confirmation warning.
 
 > [!IMPORTANT]
 > Creating new portable game copies is **not available in the public release**.
@@ -67,6 +67,8 @@ IsaacLauncherGUI supports launching and managing existing portable game installa
 > Portable Mode requires an existing compatible installation.
 >
 > IsaacLauncherGUI does not include or distribute game files.
+>
+> **Ghost Mode warning:** On compatible portable installations, cleanup may delete temporary `options.ini`, logs and `save_backups` in the newly created Isaac folder. Back up anything important before enabling it. Existing Isaac folders are not targeted.
 
 ### 💾 Save Management
 
@@ -76,7 +78,8 @@ IsaacLauncherGUI supports launching and managing existing portable game installa
 
 ### ⚙️ Customization & Convenience
 
-- Persistent launcher configuration.
+- Persistent launcher configuration, with safer saves and recovery backups for corrupted config files.
+- Remember the launcher window position between sessions.
 - Custom game executable path.
 - Custom REPENTOGON executable path.
 - Minimize to the system tray instead of closing.
@@ -88,17 +91,19 @@ IsaacLauncherGUI supports launching and managing existing portable game installa
 ### 🔄 Automatic Updates
 
 - Automatically check GitHub Releases for new versions.
-- Notify users when updates are available.
-- Download and extract update packages.
-- Use a dedicated updater component to replace application files.
+- Display a custom update prompt with **Update / Later / Skip** choices.
+- Show download progress and installation status.
+- Download, extract, install and relaunch the updated launcher automatically.
+- Back up replaced application files and support rollback on installation errors.
+- Remove known leftover `.old` files from earlier launcher versions on startup.
 
 ---
 
 ## 📥 Installation
 
 1. Visit the [Latest Release](https://github.com/Haltiru/IsaacLauncher/releases/latest) page.
-2. Download the installer or available release package.
-3. Run the installer, or extract the package if necessary.
+2. Download the release ZIP package.
+3. Extract the ZIP to a writable folder.
 4. Launch `IsaacLauncherGUI.exe`.
 5. Configure your game directory and preferred launch settings.
 6. Enjoy!
@@ -160,7 +165,18 @@ The initial public version includes:
 - Automatic updates
 - Quality-of-life features
 
+### ✅ v0.10.0 — Updater & Stability Release
+
+- Redesigned in-app update dialog with progress and status displays.
+- Automatic update installation and launcher restart.
+- Launcher window position persistence.
+- Safer config saving and recovery from corrupted `config.json` files.
+- More cautious Ghost Mode cleanup for supported portable installations.
+- Fixed portable `options.ini` overwriting and cleaned up leftover `.old` files.
+
 ### 🔧 Future v0.x Updates
+
+Portable-launcher configuration switching and other quality-of-life improvements are planned for later updates.
 
 Development will focus on:
 
