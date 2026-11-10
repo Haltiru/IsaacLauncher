@@ -738,7 +738,17 @@ private async void StartPortable(object sender, EventArgs e)
         }
 
 
+        public void ShowMainWindow()
+        {
+            this.Show();
 
+            if (this.WindowState == FormWindowState.Minimized)
+                this.WindowState = FormWindowState.Normal;
+
+            notifyIcon1.Visible = false;
+            this.BringToFront();
+            this.Activate();
+        }
 
         private void ShowApp(object sender, MouseEventArgs e)
         {

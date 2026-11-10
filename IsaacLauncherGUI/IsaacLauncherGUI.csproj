@@ -132,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Portable.cs" Condition="'$(Configuration)' == 'Debug'" />
+    <Compile Include="Classes\SingleInstanceManager.cs" />
     <Compile Include="Classes\UIHelper.cs" />
     <Compile Include="Classes\AppConfig.cs" />
     <Compile Include="Classes\Updater.cs" />

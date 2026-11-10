@@ -459,6 +459,7 @@ namespace IsaacLauncherGUI
             }
 
             // Clean up old temporary updater copies; do not delete arbitrary .old files.
+            if (SingleInstanceManager.NotifyExistingInstanceAsync().GetAwaiter().GetResult()) return;
             Updater.CleanupOldWork();
 
             if (!IsRunningAsAdmin())
@@ -479,11 +480,46 @@ namespace IsaacLauncherGUI
                 }
             }
 
-            CleanupLegacyFiles();
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new IsaacLauncher());
+
+            using (SingleInstanceManager manager = new SingleInstanceManager())
+            {
+                if (!manager.TryAcquire())
+                {
+                    SingleInstanceManager.NotifyExistingInstanceAsync().GetAwaiter().GetResult();
+                    return;
+                }
+
+                CleanupLegacyFiles();   
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                IsaacLauncher form = new IsaacLauncher();
+                manager.ShowWindowRequested += () =>
+                {
+                    if (!form.IsDisposed && form.IsHandleCreated)form.BeginInvoke(new Action(() => form.ShowMainWindow()));
+                };
+
+                var handle = form.Handle;
+                manager.StartListening();
+
+
+                try
+                {
+                    Application.Run(form);
+                }
+                finally
+                {
+                    manager.StopListeningAsync().GetAwaiter().GetResult();
+                }
+            }
+
+            
+
+            
+
+
+            
         }
 
         private static bool IsRunningAsAdmin()
