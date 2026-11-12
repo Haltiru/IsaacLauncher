@@ -185,7 +185,7 @@ namespace IsaacLauncherGUI
         }
 
 
-        public void DeleteNotExistedFolders()
+        public bool DeleteNotExistedFolders()
         {
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
             if (CurrentMode == LaunchMode.Portable && File.Exists(Path.Combine(portableDir, ".isaaclauncher-marker")))
@@ -193,19 +193,21 @@ namespace IsaacLauncherGUI
                 try
                 {
                     if (!DoesRepPlusExist && Directory.Exists(RepPlus)) Directory.Delete(RepPlus, true);
-
-                 if (!DoesMyGamesExist && Directory.Exists(MyGames) && Directory.GetFileSystemEntries(MyGames).Length == 0) Directory.Delete(MyGames, false);  
+                    if (!DoesMyGamesExist && Directory.Exists(MyGames) && Directory.GetFileSystemEntries(MyGames).Length == 0) Directory.Delete(MyGames, false);
+                    return true;
                 }
                 catch (IOException ex)
                 {
                     Debug.WriteLine($"Ghost Mode IO error: {ex}");
+                    return false;
                 }
                 catch (UnauthorizedAccessException ex)
                 {
                     Debug.WriteLine($"Ghost Mode access denied: {ex}");
+                    return false;
                 }
-
             }
+            return false;
         }
             
             

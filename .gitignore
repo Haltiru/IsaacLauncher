@@ -7,6 +7,7 @@
 /IsaacLauncherGUI/Plugins/Steamless*.dll
 privateDLLs/
 ultimateplan.txt
+/IsaacLauncherGUI/Classes/Game/Portable.cs
 
 
 # User-specific files
