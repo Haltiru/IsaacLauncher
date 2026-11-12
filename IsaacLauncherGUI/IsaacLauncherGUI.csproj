@@ -138,7 +138,7 @@
     <Compile Include="Classes\Game\GameWindowManager.cs" />
     <Compile Include="Classes\Game\Portable.cs" Condition="'$(Configuration)' == 'Debug'" />
     <Compile Include="Classes\Core\SingleInstanceManager.cs" />
-    <Compile Include="Classes\UIHelper.cs" />
+    <Compile Include="Classes\UI\UIHelper.cs" />
     <Compile Include="Classes\Core\AppConfig.cs" />
     <Compile Include="Classes\Services\Updater.cs" />
     <Compile Include="Forms\Form1.cs">
@@ -154,7 +154,7 @@
       <DependentUpon>ModmanagerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Classes\Services\ModManagerClass.cs" />
-    <Compile Include="NoBorderTabControl.cs">
+    <Compile Include="Classes\UI\NoBorderTabControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Classes\Data\Profile_SaveManager.cs" />

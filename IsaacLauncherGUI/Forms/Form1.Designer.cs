@@ -29,8 +29,19 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TabPage launcherPage;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IsaacLauncher));
+            this.launcherButton = new System.Windows.Forms.Button();
+            this.settingsButton = new System.Windows.Forms.Button();
+            this.toolsButton = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.menu = new ReaLTaiizor.Controls.CrownContextMenuStrip();
+            this.Play = new System.Windows.Forms.ToolStripMenuItem();
+            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutButton = new System.Windows.Forms.Button();
+            this.tabControl1 = new IsaacLauncherGUI.NoBorderTabControl();
+            this.launcherPage = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.label11 = new System.Windows.Forms.Label();
@@ -50,16 +61,6 @@
             this.repentogonCheckbox = new System.Windows.Forms.CheckBox();
             this.smart = new System.Windows.Forms.CheckBox();
             this.mods = new System.Windows.Forms.CheckBox();
-            this.launcherButton = new System.Windows.Forms.Button();
-            this.settingsButton = new System.Windows.Forms.Button();
-            this.toolsButton = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
-            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.menu = new ReaLTaiizor.Controls.CrownContextMenuStrip();
-            this.Play = new System.Windows.Forms.ToolStripMenuItem();
-            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl1 = new IsaacLauncherGUI.NoBorderTabControl();
             this.settingsPage = new System.Windows.Forms.TabPage();
             this.panel4 = new System.Windows.Forms.Panel();
             this.repentogonPathToolTip = new System.Windows.Forms.PictureBox();
@@ -92,8 +93,10 @@
             this.portableCreate = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            launcherPage = new System.Windows.Forms.TabPage();
-            launcherPage.SuspendLayout();
+            this.aboutPage = new System.Windows.Forms.TabPage();
+            this.menu.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.launcherPage.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -102,8 +105,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.repentogonToolTip)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.modsToolTip)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.borderlessFullscreenTooltip)).BeginInit();
-            this.menu.SuspendLayout();
-            this.tabControl1.SuspendLayout();
             this.settingsPage.SuspendLayout();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.repentogonPathToolTip)).BeginInit();
@@ -118,13 +119,128 @@
             this.panel6.SuspendLayout();
             this.SuspendLayout();
             // 
+            // launcherButton
+            // 
+            this.launcherButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.launcherButton, "launcherButton");
+            this.launcherButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.launcherButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.launcherButton.FlatAppearance.BorderSize = 0;
+            this.launcherButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.launcherButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.launcherButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.launcherButton.Name = "launcherButton";
+            this.launcherButton.UseVisualStyleBackColor = false;
+            this.launcherButton.Click += new System.EventHandler(this.NavigationButton_Click);
+            // 
+            // settingsButton
+            // 
+            this.settingsButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.settingsButton, "settingsButton");
+            this.settingsButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.settingsButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.settingsButton.FlatAppearance.BorderSize = 0;
+            this.settingsButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.settingsButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.settingsButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.settingsButton.Name = "settingsButton";
+            this.settingsButton.UseVisualStyleBackColor = false;
+            this.settingsButton.Click += new System.EventHandler(this.NavigationButton_Click);
+            // 
+            // toolsButton
+            // 
+            this.toolsButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.toolsButton, "toolsButton");
+            this.toolsButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.toolsButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.toolsButton.FlatAppearance.BorderSize = 0;
+            this.toolsButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.toolsButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.toolsButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.toolsButton.Name = "toolsButton";
+            this.toolsButton.UseVisualStyleBackColor = false;
+            this.toolsButton.Click += new System.EventHandler(this.NavigationButton_Click);
+            // 
+            // label7
+            // 
+            resources.ApplyResources(this.label7, "label7");
+            this.label7.ForeColor = System.Drawing.Color.Gold;
+            this.label7.Name = "label7";
+            // 
+            // notifyIcon1
+            // 
+            this.notifyIcon1.ContextMenuStrip = this.menu;
+            resources.ApplyResources(this.notifyIcon1, "notifyIcon1");
+            this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ShowApp);
+            // 
+            // menu
+            // 
+            this.menu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.menu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Play,
+            this.showToolStripMenuItem,
+            this.closeToolStripMenuItem});
+            this.menu.Name = "menu";
+            resources.ApplyResources(this.menu, "menu");
+            this.menu.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ShowApp);
+            // 
+            // Play
+            // 
+            this.Play.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.Play.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.Play.Name = "Play";
+            resources.ApplyResources(this.Play, "Play");
+            this.Play.Click += new System.EventHandler(this.PlayButton_Click);
+            // 
+            // showToolStripMenuItem
+            // 
+            this.showToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.showToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
+            resources.ApplyResources(this.showToolStripMenuItem, "showToolStripMenuItem");
+            this.showToolStripMenuItem.Click += new System.EventHandler(this.ShowApp);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.closeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            resources.ApplyResources(this.closeToolStripMenuItem, "closeToolStripMenuItem");
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.Close_Click);
+            // 
+            // aboutButton
+            // 
+            this.aboutButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.aboutButton, "aboutButton");
+            this.aboutButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.aboutButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.aboutButton.FlatAppearance.BorderSize = 0;
+            this.aboutButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.aboutButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.aboutButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.aboutButton.Name = "aboutButton";
+            this.aboutButton.UseVisualStyleBackColor = false;
+            this.aboutButton.Click += new System.EventHandler(this.NavigationButton_Click);
+            // 
+            // tabControl1
+            // 
+            resources.ApplyResources(this.tabControl1, "tabControl1");
+            this.tabControl1.Controls.Add(this.launcherPage);
+            this.tabControl1.Controls.Add(this.settingsPage);
+            this.tabControl1.Controls.Add(this.toolsPage);
+            this.tabControl1.Controls.Add(this.aboutPage);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+            // 
             // launcherPage
             // 
-            launcherPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
-            resources.ApplyResources(launcherPage, "launcherPage");
-            launcherPage.Controls.Add(this.panel1);
-            launcherPage.ForeColor = System.Drawing.Color.Transparent;
-            launcherPage.Name = "launcherPage";
+            this.launcherPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            resources.ApplyResources(this.launcherPage, "launcherPage");
+            this.launcherPage.Controls.Add(this.panel1);
+            this.launcherPage.ForeColor = System.Drawing.Color.Transparent;
+            this.launcherPage.Name = "launcherPage";
             // 
             // panel1
             // 
@@ -292,106 +408,6 @@
             this.mods.ForeColor = System.Drawing.Color.White;
             this.mods.Name = "mods";
             this.mods.UseVisualStyleBackColor = true;
-            // 
-            // launcherButton
-            // 
-            this.launcherButton.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.launcherButton, "launcherButton");
-            this.launcherButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.launcherButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.launcherButton.FlatAppearance.BorderSize = 0;
-            this.launcherButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.launcherButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.launcherButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.launcherButton.Name = "launcherButton";
-            this.launcherButton.UseVisualStyleBackColor = false;
-            this.launcherButton.Click += new System.EventHandler(this.LauncherButton_Click);
-            // 
-            // settingsButton
-            // 
-            this.settingsButton.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.settingsButton, "settingsButton");
-            this.settingsButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.settingsButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.settingsButton.FlatAppearance.BorderSize = 0;
-            this.settingsButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.settingsButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.settingsButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.settingsButton.Name = "settingsButton";
-            this.settingsButton.UseVisualStyleBackColor = false;
-            this.settingsButton.Click += new System.EventHandler(this.SettingsButton_Click);
-            // 
-            // toolsButton
-            // 
-            this.toolsButton.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.toolsButton, "toolsButton");
-            this.toolsButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.toolsButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.toolsButton.FlatAppearance.BorderSize = 0;
-            this.toolsButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.toolsButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.toolsButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.toolsButton.Name = "toolsButton";
-            this.toolsButton.UseVisualStyleBackColor = false;
-            this.toolsButton.Click += new System.EventHandler(this.ToolsButton_Click);
-            // 
-            // label7
-            // 
-            resources.ApplyResources(this.label7, "label7");
-            this.label7.ForeColor = System.Drawing.Color.Gold;
-            this.label7.Name = "label7";
-            // 
-            // notifyIcon1
-            // 
-            this.notifyIcon1.ContextMenuStrip = this.menu;
-            resources.ApplyResources(this.notifyIcon1, "notifyIcon1");
-            this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ShowApp);
-            // 
-            // menu
-            // 
-            this.menu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.menu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.Play,
-            this.showToolStripMenuItem,
-            this.closeToolStripMenuItem});
-            this.menu.Name = "menu";
-            resources.ApplyResources(this.menu, "menu");
-            this.menu.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ShowApp);
-            // 
-            // Play
-            // 
-            this.Play.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.Play.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.Play.Name = "Play";
-            resources.ApplyResources(this.Play, "Play");
-            this.Play.Click += new System.EventHandler(this.PlayButton_Click);
-            // 
-            // showToolStripMenuItem
-            // 
-            this.showToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.showToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            resources.ApplyResources(this.showToolStripMenuItem, "showToolStripMenuItem");
-            this.showToolStripMenuItem.Click += new System.EventHandler(this.ShowApp);
-            // 
-            // closeToolStripMenuItem
-            // 
-            this.closeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.closeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            resources.ApplyResources(this.closeToolStripMenuItem, "closeToolStripMenuItem");
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.Close_Click);
-            // 
-            // tabControl1
-            // 
-            resources.ApplyResources(this.tabControl1, "tabControl1");
-            this.tabControl1.Controls.Add(launcherPage);
-            this.tabControl1.Controls.Add(this.settingsPage);
-            this.tabControl1.Controls.Add(this.toolsPage);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             // 
             // settingsPage
             // 
@@ -688,11 +704,18 @@
             resources.ApplyResources(this.label5, "label5");
             this.label5.Name = "label5";
             // 
+            // aboutPage
+            // 
+            this.aboutPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            resources.ApplyResources(this.aboutPage, "aboutPage");
+            this.aboutPage.Name = "aboutPage";
+            // 
             // IsaacLauncher
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             resources.ApplyResources(this, "$this");
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            this.Controls.Add(this.aboutButton);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.toolsButton);
             this.Controls.Add(this.settingsButton);
@@ -707,8 +730,10 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.IsaacLauncher_FormClosing);
             this.Load += new System.EventHandler(this.IsaacLauncher_Load);
             this.Shown += new System.EventHandler(this.IsaacLauncher_Shown);
-            launcherPage.ResumeLayout(false);
-            launcherPage.PerformLayout();
+            this.menu.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
+            this.launcherPage.ResumeLayout(false);
+            this.launcherPage.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
@@ -717,8 +742,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.repentogonToolTip)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.modsToolTip)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.borderlessFullscreenTooltip)).EndInit();
-            this.menu.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
             this.settingsPage.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.repentogonPathToolTip)).EndInit();
@@ -798,6 +821,9 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button aboutButton;
+        private System.Windows.Forms.TabPage launcherPage;
+        private System.Windows.Forms.TabPage aboutPage;
     }
 }
 

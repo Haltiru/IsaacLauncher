@@ -3,6 +3,7 @@ using IsaacLauncherGUI.Classes;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using ReaLTaiizor.Util;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
@@ -21,11 +22,16 @@ namespace IsaacLauncherGUI
         private bool _loadingSettings = false;
         private ModmanagerForm _modManagerForm = null;
         private PrivateFontCollection customFont = new PrivateFontCollection();
+        private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
         ToolTip mainToolTip = new ToolTip();
         private enum PlayButtonState {Play,Stop,Starting}
         public IsaacLauncher()
         {
             InitializeComponent();
+            buttonTabPages.Add(launcherButton, launcherPage);
+            buttonTabPages.Add(settingsButton, settingsPage);
+            buttonTabPages.Add(toolsButton, toolsPage);
+            buttonTabPages.Add(aboutButton, aboutPage);
 
 #if !DEBUG
             label6.Visible = false;
@@ -124,21 +130,8 @@ private async void StartPortable(object sender, EventArgs e)
             if (!isPortable) ghost.Checked = false;
         }
 
-        private void SetActiveButton(Button selectedButton)
-        {
-            tabControl1.SelectedIndex = selectedButton == launcherButton ? 0 : selectedButton == settingsButton ? 1 : 2;
-
-            launcherButton.BackgroundImage = Properties.Resources.button;
-            settingsButton.BackgroundImage = Properties.Resources.button;
-            toolsButton.BackgroundImage = Properties.Resources.button;
-
-            launcherButton.ForeColor = Color.FromArgb(84, 76, 74);
-            settingsButton.ForeColor = Color.FromArgb(84, 76, 74);
-            toolsButton.ForeColor = Color.FromArgb(84, 76, 74);
-
-            selectedButton.BackgroundImage = Properties.Resources.blackbutton;
-            selectedButton.ForeColor = Color.White;
-        }
+        private void SetActiveButton(Button selectedButton){UIHelper.SetActiveNavigationButton(selectedButton, tabControl1, buttonTabPages);}
+        private void NavigationButton_Click(object sender, EventArgs e) { SetActiveButton(sender as Button); }
 
         protected override CreateParams CreateParams
         {
@@ -402,10 +395,8 @@ private async void StartPortable(object sender, EventArgs e)
                     TimeSpan timeSinceLastCheck = DateTime.Now - lastCheck;
                     if (timeSinceLastCheck.TotalHours < 0.01) return false;
                 }
-
             }
             
-
             // We get the remote version and compare it with the local version. If the remote version is newer, we prompt the user to update.
             Updater updater = new Updater();
             bool isSuccess = await updater.GetRemoteVersion();
@@ -474,9 +465,6 @@ private async void StartPortable(object sender, EventArgs e)
 
 
 
-        private void LauncherButton_Click(object sender, EventArgs e) { SetActiveButton(launcherButton); }
-        private void SettingsButton_Click(object sender, EventArgs e) { SetActiveButton(settingsButton); }
-        private void ToolsButton_Click(object sender, EventArgs e) { SetActiveButton(toolsButton); }
         private async void PlayButton_Click(object sender, EventArgs e)
         {
             UpdateUI();
@@ -598,7 +586,7 @@ private async void StartPortable(object sender, EventArgs e)
             }
             else
             {
-                // Ha már nyitva van, csak fókuszba rakjuk és előrehozzuk! 🔥
+                // Ha már nyitva van, csak fókuszba rakjuk és előrehozzuk!
                 if (_modManagerForm.WindowState == FormWindowState.Minimized) _modManagerForm.WindowState = FormWindowState.Normal;
                 
                 _modManagerForm.BringToFront();
@@ -726,5 +714,7 @@ private async void StartPortable(object sender, EventArgs e)
            
             UpdateUI();
         }
+
+       
     }
 }

@@ -155,16 +155,14 @@ namespace IsaacLauncherGUI.Classes
                 listeningTask = _listeningTask;
             }
 
-            if (listeningTask != null)
-                await listeningTask.ConfigureAwait(false);
+            if (listeningTask != null) await listeningTask.ConfigureAwait(false);
         }
 
         public void Dispose()
         {
             if (_disposed) return;
 
-            if (_listeningTask != null && !_listeningTask.IsCompleted)
-                throw new InvalidOperationException("Stop the pipe listener before disposing the manager.");
+            if (_listeningTask != null && !_listeningTask.IsCompleted) throw new InvalidOperationException("Stop the pipe listener before disposing the manager.");
 
             _disposed = true;
 

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace IsaacLauncherGUI
@@ -51,5 +53,24 @@ namespace IsaacLauncherGUI
             }
         }
 
+        public static void SetActiveNavigationButton(Button selectedButton, TabControl tabControl, Dictionary<Button, TabPage> navigationMap)
+        {
+            if (!navigationMap.TryGetValue(selectedButton, out TabPage selectedPage)) return;
+            tabControl.SelectedTab = selectedPage;
+
+            foreach(var button in navigationMap.Keys)
+            {
+                if (button == selectedButton)
+                {
+                    button.BackgroundImage = Properties.Resources.blackbutton;
+                    button.ForeColor = Color.White;
+                }
+                else
+                {
+                    button.BackgroundImage = Properties.Resources.button;
+                    button.ForeColor = Color.FromArgb(84, 76, 74);
+                }
+            }
+        }
     }
 }
