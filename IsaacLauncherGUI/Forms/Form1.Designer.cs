@@ -94,6 +94,17 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.aboutPage = new System.Windows.Forms.TabPage();
+            this.panel7 = new System.Windows.Forms.Panel();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.panel8 = new System.Windows.Forms.Panel();
+            this.button6 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.label12 = new System.Windows.Forms.Label();
+            this.button3 = new System.Windows.Forms.Button();
+            this.panel10 = new System.Windows.Forms.Panel();
+            this.label16 = new System.Windows.Forms.Label();
+            this.checkForUpdatesButton = new System.Windows.Forms.Button();
             this.menu.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.launcherPage.SuspendLayout();
@@ -117,6 +128,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.customToolTip)).BeginInit();
             this.toolsPage.SuspendLayout();
             this.panel6.SuspendLayout();
+            this.aboutPage.SuspendLayout();
+            this.panel7.SuspendLayout();
+            this.panel8.SuspendLayout();
+            this.panel10.SuspendLayout();
             this.SuspendLayout();
             // 
             // launcherButton
@@ -708,7 +723,117 @@
             // 
             this.aboutPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
             resources.ApplyResources(this.aboutPage, "aboutPage");
+            this.aboutPage.Controls.Add(this.panel7);
             this.aboutPage.Name = "aboutPage";
+            // 
+            // panel7
+            // 
+            resources.ApplyResources(this.panel7, "panel7");
+            this.panel7.BackColor = System.Drawing.Color.Transparent;
+            this.panel7.Controls.Add(this.label14);
+            this.panel7.Controls.Add(this.label13);
+            this.panel7.Controls.Add(this.panel8);
+            this.panel7.Controls.Add(this.panel10);
+            this.panel7.Name = "panel7";
+            // 
+            // label14
+            // 
+            resources.ApplyResources(this.label14, "label14");
+            this.label14.ForeColor = System.Drawing.Color.White;
+            this.label14.Name = "label14";
+            // 
+            // label13
+            // 
+            resources.ApplyResources(this.label13, "label13");
+            this.label13.ForeColor = System.Drawing.Color.Gold;
+            this.label13.Name = "label13";
+            // 
+            // panel8
+            // 
+            this.panel8.Controls.Add(this.button6);
+            this.panel8.Controls.Add(this.button5);
+            this.panel8.Controls.Add(this.label12);
+            this.panel8.Controls.Add(this.button3);
+            resources.ApplyResources(this.panel8, "panel8");
+            this.panel8.Name = "panel8";
+            // 
+            // button6
+            // 
+            this.button6.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.button6, "button6");
+            this.button6.Cursor = System.Windows.Forms.Cursors.Default;
+            this.button6.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.button6.FlatAppearance.BorderSize = 0;
+            this.button6.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button6.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.button6.Name = "button6";
+            this.button6.Tag = "https://ko-fi.com/haltiru";
+            this.button6.UseVisualStyleBackColor = false;
+            this.button6.Click += new System.EventHandler(this.OpenLinkOnClick);
+            // 
+            // button5
+            // 
+            this.button5.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.button5, "button5");
+            this.button5.Cursor = System.Windows.Forms.Cursors.Default;
+            this.button5.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.button5.FlatAppearance.BorderSize = 0;
+            this.button5.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button5.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.button5.Name = "button5";
+            this.button5.Tag = "https://github.com/Haltiru/IsaacLauncher/issues/new/choose";
+            this.button5.UseVisualStyleBackColor = false;
+            this.button5.Click += new System.EventHandler(this.OpenLinkOnClick);
+            // 
+            // label12
+            // 
+            resources.ApplyResources(this.label12, "label12");
+            this.label12.ForeColor = System.Drawing.Color.Gold;
+            this.label12.Name = "label12";
+            // 
+            // button3
+            // 
+            this.button3.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.button3, "button3");
+            this.button3.Cursor = System.Windows.Forms.Cursors.Default;
+            this.button3.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.button3.FlatAppearance.BorderSize = 0;
+            this.button3.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button3.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.button3.Name = "button3";
+            this.button3.Tag = "https://github.com/Haltiru/IsaacLauncher";
+            this.button3.UseVisualStyleBackColor = false;
+            this.button3.Click += new System.EventHandler(this.OpenLinkOnClick);
+            // 
+            // panel10
+            // 
+            this.panel10.Controls.Add(this.label16);
+            this.panel10.Controls.Add(this.checkForUpdatesButton);
+            resources.ApplyResources(this.panel10, "panel10");
+            this.panel10.Name = "panel10";
+            // 
+            // label16
+            // 
+            resources.ApplyResources(this.label16, "label16");
+            this.label16.ForeColor = System.Drawing.Color.Gold;
+            this.label16.Name = "label16";
+            // 
+            // checkForUpdatesButton
+            // 
+            this.checkForUpdatesButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.checkForUpdatesButton, "checkForUpdatesButton");
+            this.checkForUpdatesButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.checkForUpdatesButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.checkForUpdatesButton.FlatAppearance.BorderSize = 0;
+            this.checkForUpdatesButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.checkForUpdatesButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.checkForUpdatesButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.checkForUpdatesButton.Name = "checkForUpdatesButton";
+            this.checkForUpdatesButton.UseVisualStyleBackColor = false;
+            this.checkForUpdatesButton.Click += new System.EventHandler(this.CheckForUpdatesButton_Click);
             // 
             // IsaacLauncher
             // 
@@ -755,6 +880,11 @@
             this.toolsPage.ResumeLayout(false);
             this.toolsPage.PerformLayout();
             this.panel6.ResumeLayout(false);
+            this.aboutPage.ResumeLayout(false);
+            this.aboutPage.PerformLayout();
+            this.panel7.ResumeLayout(false);
+            this.panel8.ResumeLayout(false);
+            this.panel10.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -824,6 +954,17 @@
         private System.Windows.Forms.Button aboutButton;
         private System.Windows.Forms.TabPage launcherPage;
         private System.Windows.Forms.TabPage aboutPage;
+        private System.Windows.Forms.Panel panel7;
+        private System.Windows.Forms.Panel panel8;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Panel panel10;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Button checkForUpdatesButton;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
     }
 }
 

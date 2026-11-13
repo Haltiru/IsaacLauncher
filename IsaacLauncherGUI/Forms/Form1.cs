@@ -24,7 +24,7 @@ namespace IsaacLauncherGUI
         private PrivateFontCollection customFont = new PrivateFontCollection();
         private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
         ToolTip mainToolTip = new ToolTip();
-        private enum PlayButtonState {Play,Stop,Starting}
+        private enum PlayButtonState { Play, Stop, Starting }
         public IsaacLauncher()
         {
             InitializeComponent();
@@ -130,7 +130,7 @@ private async void StartPortable(object sender, EventArgs e)
             if (!isPortable) ghost.Checked = false;
         }
 
-        private void SetActiveButton(Button selectedButton){UIHelper.SetActiveNavigationButton(selectedButton, tabControl1, buttonTabPages);}
+        private void SetActiveButton(Button selectedButton) { UIHelper.SetActiveNavigationButton(selectedButton, tabControl1, buttonTabPages); }
         private void NavigationButton_Click(object sender, EventArgs e) { SetActiveButton(sender as Button); }
 
         protected override CreateParams CreateParams
@@ -355,8 +355,8 @@ private async void StartPortable(object sender, EventArgs e)
             }
             bool isActive = true;
             UpdateProgressUserControl updateProgressUserControl = new UpdateProgressUserControl();
-            Progress<int> progressReporter = new Progress<int>(percentage => {if (isActive) updateProgressUserControl.UpdateProgress(percentage);});
-            Progress<string> statusReporter = new Progress<string>(status => {if (isActive) updateProgressUserControl.UpdateStatus(status);});
+            Progress<int> progressReporter = new Progress<int>(percentage => { if (isActive) updateProgressUserControl.UpdateProgress(percentage); });
+            Progress<string> statusReporter = new Progress<string>(status => { if (isActive) updateProgressUserControl.UpdateStatus(status); });
 
             // We create a modal panel to host the update user control, and add it to the form.
             Panel Modal = new Panel();
@@ -373,7 +373,7 @@ private async void StartPortable(object sender, EventArgs e)
             // We bring the modal panel and the update user control to the front, and play a sound to alert the user.
             Modal.BringToFront();
             updateProgressUserControl.BringToFront();
-            try {await operation(progressReporter, statusReporter);}
+            try { await operation(progressReporter, statusReporter); }
             finally
             {
                 isActive = false;
@@ -396,7 +396,7 @@ private async void StartPortable(object sender, EventArgs e)
                     if (timeSinceLastCheck.TotalHours < 0.01) return false;
                 }
             }
-            
+
             // We get the remote version and compare it with the local version. If the remote version is newer, we prompt the user to update.
             Updater updater = new Updater();
             bool isSuccess = await updater.GetRemoteVersion();
@@ -421,7 +421,7 @@ private async void StartPortable(object sender, EventArgs e)
                 {
                     _settings.Reminder = false;
                     AppConfig.Save(_settings);
-                    try {await ShowUpdateProgressDialogAsync((progressReporter, statusReporter) => updater.StartUpdateProcess(progressReporter, statusReporter));}
+                    try { await ShowUpdateProgressDialogAsync((progressReporter, statusReporter) => updater.StartUpdateProcess(progressReporter, statusReporter)); }
                     catch (Exception ex)
                     {
                         MessageBox.Show(this, $"The update failed: {ex.Message}", "Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -485,7 +485,7 @@ private async void StartPortable(object sender, EventArgs e)
                     }
                 }
                 else SetPlayButtonState(PlayButtonState.Starting);
-                
+
                 LaunchMode ModeRequested = GetLaunchMode();
                 Launcher isaacLauncher = new Launcher(ModeRequested, mods.Checked, pathText.Text, repentogonCheckbox.Checked, repentogonPathText.Text, smart.Checked);
 
@@ -566,7 +566,7 @@ private async void StartPortable(object sender, EventArgs e)
                 }
             }
         }
-        
+
 
         private void OpenBackupFolderButton(object sender, EventArgs e)
         {
@@ -588,11 +588,38 @@ private async void StartPortable(object sender, EventArgs e)
             {
                 // Ha már nyitva van, csak fókuszba rakjuk és előrehozzuk!
                 if (_modManagerForm.WindowState == FormWindowState.Minimized) _modManagerForm.WindowState = FormWindowState.Normal;
-                
+
                 _modManagerForm.BringToFront();
                 _modManagerForm.Focus();
             }
         }
+
+        private void OpenLinkOnClick(object sender, EventArgs e)
+        {
+            if (sender is Button clickedbutton)
+            {
+                string url = clickedbutton.Tag as string;
+                if (!string.IsNullOrWhiteSpace(url)) BrowserHelper.OpenUrl(url);
+            }
+        }
+
+        private async void CheckForUpdatesButton_Click(object sender, EventArgs e)
+        {
+            checkForUpdatesButton.Enabled = false;
+            try
+            {
+                await CheckForUpdate(false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An unexpected error occurred while checking for updates: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                checkForUpdatesButton.Enabled = true;
+            }
+        }
+
 
 
         public void ShowMainWindow()
@@ -643,7 +670,7 @@ private async void StartPortable(object sender, EventArgs e)
 
         private async void IsaacLauncher_Shown(object sender, EventArgs e)
         {
-            
+
             await CheckForUpdate(true);
             if (startTray.Checked)
             {
@@ -656,7 +683,7 @@ private async void StartPortable(object sender, EventArgs e)
                 this.Show();
                 this.Activate();
             }
-           try
+            try
             {
                 if (instantLaunch.Checked)
                 {
@@ -711,7 +738,7 @@ private async void StartPortable(object sender, EventArgs e)
             _loadingSettings = true;
             try { LoadSettings(); }
             finally { _loadingSettings = false; }
-           
+
             UpdateUI();
         }
 
