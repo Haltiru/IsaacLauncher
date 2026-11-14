@@ -16,7 +16,6 @@ namespace IsaacLauncherGUI
         public event Action<DialogResult> ChoiceSelected;
         public UpdateUserControl()
         {
-
             InitializeComponent();
         }
 

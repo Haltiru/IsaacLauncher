@@ -32,9 +32,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.updateButton = new System.Windows.Forms.Button();
-            this.laterButton = new System.Windows.Forms.Button();
             this.skipButton = new System.Windows.Forms.Button();
+            this.laterButton = new System.Windows.Forms.Button();
+            this.updateButton = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -77,27 +77,27 @@
             this.panel1.Size = new System.Drawing.Size(520, 300);
             this.panel1.TabIndex = 16;
             // 
-            // updateButton
+            // skipButton
             // 
-            this.updateButton.BackColor = System.Drawing.Color.Transparent;
-            this.updateButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("updateButton.BackgroundImage")));
-            this.updateButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.updateButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.updateButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.updateButton.FlatAppearance.BorderSize = 0;
-            this.updateButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.updateButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.updateButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.updateButton.Font = new System.Drawing.Font("Upheaval TT (BRK)", 20.25F);
-            this.updateButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.updateButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.updateButton.Location = new System.Drawing.Point(0, 240);
-            this.updateButton.Name = "updateButton";
-            this.updateButton.Size = new System.Drawing.Size(170, 44);
-            this.updateButton.TabIndex = 16;
-            this.updateButton.Text = "Update";
-            this.updateButton.UseVisualStyleBackColor = false;
-            this.updateButton.Click += new System.EventHandler(this.updateButton_Click);
+            this.skipButton.BackColor = System.Drawing.Color.Transparent;
+            this.skipButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("skipButton.BackgroundImage")));
+            this.skipButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.skipButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.skipButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.skipButton.FlatAppearance.BorderSize = 0;
+            this.skipButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.skipButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.skipButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.skipButton.Font = new System.Drawing.Font("Upheaval TT (BRK)", 20.25F);
+            this.skipButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.skipButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.skipButton.Location = new System.Drawing.Point(350, 240);
+            this.skipButton.Name = "skipButton";
+            this.skipButton.Size = new System.Drawing.Size(170, 44);
+            this.skipButton.TabIndex = 18;
+            this.skipButton.Text = "skip";
+            this.skipButton.UseVisualStyleBackColor = false;
+            this.skipButton.Click += new System.EventHandler(this.skipButton_Click);
             // 
             // laterButton
             // 
@@ -121,27 +121,27 @@
             this.laterButton.UseVisualStyleBackColor = false;
             this.laterButton.Click += new System.EventHandler(this.laterButton_Click);
             // 
-            // skipButton
+            // updateButton
             // 
-            this.skipButton.BackColor = System.Drawing.Color.Transparent;
-            this.skipButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("skipButton.BackgroundImage")));
-            this.skipButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.skipButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.skipButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.skipButton.FlatAppearance.BorderSize = 0;
-            this.skipButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.skipButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.skipButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.skipButton.Font = new System.Drawing.Font("Upheaval TT (BRK)", 20.25F);
-            this.skipButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.skipButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.skipButton.Location = new System.Drawing.Point(350, 240);
-            this.skipButton.Name = "skipButton";
-            this.skipButton.Size = new System.Drawing.Size(170, 44);
-            this.skipButton.TabIndex = 18;
-            this.skipButton.Text = "skip";
-            this.skipButton.UseVisualStyleBackColor = false;
-            this.skipButton.Click += new System.EventHandler(this.skipButton_Click);
+            this.updateButton.BackColor = System.Drawing.Color.Transparent;
+            this.updateButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("updateButton.BackgroundImage")));
+            this.updateButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.updateButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.updateButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.updateButton.FlatAppearance.BorderSize = 0;
+            this.updateButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.updateButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.updateButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.updateButton.Font = new System.Drawing.Font("Upheaval TT (BRK)", 20.25F);
+            this.updateButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.updateButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.updateButton.Location = new System.Drawing.Point(0, 240);
+            this.updateButton.Name = "updateButton";
+            this.updateButton.Size = new System.Drawing.Size(170, 44);
+            this.updateButton.TabIndex = 16;
+            this.updateButton.Text = "Update";
+            this.updateButton.UseVisualStyleBackColor = false;
+            this.updateButton.Click += new System.EventHandler(this.updateButton_Click);
             // 
             // UpdateUserControl
             // 

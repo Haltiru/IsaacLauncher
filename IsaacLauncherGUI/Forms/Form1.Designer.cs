@@ -741,6 +741,7 @@
             resources.ApplyResources(this.label14, "label14");
             this.label14.ForeColor = System.Drawing.Color.White;
             this.label14.Name = "label14";
+            this.label14.Tag = "KeepComic";
             // 
             // label13
             // 

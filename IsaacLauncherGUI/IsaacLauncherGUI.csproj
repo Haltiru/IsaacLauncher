@@ -139,6 +139,7 @@
     <Compile Include="Classes\Game\Portable.cs" Condition="'$(Configuration)' == 'Debug'" />
     <Compile Include="Classes\Core\SingleInstanceManager.cs" />
     <Compile Include="Classes\Services\BrowserHelper.cs" />
+    <Compile Include="Classes\UI\PopupManager.cs" />
     <Compile Include="Classes\UI\UIHelper.cs" />
     <Compile Include="Classes\Core\AppConfig.cs" />
     <Compile Include="Classes\Services\Updater.cs" />
@@ -162,6 +163,12 @@
     <Compile Include="Classes\Core\Program.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Forms\PopupUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\PopupUserControl.Designer.cs">
+      <DependentUpon>PopupUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Forms\UpdateUserControl.cs">
       <SubType>UserControl</SubType>
@@ -183,6 +190,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateProgressUserControl.resx">
       <DependentUpon>UpdateProgressUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\PopupUserControl.resx">
+      <DependentUpon>PopupUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateUserControl.resx">
       <DependentUpon>UpdateUserControl.cs</DependentUpon>

@@ -1,7 +1,6 @@
 ﻿//Form1.cs
 using IsaacLauncherGUI.Classes;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using ReaLTaiizor.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +8,6 @@ using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Media;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static IsaacLauncherGUI.Launcher;
@@ -60,7 +58,7 @@ private async void StartPortable(object sender, EventArgs e)
             portableCreate.Enabled = false;
             if (string.IsNullOrWhiteSpace(pathText.Text) || !Directory.Exists(pathText.Text))
             {
-                MessageBox.Show("Please select a valid Isaac game folder before creating a portable version.", "Invalid Path", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await PopupManager.ShowAsync(this, "INVALID PATH", "Please select a valid Isaac game folder before creating a portable version.", "OK", null, null, SystemSounds.Hand);
                 portableCreate.Enabled = true;
                 return;
             }
@@ -69,11 +67,12 @@ private async void StartPortable(object sender, EventArgs e)
 
             if (string.IsNullOrEmpty(err))
             {
-                MessageBox.Show("Portable version created successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await PopupManager.ShowAsync(this, "SUCCESS", "Portable version created successfully!", "OK", null, null, SystemSounds.Asterisk);
+
             }
             else
             {
-                MessageBox.Show(err, "Portable Creation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await PopupManager.ShowAsync(this, "PORTABLE CREATION ERROR", err, "OK", null, null, SystemSounds.Hand);
             }
             portableCreate.Enabled = true;
         
@@ -285,11 +284,11 @@ private async void StartPortable(object sender, EventArgs e)
             else return LaunchMode.Steam;
         }
 
-        private bool CheckForErrors(string errorMessage)
+        private async Task<bool> CheckForErrors(string errorMessage)
         {
             if (!string.IsNullOrEmpty(errorMessage))
             {
-                MessageBox.Show(errorMessage, "Launch Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await PopupManager.ShowAsync(this, "LAUNCH ERROR", errorMessage, "OK", null, null, SystemSounds.Hand);
                 return true;
             }
             return false;
@@ -424,7 +423,7 @@ private async void StartPortable(object sender, EventArgs e)
                     try { await ShowUpdateProgressDialogAsync((progressReporter, statusReporter) => updater.StartUpdateProcess(progressReporter, statusReporter)); }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, $"The update failed: {ex.Message}", "Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        await PopupManager.ShowAsync(this, "UPDATE FAILED", $"The update failed: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                         return false;
                     }
                 }
@@ -440,8 +439,8 @@ private async void StartPortable(object sender, EventArgs e)
                     AppConfig.Save(_settings);
                 }
             }
-            else if (isSuccess && !autoCheck) MessageBox.Show(this, $"You are using the latest version of the launcher: {updater.LocalVersion}.", "No Update Available", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            else if (!isSuccess && !autoCheck) MessageBox.Show(this, "Failed to check for updates. Please check your internet connection and try again.", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else if (isSuccess && !autoCheck) await PopupManager.ShowAsync(this, "NO UPDATE AVAILABLE", $"You are using the latest version of the launcher: {updater.LocalVersion}.", "OK", null, null, SystemSounds.Asterisk);
+            else if (!isSuccess && !autoCheck) await PopupManager.ShowAsync(this, "UPDATE CHECK FAILED", "Failed to check for updates. Please check your internet connection and try again.", "OK", null, null, SystemSounds.Hand);
             return isSuccess;
         }
 
@@ -453,14 +452,14 @@ private async void StartPortable(object sender, EventArgs e)
 
             string hiba = await Task.Run(() => launcher.InitializeAndLaunch(BorderlessEnabled, ModsEnabled, RepentogonEnabled, _settings));
             UpdateUI();
-            if (CheckForErrors(hiba))
+            if (await CheckForErrors(hiba))
             {
                 SetPlayButtonState(PlayButtonState.Play);
                 return;
             }
 
             hiba = await FindIsaac(BorderlessEnabled, launcher);
-            if (CheckForErrors(hiba)) return;
+            if (await CheckForErrors(hiba)) return;
         }
 
 
@@ -480,7 +479,7 @@ private async void StartPortable(object sender, EventArgs e)
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Failed to stop the game: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        await PopupManager.ShowAsync(this, "ERROR", $"Failed to stop the game: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                         return;
                     }
                 }
@@ -494,38 +493,45 @@ private async void StartPortable(object sender, EventArgs e)
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                 SetPlayButtonState(PlayButtonState.Play);
             }
         }
 
-        private void BackupButton_Click(object sender, EventArgs e)
+        private async void BackupButton_Click(object sender, EventArgs e)
         {
-            SaveManager saveManager = new SaveManager(portable.Checked);
-            saveManager.Save();
-            MessageBox.Show("Your saves have been backed up successfully!", "Backup Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            try
+            {
+                SaveManager saveManager = new SaveManager(portable.Checked);
+                saveManager.Save();
+                await PopupManager.ShowAsync(this, "BACKUP COMPLETE", "Your saves have been backed up successfully!", "OK", null, null, SystemSounds.Asterisk);
+            }
+            catch (Exception ex)
+            {
+               await PopupManager.ShowAsync(this, "BACKUP FAILED", $"An error occurred while backing up your saves: {ex.Message}", "OK", null, null, SystemSounds.Hand);
+            }
         }
-        private void ghost_CheckedChanged(object sender, EventArgs e)
+        private async void ghost_CheckedChanged(object sender, EventArgs e)
         {
             if (!ghost.Checked || _loadingSettings) return;
 
-            DialogResult result = MessageBox.Show(
+            var choice = await PopupManager.ShowAsync(
                 this,
+                "ENABLE GHOST MODE?",
                 "Ghost Mode automatically deletes temporary Isaac files from the My Games folder after the portable game closes.\n\n" +
                 "This includes options.ini, logs, and save backups stored in that folder.\n\n" +
-                "IMPORTANT: Only use Ghost Mode with a supported portable installation. Make sure your saves are backed up!\n\n" +
-                "Do you want to enable Ghost Mode?",
-                "Enable Ghost Mode?",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2
+                "IMPORTANT: Only use Ghost Mode with a supported portable installation. Make sure your saves are backed up!",
+                "YES",
+                "NO",
+                null,
+                SystemSounds.Exclamation
             );
-            if (result != DialogResult.Yes) ghost.Checked = false;
+            if (choice != PopupUserControl.PopupChoice.Primary) ghost.Checked = false;
         }
         private void SmartStartChecked(object sender, EventArgs e) { UpdateUI(); }
         private void UsePortableVersionClick(object sender, EventArgs e) { UpdateUI(); }
         private void UseCustomVersion(object sender, EventArgs e) { UpdateUI(); }
-        private void BrowseGamePath(object sender, EventArgs e)
+        private async void BrowseGamePath(object sender, EventArgs e)
         {
             using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
             {
@@ -539,14 +545,14 @@ private async void StartPortable(object sender, EventArgs e)
                     if (File.Exists(isaacExePath)) pathText.Text = dialog.FileName;
                     else
                     {
-                        MessageBox.Show("There is no isaac-ng.exe in this folder!", "No exe found!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        await PopupManager.ShowAsync(this, "INVALID FOLDER", "The selected folder does not contain isaac-ng.exe. Please select the correct Isaac game folder.", "OK", null, null, SystemSounds.Hand);
                         pathText.Text = _settings.GamePath;
                     }
                 }
             }
         }
 
-        private void BrowseRepentogonPath(object sender, EventArgs e)
+        private async void BrowseRepentogonPath(object sender, EventArgs e)
         {
             using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
             {
@@ -560,7 +566,7 @@ private async void StartPortable(object sender, EventArgs e)
                     if (Path.GetFileName(selected).Equals("REPENTOGONLauncher.exe", StringComparison.OrdinalIgnoreCase)) repentogonPathText.Text = selected;
                     else
                     {
-                        MessageBox.Show("Please select REPENTOGONLauncher.exe!", "Wrong file", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        await PopupManager.ShowAsync(this, "INVALID FILE", "The selected file is not REPENTOGONLauncher.exe. Please select the correct Repentogon Launcher executable.", "OK", null, null, SystemSounds.Hand);
                         repentogonPathText.Text = _settings.RepentogonPath;
                     }
                 }
@@ -612,7 +618,7 @@ private async void StartPortable(object sender, EventArgs e)
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An unexpected error occurred while checking for updates: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand);
             }
             finally
             {
@@ -670,7 +676,6 @@ private async void StartPortable(object sender, EventArgs e)
 
         private async void IsaacLauncher_Shown(object sender, EventArgs e)
         {
-
             await CheckForUpdate(true);
             if (startTray.Checked)
             {
@@ -701,9 +706,10 @@ private async void StartPortable(object sender, EventArgs e)
             catch (Exception ex)
             {
                 Debug.WriteLine($"An unexpected error occurred during instant launch: {ex.Message}");
-                MessageBox.Show($"An unexpected error occurred during instant launch: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred during instant launch: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                 SetPlayButtonState(PlayButtonState.Play);
             }
+            await PopupManager.ShowAsync(this, "WELCOME", "Welcome to the Isaac Launcher!\n\nThis launcher is designed to help you manage your Isaac game and its mods more easily.\n\nPlease make sure to check the settings and configure the launcher according to your preferences.", "OK", "OK2", "OK3", SystemSounds.Asterisk);
         }
 
         private void IsaacLauncher_Load(object sender, EventArgs e)
@@ -715,6 +721,7 @@ private async void StartPortable(object sender, EventArgs e)
             mainToolTip.InitialDelay = 500;
             mainToolTip.ReshowDelay = 100;
             mainToolTip.ToolTipTitle = "Info";
+
 
             mainToolTip.SetToolTip(modsToolTip, "If checked Isaac is going to start with mods.");
             mainToolTip.SetToolTip(smartStartTooltip, "If checked the launcher will try to start Isaac according to the daily challenge timer. (without mods and repentogon when a new daily is available on the first start)");
@@ -742,6 +749,6 @@ private async void StartPortable(object sender, EventArgs e)
             UpdateUI();
         }
 
-       
+
     }
 }
