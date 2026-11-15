@@ -72,5 +72,18 @@ namespace IsaacLauncherGUI
                 }
             }
         }
+
+        public static void SetToolTips(ToolTip tooltip, Dictionary<Control, string> tooltips)
+        {
+            tooltip.AutoPopDelay = 5000;
+            tooltip.InitialDelay = 500;
+            tooltip.ReshowDelay = 100;
+            tooltip.ToolTipTitle = "Info";
+
+            foreach (var kvp in tooltips)
+            {
+                tooltip.SetToolTip(kvp.Key, kvp.Value);
+            }
+        }
     }
 }

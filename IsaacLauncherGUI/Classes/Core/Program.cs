@@ -497,10 +497,7 @@ namespace IsaacLauncherGUI
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 IsaacLauncher form = new IsaacLauncher();
-                manager.ShowWindowRequested += () =>
-                {
-                    if (!form.IsDisposed && form.IsHandleCreated)form.BeginInvoke(new Action(() => form.ShowMainWindow()));
-                };
+                manager.ShowWindowRequested += () => {if (!form.IsDisposed && form.IsHandleCreated)form.BeginInvoke(new Action(() => form.ShowMainWindow()));};
 
                 var handle = form.Handle;
                 manager.StartListening();

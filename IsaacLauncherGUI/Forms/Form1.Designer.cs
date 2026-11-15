@@ -413,7 +413,7 @@
             this.smart.ForeColor = System.Drawing.Color.White;
             this.smart.Name = "smart";
             this.smart.UseVisualStyleBackColor = true;
-            this.smart.CheckedChanged += new System.EventHandler(this.SmartStartChecked);
+            this.smart.CheckedChanged += new System.EventHandler(this.CheckBox_CheckedChanged);
             // 
             // mods
             // 
@@ -596,7 +596,7 @@
             this.portable.ForeColor = System.Drawing.Color.White;
             this.portable.Name = "portable";
             this.portable.UseVisualStyleBackColor = true;
-            this.portable.Click += new System.EventHandler(this.UsePortableVersionClick);
+            this.portable.CheckedChanged += new System.EventHandler(this.CheckBox_CheckedChanged);
             // 
             // instantLaunch
             // 
@@ -629,7 +629,7 @@
             this.custom.ForeColor = System.Drawing.Color.White;
             this.custom.Name = "custom";
             this.custom.UseVisualStyleBackColor = true;
-            this.custom.CheckedChanged += new System.EventHandler(this.UseCustomVersion);
+            this.custom.CheckedChanged += new System.EventHandler(this.CheckBox_CheckedChanged);
             // 
             // pathText
             // 
