@@ -20,6 +20,7 @@ namespace IsaacLauncherGUI
         private AppSettings _settings;
         private bool _loadingSettings = false;
         private ModmanagerForm _modManagerForm = null;
+        private bool _updatingModeUI = false;
         private PrivateFontCollection customFont = new PrivateFontCollection();
         private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
         ToolTip mainToolTip = new ToolTip();
@@ -111,27 +112,30 @@ private async void StartPortable(object sender, EventArgs e)
             box.ForeColor = enabled ? Color.White : DisabledColor;
         }
 
-        public void UpdateUI()
+        private void UpdateLaunchModeUI()
         {
-            // 1. custom <-> portable kölcsönös kizárás
             SetCheckBoxEnabled(portable, !custom.Checked);
             SetCheckBoxEnabled(custom, !portable.Checked);
 
-            // az előző két sor után az állapotok megváltozhattak, ezért itt olvassuk ki
-            bool isSmart = smart.Checked;
-            bool isPortable = portable.Checked;
-            bool isSteam = !isPortable && !custom.Checked;
+            bool isSteam = GetLaunchMode() == LaunchMode.Steam;
 
-            // 2. mi mit tilt
-            //SetCheckBoxEnabled(mods, !isSmart);
             SetCheckBoxEnabled(repentogonCheckbox, isSteam);
+        }
 
-            // 3. láthatóság
+        private void UpdateStreakUI()
+        {
+            bool isSmart = smart.Checked;
+
             label9.Visible = isSmart;
             label10.Visible = !isSmart;
 
             label9.Text = _settings.DailyStreak.ToString();
             label10.Text = _settings.Streak.ToString();
+        }
+
+        private void UpdatePortableUI()
+        {
+            bool isPortable = portable.Checked;
 
             ghost.Visible = isPortable;
             ghostModeTooltip.Visible = isPortable;
@@ -141,14 +145,28 @@ private async void StartPortable(object sender, EventArgs e)
             pathLine.Visible = !isPortable;
             gameExeLabel.Visible = !isPortable;
 
-            //repentogonPathToolTip.Visible = !isPortable && !isCustom;
-            //repentogonExePathLabel.Visible = !isPortable && !isCustom;
-            //repentogonPathText.Visible = !isPortable && !isCustom;
-            //pathLine2.Visible = !isPortable && !isCustom;
-
             portableCreate.Enabled = !isPortable;
 
             if (!isPortable) ghost.Checked = false;
+        }
+
+        private void UpdateModeUI()
+        {
+            if (_updatingModeUI) return;
+
+            _updatingModeUI = true;
+            try
+            {
+                UpdateLaunchModeUI();
+                UpdatePortableUI();
+            }
+            finally { _updatingModeUI = false; }
+        }
+
+        public void UpdateUI()
+        {
+            UpdateModeUI();
+            UpdateStreakUI();
         }
 
         private void SetActiveButton(Button selectedButton) { UIHelper.SetActiveNavigationButton(selectedButton, tabControl1, buttonTabPages); }
@@ -162,6 +180,12 @@ private async void StartPortable(object sender, EventArgs e)
                 cp.ExStyle |= 0x02000000;
                 return cp;
             }
+        }
+        private void SaveWindowPosition()
+        {
+            Point location = this.WindowState == FormWindowState.Normal ? this.Location : this.RestoreBounds.Location;
+            _settings.OpenX = location.X;
+            _settings.OpenY = location.Y;
         }
 
         private void SaveSettings()
@@ -178,14 +202,27 @@ private async void StartPortable(object sender, EventArgs e)
             _settings.GhostMode = ghost.Checked;
             _settings.RepentogonChecked = repentogonCheckbox.Checked;
             _settings.RepentogonPath = repentogonPathText.Text;
-
-            Point location = this.WindowState == FormWindowState.Normal ? this.Location : this.RestoreBounds.Location;
-            _settings.OpenX = location.X;
-            _settings.OpenY = location.Y;
+            SaveWindowPosition();
 
             AppConfig.Save(_settings);
         }
+        private void LoadWindowPosition()
+        {
+            if (!_settings.OpenX.HasValue || !_settings.OpenY.HasValue) return;
+            {
+                Point savedLocation = new Point(_settings.OpenX.Value,_settings.OpenY.Value);
+                Rectangle windowBounds = new Rectangle(savedLocation, this.Size);
 
+                foreach (Screen screen in Screen.AllScreens)
+                {
+                    if (!screen.WorkingArea.Contains(windowBounds)) continue;
+                    
+                    this.StartPosition = FormStartPosition.Manual;
+                    this.Location = savedLocation;
+                    break;
+                }
+            }
+        }
         private void LoadSettings()
         {
             _settings = AppConfig.Load();
@@ -202,29 +239,7 @@ private async void StartPortable(object sender, EventArgs e)
             ghost.Checked = _settings.GhostMode;
             repentogonCheckbox.Checked = _settings.RepentogonChecked;
             repentogonPathText.Text = _settings.RepentogonPath;
-
-            if (_settings.OpenX.HasValue && _settings.OpenY.HasValue)
-            {
-                Point savedLocation = new Point(
-                    _settings.OpenX.Value,
-                    _settings.OpenY.Value
-                );
-
-                Rectangle windowBounds = new Rectangle(savedLocation, this.Size);
-
-                foreach (Screen screen in Screen.AllScreens)
-                {
-                    if (screen.WorkingArea.Contains(windowBounds))
-                    {
-                        this.StartPosition = FormStartPosition.Manual;
-                        this.Location = savedLocation;
-                        break;
-                    }
-                }
-            }
-
-            label9.Text = _settings.DailyStreak.ToString();
-            label10.Text = _settings.Streak.ToString();
+            LoadWindowPosition();
         }
 
         private void SetPlayButtonState(PlayButtonState playButtonState)
@@ -256,7 +271,7 @@ private async void StartPortable(object sender, EventArgs e)
         public async Task<string> FindIsaac(bool enableFullscreen, Launcher launcher)
         {
             bool hasExited = false;
-            bool ghostMode = ghost.Checked;
+            bool ghostMode = this.ghost.Checked;
             bool isPortable = GetLaunchMode() == LaunchMode.Portable;
 
             try
@@ -275,7 +290,6 @@ private async void StartPortable(object sender, EventArgs e)
 
                 // Megvárjuk, amíg a játék bezáródik (ez is háttérben megy)
                 if (!Isaac.HasExited) SetPlayButtonState(PlayButtonState.Stop);
-                UpdateUI();
 
                 // Várjuk meg, amíg a játék bezáródik, és ha a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
                 bool exitResult = await GameProcessMonitor.WaitForExitAsync(Isaac);
@@ -289,8 +303,6 @@ private async void StartPortable(object sender, EventArgs e)
             }
             finally
             {
-                // Visszaállítjuk a UI-t, függetlenül attól, hogy sikerült-e a játékot elindítani vagy sem
-                UpdateUI();
                 SetPlayButtonState(PlayButtonState.Play);
 
                 // Ha a játék bezárult, és a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
@@ -316,6 +328,65 @@ private async void StartPortable(object sender, EventArgs e)
             }
         }
 
+        private Panel CreateUpdateOverlay(Control content)
+        {
+
+            Bitmap screenshot = null;
+            Panel Modal = null;
+            try
+            {
+                screenshot = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
+                Point topLeft = PointToScreen(Point.Empty);
+                using (Graphics g = Graphics.FromImage(screenshot))
+                {
+                    g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
+                    using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28))) g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
+                }
+
+                // We create a modal panel to host the update user control, and add it to the form.
+                Modal = new Panel();
+
+                Modal.Dock = DockStyle.Fill;
+                Modal.BackgroundImage = screenshot;
+                Modal.TabStop = false;
+
+                this.Controls.Add(Modal);
+                Modal.Controls.Add(content);
+
+                content.Location = new Point(this.ClientSize.Width / 2 - content.Width / 2, this.ClientSize.Height / 2 - content.Height / 2);
+
+                Modal.BringToFront();
+                content.BringToFront();
+                return Modal;
+            }
+            catch
+            {
+                try
+                {
+                    if (Modal != null)
+                    {
+                        Modal.BackgroundImage = null;
+                        this.Controls.Remove(Modal);
+                        Modal.Dispose();
+                    }
+                }
+                finally {if (screenshot != null) screenshot.Dispose();}
+                throw;
+            }
+        }
+
+        private void RemoveUpdateOverlay(Panel overlay)
+        {
+            Image img = overlay.BackgroundImage;
+            try
+            {
+                this.Controls.Remove(overlay);
+                overlay.BackgroundImage = null;
+                overlay.Dispose();
+            }
+            finally { img?.Dispose(); }
+        }
+
         private async Task<DialogResult> ShowUpdateDialogAsync()
         {
             // We create a custom user control for the update prompt, and use a TaskCompletionSource to await the user's choice.
@@ -323,85 +394,32 @@ private async void StartPortable(object sender, EventArgs e)
             TaskCompletionSource<DialogResult> result = new TaskCompletionSource<DialogResult>();
             updateUserControl.ChoiceSelected += (choice) => result.TrySetResult(choice);
 
-            // We take a screenshot of the current form to use as the background for the modal panel.
-            Bitmap screenshot = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
-            Point topLeft = PointToScreen(Point.Empty);
-            using (Graphics g = Graphics.FromImage(screenshot))
+            Panel Modal = CreateUpdateOverlay(updateUserControl);
+
+            try
             {
-                g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
-                using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28)))
-                {
-                    g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
-                }
+                SystemSounds.Asterisk.Play();
+                DialogResult choiceSelected = await result.Task;
+                return choiceSelected;
             }
-
-            // We create a modal panel to host the update user control, and add it to the form.
-            Panel Modal = new Panel();
-
-            Modal.Dock = DockStyle.Fill;
-            Modal.BackgroundImage = screenshot;
-            Modal.TabStop = false;
-
-            this.Controls.Add(Modal);
-            Modal.Controls.Add(updateUserControl);
-
-            updateUserControl.Location = new Point(this.ClientSize.Width / 2 - updateUserControl.Width / 2, this.ClientSize.Height / 2 - updateUserControl.Height / 2);
-
-            // We bring the modal panel and the update user control to the front, and play a sound to alert the user.
-            Modal.BringToFront();
-            updateUserControl.BringToFront();
-            SystemSounds.Asterisk.Play();
-
-            DialogResult choiceSelected = await result.Task;
-
-            this.Controls.Remove(Modal);
-            Modal.BackgroundImage = null;
-            Modal.Dispose();
-            screenshot.Dispose();
-            return choiceSelected;
+            finally { RemoveUpdateOverlay(Modal); }
         }
 
         private async Task ShowUpdateProgressDialogAsync(Func<IProgress<int>, IProgress<string>, Task> operation)
         {
             // We take a screenshot of the current form to use as the background for the modal panel.
-            Bitmap screenshot = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
-            Point topLeft = PointToScreen(Point.Empty);
-            using (Graphics g = Graphics.FromImage(screenshot))
-            {
-                g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
-                using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28)))
-                {
-                    g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
-                }
-            }
             bool isActive = true;
             UpdateProgressUserControl updateProgressUserControl = new UpdateProgressUserControl();
             Progress<int> progressReporter = new Progress<int>(percentage => { if (isActive) updateProgressUserControl.UpdateProgress(percentage); });
             Progress<string> statusReporter = new Progress<string>(status => { if (isActive) updateProgressUserControl.UpdateStatus(status); });
 
-            // We create a modal panel to host the update user control, and add it to the form.
-            Panel Modal = new Panel();
+            Panel Modal = CreateUpdateOverlay(updateProgressUserControl);
 
-            Modal.Dock = DockStyle.Fill;
-            Modal.BackgroundImage = screenshot;
-            Modal.TabStop = false;
-
-            this.Controls.Add(Modal);
-            Modal.Controls.Add(updateProgressUserControl);
-
-            updateProgressUserControl.Location = new Point(this.ClientSize.Width / 2 - updateProgressUserControl.Width / 2, this.ClientSize.Height / 2 - updateProgressUserControl.Height / 2);
-
-            // We bring the modal panel and the update user control to the front, and play a sound to alert the user.
-            Modal.BringToFront();
-            updateProgressUserControl.BringToFront();
             try { await operation(progressReporter, statusReporter); }
             finally
             {
                 isActive = false;
-                this.Controls.Remove(Modal);
-                Modal.BackgroundImage = null;
-                Modal.Dispose();
-                screenshot.Dispose();
+                RemoveUpdateOverlay(Modal);
             }
         }
 
@@ -473,7 +491,7 @@ private async void StartPortable(object sender, EventArgs e)
             bool RepentogonEnabled = repentogonCheckbox.Checked;
 
             string hiba = await Task.Run(() => launcher.InitializeAndLaunch(BorderlessEnabled, ModsEnabled, RepentogonEnabled, _settings));
-            UpdateUI();
+            UpdateStreakUI();
             if (await CheckForErrors(hiba))
             {
                 SetPlayButtonState(PlayButtonState.Play);
@@ -486,7 +504,6 @@ private async void StartPortable(object sender, EventArgs e)
 
         private async Task LaunchGameAsync(bool isInstantLaunch)
         {
-            UpdateUI();
             try
             {
                 Process[] Isaac = Process.GetProcessesByName("isaac-ng");
@@ -550,7 +567,13 @@ private async void StartPortable(object sender, EventArgs e)
             );
             if (choice != PopupUserControl.PopupChoice.Primary) ghost.Checked = false;
         }
-        private void CheckBox_CheckedChanged(object sender, EventArgs e) { UpdateUI(); }
+        private void CheckBox_CheckedChanged(object sender, EventArgs e) 
+        {
+            if (_loadingSettings || _settings == null) return;
+
+            if (sender == portable || sender == custom) UpdateModeUI();
+            else if (sender == smart) UpdateStreakUI();
+        }
         private async void BrowseGamePath(object sender, EventArgs e)
         {
             using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
@@ -652,8 +675,6 @@ private async void StartPortable(object sender, EventArgs e)
                 checkForUpdatesButton.Enabled = true;
             }
         }
-
-
 
         public void ShowMainWindow()
         {
