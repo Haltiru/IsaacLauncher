@@ -1,5 +1,6 @@
 ﻿//Form1.cs
 using IsaacLauncherGUI.Classes;
+using IsaacLauncherGUI.Properties;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -323,12 +324,13 @@ private async void StartPortable(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(errorMessage)) return false;
             {
+                ShowMainWindow();
                 await PopupManager.ShowAsync(this, "LAUNCH ERROR", errorMessage, "OK", null, null, SystemSounds.Hand);
                 return true;
             }
         }
 
-        private Panel CreateUpdateOverlay(Control content)
+        private async Task<Panel> CreateUpdateOverlay(Control content)
         {
 
             Bitmap screenshot = null;
@@ -339,6 +341,7 @@ private async void StartPortable(object sender, EventArgs e)
                 Point topLeft = PointToScreen(Point.Empty);
                 using (Graphics g = Graphics.FromImage(screenshot))
                 {
+                    await Task.Delay(100);
                     g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
                     using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28))) g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
                 }
@@ -394,7 +397,7 @@ private async void StartPortable(object sender, EventArgs e)
             TaskCompletionSource<DialogResult> result = new TaskCompletionSource<DialogResult>();
             updateUserControl.ChoiceSelected += (choice) => result.TrySetResult(choice);
 
-            Panel Modal = CreateUpdateOverlay(updateUserControl);
+            Panel Modal = await CreateUpdateOverlay(updateUserControl);
 
             try
             {
@@ -413,7 +416,7 @@ private async void StartPortable(object sender, EventArgs e)
             Progress<int> progressReporter = new Progress<int>(percentage => { if (isActive) updateProgressUserControl.UpdateProgress(percentage); });
             Progress<string> statusReporter = new Progress<string>(status => { if (isActive) updateProgressUserControl.UpdateStatus(status); });
 
-            Panel Modal = CreateUpdateOverlay(updateProgressUserControl);
+            Panel Modal = await CreateUpdateOverlay(updateProgressUserControl);
 
             try { await operation(progressReporter, statusReporter); }
             finally
@@ -423,41 +426,39 @@ private async void StartPortable(object sender, EventArgs e)
             }
         }
 
-        private async Task<bool> CheckForUpdate(bool autoCheck)
+        private bool CooldownCheck(bool autoCheck)
         {
-            // We check for updates only if the last check was more than 36 seconds ago (0.01 hours)
-            if (!string.IsNullOrEmpty(_settings.LastUpdateCheck) && !_settings.Reminder && autoCheck)
-            {
-                DateTime lastCheck;
-                if (DateTime.TryParse(_settings.LastUpdateCheck, out lastCheck))
-                {
-                    TimeSpan timeSinceLastCheck = DateTime.Now - lastCheck;
-                    if (timeSinceLastCheck.TotalHours < 0.01) return false;
-                }
-            }
+            if (!autoCheck) return true;
+            if (_settings.Reminder) return true;
+            if (string.IsNullOrEmpty(_settings.LastUpdateCheck)) return true;
 
-            // We get the remote version and compare it with the local version. If the remote version is newer, we prompt the user to update.
-            Updater updater = new Updater();
+            DateTime lastCheck;
+            if (DateTime.TryParse(_settings.LastUpdateCheck, out lastCheck))
+            {
+                TimeSpan timeSinceLastCheck = DateTime.Now - lastCheck;
+                if (timeSinceLastCheck.TotalHours < 0.01) return false;
+            }
+            return true;
+        }
+        private async Task<bool> CheckUpdateAvailabilityAsync(Updater updater)
+        {
             bool isSuccess = await updater.GetRemoteVersion();
-            string remoteVersion = null;
             Version checkForNull = updater.RemoteVersion;
             if (isSuccess && checkForNull != null)
             {
                 // Update the last check time
                 _settings.LastUpdateCheck = DateTime.Now.ToString("o");
                 AppConfig.Save(_settings);
-                remoteVersion = updater.RemoteVersion.ToString();
             }
-            // If the user has chosen to skip this version, we don't prompt them again unless they manually check for updates.
-            if (!_settings.Reminder && _settings.SkippedUpdateVersion == remoteVersion && autoCheck) return false;
+            return isSuccess && checkForNull != null;
+        }
+        private async Task<bool> HandleUpdateDialogAsync(Updater updater)
+        {
 
-            if (isSuccess && updater.IsUpdateAvailable())
+            DialogResult choiceSelected = await ShowUpdateDialogAsync();
+            switch (choiceSelected)
             {
-                Task<DialogResult> choiceTask = ShowUpdateDialogAsync();
-                DialogResult choiceSelected = await choiceTask;
-
-                if (choiceSelected == DialogResult.Yes)
-                {
+                case DialogResult.Yes:
                     _settings.Reminder = false;
                     AppConfig.Save(_settings);
                     try { await ShowUpdateProgressDialogAsync((progressReporter, statusReporter) => updater.StartUpdateProcess(progressReporter, statusReporter)); }
@@ -466,22 +467,58 @@ private async void StartPortable(object sender, EventArgs e)
                         await PopupManager.ShowAsync(this, "UPDATE FAILED", $"The update failed: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                         return false;
                     }
-                }
-                else if (choiceSelected == DialogResult.No)
-                {
+                    break;
+                case DialogResult.No:
                     _settings.Reminder = false;
                     _settings.SkippedUpdateVersion = updater.RemoteVersion.ToString();
                     AppConfig.Save(_settings);
-                }
-                else if (choiceSelected == DialogResult.Cancel)
-                {
+                    break;
+                case DialogResult.Cancel:
                     _settings.Reminder = true;
                     AppConfig.Save(_settings);
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
+        private async Task<bool> CheckForUpdate(bool autoCheck)
+        {
+            try
+            {
+                // We check for updates only if the last check was more than 36 seconds ago (0.01 hours)
+                bool cooldownPassed = CooldownCheck(autoCheck);
+                if (!cooldownPassed) return false;
+
+                // We get the remote version and compare it with the local version. If the remote version is newer, we prompt the user to update.
+                Updater updater = new Updater();
+                bool checkSucceeded = await CheckUpdateAvailabilityAsync(updater);
+                if (!checkSucceeded)
+                {
+                    if (!autoCheck)
+                    {
+                        await PopupManager.ShowAsync(this, "UPDATE CHECK FAILED", "Failed to check for updates. Please check your internet connection and try again.", "OK", null, null, SystemSounds.Hand);
+                    }
+                    return false;
+                }
+
+                // If the user has chosen to skip this version, we don't prompt them again unless they manually check for updates.
+                if (!_settings.Reminder && _settings.SkippedUpdateVersion == updater.RemoteVersion.ToString() && autoCheck) return false;
+
+                if (updater.IsUpdateAvailable()) return await HandleUpdateDialogAsync(updater);
+                else
+                {
+                    if (!autoCheck) await PopupManager.ShowAsync(this, "NO UPDATE AVAILABLE", $"You are using the latest version of the launcher: {updater.LocalVersion}.", "OK", null, null, SystemSounds.Asterisk);
+                    
+                    return true;
                 }
             }
-            else if (isSuccess && !autoCheck) await PopupManager.ShowAsync(this, "NO UPDATE AVAILABLE", $"You are using the latest version of the launcher: {updater.LocalVersion}.", "OK", null, null, SystemSounds.Asterisk);
-            else if (!isSuccess && !autoCheck) await PopupManager.ShowAsync(this, "UPDATE CHECK FAILED", "Failed to check for updates. Please check your internet connection and try again.", "OK", null, null, SystemSounds.Hand);
-            return isSuccess;
+            catch (Exception ex)
+            {
+                if (!autoCheck) await PopupManager.ShowAsync(this, "UPDATE CHECK ERROR", $"An error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand);
+                Debug.WriteLine($"CheckForUpdate error: {ex}");
+                return false;
+            }
         }
 
         public async Task StartGame(Launcher launcher)
@@ -530,6 +567,7 @@ private async void StartPortable(object sender, EventArgs e)
             }
             catch (Exception ex)
             {
+                ShowMainWindow();
                 await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                 SetPlayButtonState(PlayButtonState.Play);
             }
@@ -624,10 +662,7 @@ private async void StartPortable(object sender, EventArgs e)
                 SaveManager saveManager = new SaveManager(portable.Checked);
                 saveManager.OpenBackupFolder();
             }
-            catch (Exception ex)
-            {
-                await PopupManager.ShowAsync(this, "ERROR", $"An error occurred while trying to open the backup folder: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-            }
+            catch (Exception ex) { await PopupManager.ShowAsync(this, "ERROR", $"An error occurred while trying to open the backup folder: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
         }
         private void OpenModManagerButton_Click(object sender, EventArgs e)
         {
@@ -662,18 +697,9 @@ private async void StartPortable(object sender, EventArgs e)
         private async void CheckForUpdatesButton_Click(object sender, EventArgs e)
         {
             checkForUpdatesButton.Enabled = false;
-            try
-            {
-                await CheckForUpdate(false);
-            }
-            catch (Exception ex)
-            {
-                await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-            }
-            finally
-            {
-                checkForUpdatesButton.Enabled = true;
-            }
+            try { await CheckForUpdate(false); }
+            catch (Exception ex) {await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
+            finally {checkForUpdatesButton.Enabled = true;}
         }
 
         public void ShowMainWindow()
@@ -723,16 +749,7 @@ private async void StartPortable(object sender, EventArgs e)
                 this.Show();
                 this.Activate();
             }
-            try
-            {
-                if (instantLaunch.Checked) await LaunchGameAsync(true);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An unexpected error occurred during instant launch: {ex.Message}");
-                await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred during instant launch: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-                SetPlayButtonState(PlayButtonState.Play);
-            }
+            if (instantLaunch.Checked) await LaunchGameAsync(true);
         }
 
         private void IsaacLauncher_Load(object sender, EventArgs e)
