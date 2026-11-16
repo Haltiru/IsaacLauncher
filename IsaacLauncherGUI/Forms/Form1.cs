@@ -26,6 +26,7 @@ namespace IsaacLauncherGUI
         private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
         ToolTip mainToolTip = new ToolTip();
         private enum PlayButtonState { Play, Stop, Starting }
+        private enum GameStatus { Stopped,Starting,Running,Stopping }
         public IsaacLauncher()
         {
             InitializeComponent();
@@ -273,6 +274,29 @@ private async void StartPortable(object sender, EventArgs e)
             }
         }
 
+        private void SetGameStatus(GameStatus gamestatus)
+        {
+            switch (gamestatus)
+            {
+                case GameStatus.Stopped:
+                    label17.Text = "Stopped";
+                    label17.ForeColor = Color.FromArgb(84, 76, 74); 
+                    break;
+                case GameStatus.Starting:
+                    label17.Text = "Starting";
+                    label17.ForeColor = Color.FromArgb(125, 72, 0);
+                    break;
+                case GameStatus.Running:
+                    label17.Text = "Running";
+                    label17.ForeColor = Color.Green;
+                    break;
+                case GameStatus.Stopping:
+                    label17.Text = "Stopping";
+                    label17.ForeColor = Color.Orange;
+                    break;
+            }
+        }
+
         public async Task<string> FindIsaac(bool enableFullscreen, Launcher launcher)
         {
             bool hasExited = false;
@@ -294,7 +318,11 @@ private async void StartPortable(object sender, EventArgs e)
                 }
 
                 // Megvárjuk, amíg a játék bezáródik (ez is háttérben megy)
-                if (!Isaac.HasExited) SetPlayButtonState(PlayButtonState.Stop);
+                if (!Isaac.HasExited) 
+                {
+                    SetPlayButtonState(PlayButtonState.Stop);
+                    SetGameStatus(GameStatus.Running);
+                }
 
                 // Várjuk meg, amíg a játék bezáródik, és ha a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
                 bool exitResult = await GameProcessMonitor.WaitForExitAsync(Isaac);
@@ -309,6 +337,7 @@ private async void StartPortable(object sender, EventArgs e)
             finally
             {
                 SetPlayButtonState(PlayButtonState.Play);
+                SetGameStatus(GameStatus.Stopped);
 
                 // Ha a játék bezárult, és a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
                 bool cleanupResult = GameCleanupManager.TryCleanup(hasExited, ghostMode, isPortable, launcher);
@@ -541,6 +570,7 @@ private async void StartPortable(object sender, EventArgs e)
                     ShowMainWindow();
                     await PopupManager.ShowAsync(this, "BACKUP FAILED", $"An error occurred while backing up your saves: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                     SetPlayButtonState(PlayButtonState.Play);
+                    SetGameStatus(GameStatus.Stopped);
                     return;
                 }
             }
@@ -551,6 +581,7 @@ private async void StartPortable(object sender, EventArgs e)
             if (await CheckForErrors(hiba))
             {
                 SetPlayButtonState(PlayButtonState.Play);
+                SetGameStatus(GameStatus.Stopped);
                 return;
             }
 
@@ -579,6 +610,7 @@ private async void StartPortable(object sender, EventArgs e)
                     }
                 }
                 SetPlayButtonState(PlayButtonState.Starting);
+                SetGameStatus(GameStatus.Starting);
                 LaunchMode ModeRequested = GetLaunchMode();
                 Launcher isaacLauncher = new Launcher(ModeRequested, mods.Checked, pathText.Text, repentogonCheckbox.Checked, repentogonPathText.Text, smart.Checked);
                 await StartGame(isaacLauncher);
@@ -589,6 +621,7 @@ private async void StartPortable(object sender, EventArgs e)
                 ShowMainWindow();
                 await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                 SetPlayButtonState(PlayButtonState.Play);
+                SetGameStatus(GameStatus.Stopped);
             }
         }
 
@@ -780,6 +813,7 @@ private async void StartPortable(object sender, EventArgs e)
             var __ = gamePathToolTip.Handle;
             InitializeToolTips();
             SetPlayButtonState(PlayButtonState.Play);
+            SetGameStatus(GameStatus.Stopped);
             UIHelper.ApplyHoverEffects(this);
             SetActiveButton(launcherButton);
             _loadingSettings = true;
