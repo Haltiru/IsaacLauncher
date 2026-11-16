@@ -52,7 +52,7 @@ namespace IsaacLauncherGUI
             return steamProcesses.Length > 0;
         }
 
-        private bool IsSteamReady()
+        private async Task<bool> IsSteamReady()
         {
             // 1. Csekkoljuk, hogy létezik-e egyáltalán a steam processz a gépén
             if (!IsSteamProcessRunning())
@@ -60,8 +60,14 @@ namespace IsaacLauncherGUI
                 return false;
             }
 
-            // 2. Kiolvassuk az ActiveUser értéket a registry-ből (alapértelmezett 0, ha nincs)
-            object activeUserObj = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess", "ActiveUser", 0);
+            //// 2. Kiolvassuk az ActiveUser értéket a registry-ből (alapértelmezett 0, ha nincs)
+            object activeUserObj;
+            do
+            {
+                activeUserObj = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess", "ActiveUser", 0);
+                await Task.Delay(100);
+            }
+            while ((int)activeUserObj != 0);
 
             // 3. Biztonságos castolás: kezeljük a null-t és az esetleges string/int konverziót
             int activeUser = 0;
@@ -77,10 +83,7 @@ namespace IsaacLauncherGUI
 
         public async Task<string> EnsureSteamRunning()
         {
-            if (IsSteamReady())
-            {
-                return null;
-            }
+            if (await IsSteamReady()) return null;
             if (!IsSteamProcessRunning())
             {
                 string steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamExe", null) as string;
@@ -108,12 +111,12 @@ namespace IsaacLauncherGUI
             stopwatch.Start();
             try
             {
-                while (!IsSteamReady() && stopwatch.ElapsedMilliseconds < 60000)
+                while (! await IsSteamReady() && stopwatch.ElapsedMilliseconds < 60000)
                 {
                     await Task.Delay(250);
                 }
 
-                if (!IsSteamReady())
+                if (!await IsSteamReady())
                 {
                     return "Timeout: Steam didn't start in time!";
                 }
@@ -183,7 +186,6 @@ namespace IsaacLauncherGUI
             }
             return null;
         }
-
 
         public bool DeleteNotExistedFolders()
         {

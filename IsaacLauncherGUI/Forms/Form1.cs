@@ -89,18 +89,19 @@ private async void StartPortable(object sender, EventArgs e)
         {
             var tooltips = new Dictionary<Control, string>
         {
-        { modsToolTip, "If checked Isaac is going to start with mods." },
-        { smartStartTooltip, "If checked the launcher will try to start Isaac according to the daily challenge timer. (without mods and repentogon when a new daily is available on the first start)" },
-        { borderlessFullscreenTooltip, "If checked Isaac will start in borderless fullscreen mode." },
-        { customToolTip, "If checked the launcher will try to start the custom version of Isaac." },
-        { portableToolTip, "If checked the launcher will try to start the portable version of Isaac." },
-        { instantLaunchToolTip, "If checked Isaac will start instantly when starting the app." },
-        { ghostModeTooltip, "If checked the launcher will delete My Games and/or Binding of Isaac Repentance+ folders if they did not exist before. (only works with portable version)" },
-        { systemTrayToolTip, "If checked the launcher will minimize to tray instead of closing." },
-        { startInSystemTrayToolTip, "If checked the launcher will start minimized to tray." },
-        { repentogonToolTip, "If checked the launcher will try to start the Repentogon launcher." },
-        { repentogonPathToolTip, "The path to the Repentogon Launcher exe." },
-        { gamePathToolTip, "The path to the Isaac game folder. The folder must contain the isaac-ng.exe file." }
+            { modsToolTip, "If checked Isaac is going to start with mods." },
+            { smartStartTooltip, "If checked the launcher will try to start Isaac according to the daily challenge timer. (without mods and repentogon when a new daily is available on the first start)" },
+            { borderlessFullscreenTooltip, "If checked Isaac will start in borderless fullscreen mode." },
+            { customToolTip, "If checked the launcher will try to start the custom version of Isaac." },
+            { portableToolTip, "If checked the launcher will try to start the portable version of Isaac." },
+            { instantLaunchToolTip, "If checked Isaac will start instantly when starting the app." },
+            { ghostModeTooltip, "If checked the launcher will delete My Games and/or Binding of Isaac Repentance+ folders if they did not exist before. (only works with portable version)" },
+            { systemTrayToolTip, "If checked the launcher will minimize to tray instead of closing." },
+            { startInSystemTrayToolTip, "If checked the launcher will start minimized to tray." },
+            { repentogonToolTip, "If checked the launcher will try to start the Repentogon launcher." },
+            { repentogonPathToolTip, "The path to the Repentogon Launcher exe." },
+            { gamePathToolTip, "The path to the Isaac game folder. The folder must contain the isaac-ng.exe file." },
+            {backupBeforePlayToolip, "If checked the launcher will backup your saves before starting the game." }
         };
 
             UIHelper.SetToolTips(mainToolTip, tooltips);
@@ -203,6 +204,7 @@ private async void StartPortable(object sender, EventArgs e)
             _settings.GhostMode = ghost.Checked;
             _settings.RepentogonChecked = repentogonCheckbox.Checked;
             _settings.RepentogonPath = repentogonPathText.Text;
+            _settings.AutoBackupBeforePlay = backupBeforePlayCheckbox.Checked;
             SaveWindowPosition();
 
             AppConfig.Save(_settings);
@@ -240,6 +242,8 @@ private async void StartPortable(object sender, EventArgs e)
             ghost.Checked = _settings.GhostMode;
             repentogonCheckbox.Checked = _settings.RepentogonChecked;
             repentogonPathText.Text = _settings.RepentogonPath;
+            backupBeforePlayCheckbox.Checked = _settings.AutoBackupBeforePlay;
+
             LoadWindowPosition();
         }
 
@@ -337,11 +341,11 @@ private async void StartPortable(object sender, EventArgs e)
             Panel Modal = null;
             try
             {
+                await Task.Delay(100);
                 screenshot = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
                 Point topLeft = PointToScreen(Point.Empty);
                 using (Graphics g = Graphics.FromImage(screenshot))
-                {
-                    await Task.Delay(100);
+                {;
                     g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
                     using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28))) g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
                 }
@@ -495,10 +499,7 @@ private async void StartPortable(object sender, EventArgs e)
                 bool checkSucceeded = await CheckUpdateAvailabilityAsync(updater);
                 if (!checkSucceeded)
                 {
-                    if (!autoCheck)
-                    {
-                        await PopupManager.ShowAsync(this, "UPDATE CHECK FAILED", "Failed to check for updates. Please check your internet connection and try again.", "OK", null, null, SystemSounds.Hand);
-                    }
+                    if (!autoCheck) await PopupManager.ShowAsync(this, "UPDATE CHECK FAILED", "Failed to check for updates. Please check your internet connection and try again.", "OK", null, null, SystemSounds.Hand);
                     return false;
                 }
 
@@ -526,6 +527,24 @@ private async void StartPortable(object sender, EventArgs e)
             bool BorderlessEnabled = borderless.Checked;
             bool ModsEnabled = mods.Checked;
             bool RepentogonEnabled = repentogonCheckbox.Checked;
+            bool isBackupBeforePlayEnabled = backupBeforePlayCheckbox.Checked;
+
+            if (isBackupBeforePlayEnabled)
+            {
+                try
+                {
+                    SaveManager saveManager = new SaveManager(portable.Checked);
+                    saveManager.Save(true);
+                }
+                catch (Exception ex)
+                {
+                    ShowMainWindow();
+                    await PopupManager.ShowAsync(this, "BACKUP FAILED", $"An error occurred while backing up your saves: {ex.Message}", "OK", null, null, SystemSounds.Hand);
+                    SetPlayButtonState(PlayButtonState.Play);
+                    return;
+                }
+            }
+
 
             string hiba = await Task.Run(() => launcher.InitializeAndLaunch(BorderlessEnabled, ModsEnabled, RepentogonEnabled, _settings));
             UpdateStreakUI();
@@ -588,6 +607,17 @@ private async void StartPortable(object sender, EventArgs e)
                 await PopupManager.ShowAsync(this, "BACKUP FAILED", $"An error occurred while backing up your saves: {ex.Message}", "OK", null, null, SystemSounds.Hand);
             }
         }
+
+        private async void OpenBackupFolderButton(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveManager saveManager = new SaveManager(portable.Checked);
+                saveManager.OpenBackupFolder();
+            }
+            catch (Exception ex) { await PopupManager.ShowAsync(this, "ERROR", $"An error occurred while trying to open the backup folder: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
+        }
+
         private async void ghost_CheckedChanged(object sender, EventArgs e)
         {
             if (!ghost.Checked || _loadingSettings) return;
@@ -654,16 +684,6 @@ private async void StartPortable(object sender, EventArgs e)
             }
         }
 
-
-        private async void OpenBackupFolderButton(object sender, EventArgs e)
-        {
-            try
-            {
-                SaveManager saveManager = new SaveManager(portable.Checked);
-                saveManager.OpenBackupFolder();
-            }
-            catch (Exception ex) { await PopupManager.ShowAsync(this, "ERROR", $"An error occurred while trying to open the backup folder: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
-        }
         private void OpenModManagerButton_Click(object sender, EventArgs e)
         {
             string targetPath = pathText.Text;

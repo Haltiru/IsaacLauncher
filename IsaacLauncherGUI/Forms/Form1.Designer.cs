@@ -87,6 +87,8 @@
             this.pathText = new System.Windows.Forms.Label();
             this.toolsPage = new System.Windows.Forms.TabPage();
             this.panel6 = new System.Windows.Forms.Panel();
+            this.backupBeforePlayToolip = new System.Windows.Forms.PictureBox();
+            this.backupBeforePlayCheckbox = new System.Windows.Forms.CheckBox();
             this.button1 = new System.Windows.Forms.Button();
             this.backupButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -128,6 +130,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.customToolTip)).BeginInit();
             this.toolsPage.SuspendLayout();
             this.panel6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.backupBeforePlayToolip)).BeginInit();
             this.aboutPage.SuspendLayout();
             this.panel7.SuspendLayout();
             this.panel8.SuspendLayout();
@@ -653,6 +656,8 @@
             // panel6
             // 
             this.panel6.BackColor = System.Drawing.Color.Transparent;
+            this.panel6.Controls.Add(this.backupBeforePlayToolip);
+            this.panel6.Controls.Add(this.backupBeforePlayCheckbox);
             this.panel6.Controls.Add(this.button1);
             this.panel6.Controls.Add(this.backupButton);
             this.panel6.Controls.Add(this.label2);
@@ -660,6 +665,23 @@
             this.panel6.Controls.Add(this.label6);
             resources.ApplyResources(this.panel6, "panel6");
             this.panel6.Name = "panel6";
+            // 
+            // backupBeforePlayToolip
+            // 
+            this.backupBeforePlayToolip.BackgroundImage = global::IsaacLauncherGUI.Properties.Resources.hdsecretroom;
+            resources.ApplyResources(this.backupBeforePlayToolip, "backupBeforePlayToolip");
+            this.backupBeforePlayToolip.Cursor = System.Windows.Forms.Cursors.Default;
+            this.backupBeforePlayToolip.Name = "backupBeforePlayToolip";
+            this.backupBeforePlayToolip.TabStop = false;
+            // 
+            // backupBeforePlayCheckbox
+            // 
+            resources.ApplyResources(this.backupBeforePlayCheckbox, "backupBeforePlayCheckbox");
+            this.backupBeforePlayCheckbox.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.backupBeforePlayCheckbox.FlatAppearance.BorderSize = 100;
+            this.backupBeforePlayCheckbox.ForeColor = System.Drawing.Color.White;
+            this.backupBeforePlayCheckbox.Name = "backupBeforePlayCheckbox";
+            this.backupBeforePlayCheckbox.UseVisualStyleBackColor = true;
             // 
             // button1
             // 
@@ -881,6 +903,7 @@
             this.toolsPage.ResumeLayout(false);
             this.toolsPage.PerformLayout();
             this.panel6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.backupBeforePlayToolip)).EndInit();
             this.aboutPage.ResumeLayout(false);
             this.aboutPage.PerformLayout();
             this.panel7.ResumeLayout(false);
@@ -966,6 +989,8 @@
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.PictureBox backupBeforePlayToolip;
+        private System.Windows.Forms.CheckBox backupBeforePlayCheckbox;
     }
 }
 

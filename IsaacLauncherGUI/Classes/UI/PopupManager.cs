@@ -14,11 +14,10 @@ using System.Windows.Forms;
                 TaskCompletionSource<PopupUserControl.PopupChoice> popupChoice = new TaskCompletionSource<PopupUserControl.PopupChoice>();
                 PopupUserControl popup = new PopupUserControl();
 
+                await Task.Delay(100);
                 Bitmap screenshot = new Bitmap(owner.ClientSize.Width, owner.ClientSize.Height);
-
                 using (Graphics g = Graphics.FromImage(screenshot))
                 {
-                    await Task.Delay(100);
                     Point topLeft = owner.PointToScreen(Point.Empty);
                     g.CopyFromScreen(topLeft, Point.Empty, owner.ClientSize);
 
