@@ -27,6 +27,7 @@ namespace IsaacLauncherGUI
         ToolTip mainToolTip = new ToolTip();
         private enum PlayButtonState { Play, Stop, Starting }
         private enum GameStatus { Stopped,Starting,Running,Stopping }
+        private GameStatus _currentGameStatus = GameStatus.Stopped;
         public IsaacLauncher()
         {
             InitializeComponent();
@@ -170,6 +171,7 @@ private async void StartPortable(object sender, EventArgs e)
         {
             UpdateModeUI();
             UpdateStreakUI();
+            UpdateGameInfo();
         }
 
         private void SetActiveButton(Button selectedButton) { UIHelper.SetActiveNavigationButton(selectedButton, tabControl1, buttonTabPages); }
@@ -281,32 +283,36 @@ private async void StartPortable(object sender, EventArgs e)
                 case GameStatus.Stopped:
                     label17.Text = "Stopped";
                     label17.ForeColor = Color.FromArgb(84, 76, 74); 
+                    _currentGameStatus = GameStatus.Stopped;
                     break;
                 case GameStatus.Starting:
                     label17.Text = "Starting";
                     label17.ForeColor = Color.FromArgb(125, 72, 0);
+                    _currentGameStatus = GameStatus.Starting;
                     break;
                 case GameStatus.Running:
                     label17.Text = "Running";
                     label17.ForeColor = Color.Green;
+                    _currentGameStatus = GameStatus.Running;
                     break;
                 case GameStatus.Stopping:
                     label17.Text = "Stopping";
                     label17.ForeColor = Color.Orange;
+                    _currentGameStatus = GameStatus.Stopping;
                     break;
             }
+            if (_currentGameStatus == GameStatus.Stopped && _settings != null && !_loadingSettings) UpdateGameInfo();
         }
 
-        public async Task<string> FindIsaac(bool enableFullscreen, Launcher launcher)
+        public async Task<string> FindIsaac(bool enableFullscreen, Launcher launcher, bool ghostMode)
         {
             bool hasExited = false;
-            bool ghostMode = this.ghost.Checked;
-            bool isPortable = GetLaunchMode() == LaunchMode.Portable;
+            bool isPortable = launcher.CurrentMode == LaunchMode.Portable;
 
             try
             {
                 // 1. Várjuk meg, hogy a játék és a Repentogon elinduljon
-                GameStartupResult gameProcessResult = await GameStartupMonitor.WaitForGameStartupAsync(launcher.IsRepentogonEnabled);
+                GameStartupResult gameProcessResult = await Task.Run(() => GameStartupMonitor.WaitForGameStartupAsync(launcher.IsRepentogonEnabled));
                 Process Isaac = gameProcessResult.Process;
                 if (Isaac == null) return gameProcessResult.ErrorMessage;
 
@@ -557,6 +563,7 @@ private async void StartPortable(object sender, EventArgs e)
             bool ModsEnabled = mods.Checked;
             bool RepentogonEnabled = repentogonCheckbox.Checked;
             bool isBackupBeforePlayEnabled = backupBeforePlayCheckbox.Checked;
+            bool ghostMode = ghost.Checked;
 
             if (isBackupBeforePlayEnabled)
             {
@@ -585,7 +592,8 @@ private async void StartPortable(object sender, EventArgs e)
                 return;
             }
 
-            hiba = await FindIsaac(BorderlessEnabled, launcher);
+            UpdateRunningGameInfo(launcher);
+            hiba = await FindIsaac(BorderlessEnabled, launcher, ghostMode);
             if (await CheckForErrors(hiba)) return;
         }
 
@@ -668,12 +676,46 @@ private async void StartPortable(object sender, EventArgs e)
             );
             if (choice != PopupUserControl.PopupChoice.Primary) ghost.Checked = false;
         }
+
+        private void UpdateGameInfo()
+        {
+            if (_currentGameStatus != GameStatus.Stopped) return;
+            LaunchMode mode = GetLaunchMode();
+
+            if (mode == LaunchMode.Portable) label23.Text = "Portable";
+            else if (mode == LaunchMode.Custom) label23.Text = "Custom";
+            else if (mode == LaunchMode.Steam) label23.Text = "Steam";
+
+            string modStatus = mods.Checked ? "ON" : "OFF";
+            string repentogonStatus = repentogonCheckbox.Checked ? "ON" : "OFF";
+
+            label25.Text = $"{modStatus} / {repentogonStatus}";
+        }
+
+        public void UpdateRunningGameInfo(Launcher launcher)
+        {
+            LaunchMode mode = launcher.CurrentMode;
+
+            if (mode == LaunchMode.Portable) label23.Text = "Portable";
+            else if (mode == LaunchMode.Custom) label23.Text = "Custom";
+            else if (mode == LaunchMode.Steam) label23.Text = "Steam";
+
+            bool modsEnabled = launcher.AreModsEnabled;
+            bool repentogonEnabled = launcher.IsRepentogonEnabled;
+
+            string modStatus = modsEnabled ? "ON" : "OFF";
+            string repentogonStatus = repentogonEnabled ? "ON" : "OFF";
+
+            label25.Text = $"{modStatus} / {repentogonStatus}";
+        }
         private void CheckBox_CheckedChanged(object sender, EventArgs e) 
         {
             if (_loadingSettings || _settings == null) return;
 
             if (sender == portable || sender == custom) UpdateModeUI();
             else if (sender == smart) UpdateStreakUI();
+
+            UpdateGameInfo();
         }
         private async void BrowseGamePath(object sender, EventArgs e)
         {
@@ -783,7 +825,7 @@ private async void StartPortable(object sender, EventArgs e)
                 e.Cancel = true;
                 this.Hide();
                 notifyIcon1.Visible = true;
-                //notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
+                notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
             }
             else SaveSettings();
         }
@@ -795,7 +837,7 @@ private async void StartPortable(object sender, EventArgs e)
             {
                 this.Hide();
                 notifyIcon1.Visible = true;
-                //notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
+                notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
             }
             else
             {
