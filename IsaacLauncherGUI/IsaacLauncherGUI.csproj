@@ -131,6 +131,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Core\StartupLog.cs" />
     <Compile Include="Classes\Game\GameCleanupManager.cs" />
     <Compile Include="Classes\Game\GameProcessMonitor.cs" />
     <Compile Include="Classes\Game\GameStartupMonitor.cs" />

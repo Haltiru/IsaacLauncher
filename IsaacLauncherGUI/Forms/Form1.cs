@@ -312,9 +312,19 @@ private async void StartPortable(object sender, EventArgs e)
             try
             {
                 // 1. Várjuk meg, hogy a játék és a Repentogon elinduljon
+
+                StartupLog.Write($"GameStartupMonitor START | Repentogon={launcher.IsRepentogonEnabled}");
                 GameStartupResult gameProcessResult = await Task.Run(() => GameStartupMonitor.WaitForGameStartupAsync(launcher.IsRepentogonEnabled));
                 Process Isaac = gameProcessResult.Process;
-                if (Isaac == null) return gameProcessResult.ErrorMessage;
+
+                if (Isaac == null)
+                {
+                    StartupLog.Write($"GameStartupMonitor FAILED: {gameProcessResult.ErrorMessage}");
+                    return gameProcessResult.ErrorMessage;
+                }
+
+                StartupLog.Write($"Isaac detected successfully | PID={Isaac.Id}");
+
 
                 // Most már biztonságosan méretezzük a futó ablakot
                 if (enableFullscreen)
@@ -328,6 +338,7 @@ private async void StartPortable(object sender, EventArgs e)
                 {
                     SetPlayButtonState(PlayButtonState.Stop);
                     SetGameStatus(GameStatus.Running);
+                    Stopwatch stopwatch = Stopwatch.StartNew();
                 }
 
                 // Várjuk meg, amíg a játék bezáródik, és ha a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
@@ -342,6 +353,7 @@ private async void StartPortable(object sender, EventArgs e)
             }
             finally
             {
+                StartupLog.Write($"Game monitoring finished | GameExited={hasExited}");
                 SetPlayButtonState(PlayButtonState.Play);
                 SetGameStatus(GameStatus.Stopped);
 
@@ -601,6 +613,12 @@ private async void StartPortable(object sender, EventArgs e)
         {
             try
             {
+
+                StartupLog.Write("========== NEW GAME LAUNCH ==========");
+                StartupLog.Write(
+                    $"Mode={GetLaunchMode()} | Repentogon={repentogonCheckbox.Checked} | " +
+                    $"SmartStart={smart.Checked} | Mods={mods.Checked}");
+
                 Process[] Isaac = Process.GetProcessesByName("isaac-ng");
                 if (Isaac.Length > 0)
                 {
@@ -626,6 +644,7 @@ private async void StartPortable(object sender, EventArgs e)
             }
             catch (Exception ex)
             {
+                StartupLog.Write($"LAUNCH ERROR: {ex}");
                 ShowMainWindow();
                 await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                 SetPlayButtonState(PlayButtonState.Play);
@@ -680,34 +699,21 @@ private async void StartPortable(object sender, EventArgs e)
         private void UpdateGameInfo()
         {
             if (_currentGameStatus != GameStatus.Stopped) return;
-            LaunchMode mode = GetLaunchMode();
-
-            if (mode == LaunchMode.Portable) label23.Text = "Portable";
-            else if (mode == LaunchMode.Custom) label23.Text = "Custom";
-            else if (mode == LaunchMode.Steam) label23.Text = "Steam";
-
-            string modStatus = mods.Checked ? "ON" : "OFF";
-            string repentogonStatus = repentogonCheckbox.Checked ? "ON" : "OFF";
-
-            label25.Text = $"{modStatus} / {repentogonStatus}";
+            SetGameInfo(GetLaunchMode(), mods.Checked, repentogonCheckbox.Checked);
         }
 
-        public void UpdateRunningGameInfo(Launcher launcher)
+        private void UpdateRunningGameInfo(Launcher launcher)
         {
             LaunchMode mode = launcher.CurrentMode;
-
-            if (mode == LaunchMode.Portable) label23.Text = "Portable";
-            else if (mode == LaunchMode.Custom) label23.Text = "Custom";
-            else if (mode == LaunchMode.Steam) label23.Text = "Steam";
-
-            bool modsEnabled = launcher.AreModsEnabled;
-            bool repentogonEnabled = launcher.IsRepentogonEnabled;
-
-            string modStatus = modsEnabled ? "ON" : "OFF";
-            string repentogonStatus = repentogonEnabled ? "ON" : "OFF";
-
-            label25.Text = $"{modStatus} / {repentogonStatus}";
+            SetGameInfo(mode, launcher.AreModsEnabled, launcher.IsRepentogonEnabled);
         }
+
+        private void SetGameInfo(LaunchMode mode, bool modsEnabled, bool repentogonEnabled)
+        {
+            label23.Text = mode.ToString();
+            label25.Text = $"{(repentogonEnabled ? "ON" : "OFF")} / {(modsEnabled ? "ON" : "OFF")}";
+        }
+
         private void CheckBox_CheckedChanged(object sender, EventArgs e) 
         {
             if (_loadingSettings || _settings == null) return;
@@ -841,8 +847,7 @@ private async void StartPortable(object sender, EventArgs e)
             }
             else
             {
-                this.Show();
-                this.Activate();
+                ShowMainWindow();
             }
             if (instantLaunch.Checked) await LaunchGameAsync(true);
         }
