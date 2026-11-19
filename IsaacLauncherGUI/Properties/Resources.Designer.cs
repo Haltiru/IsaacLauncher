@@ -22,7 +22,7 @@ namespace IsaacLauncherGUI.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace IsaacLauncherGUI.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("IsaacLauncherGUI.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace IsaacLauncherGUI.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,19 +61,9 @@ namespace IsaacLauncherGUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
-        /// </summary>
-        internal static System.Drawing.Icon beast {
-            get {
-                object obj = ResourceManager.GetObject("beast", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap blackbutton {
+        public static System.Drawing.Bitmap blackbutton {
             get {
                 object obj = ResourceManager.GetObject("blackbutton", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -83,7 +73,7 @@ namespace IsaacLauncherGUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap button {
+        public static System.Drawing.Bitmap button {
             get {
                 object obj = ResourceManager.GetObject("button", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -93,7 +83,7 @@ namespace IsaacLauncherGUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap hdsecretroom {
+        public static System.Drawing.Bitmap hdsecretroom {
             get {
                 object obj = ResourceManager.GetObject("hdsecretroom", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -103,7 +93,7 @@ namespace IsaacLauncherGUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap hoverbutton {
+        public static System.Drawing.Bitmap hoverbutton {
             get {
                 object obj = ResourceManager.GetObject("hoverbutton", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -113,7 +103,7 @@ namespace IsaacLauncherGUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] iniOptions {
+        public static byte[] iniOptions {
             get {
                 object obj = ResourceManager.GetObject("iniOptions", resourceCulture);
                 return ((byte[])(obj));
@@ -121,9 +111,19 @@ namespace IsaacLauncherGUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        public static System.Drawing.Icon IsaacLauncher_Icon {
+            get {
+                object obj = ResourceManager.GetObject("IsaacLauncher-Icon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap placeholder_200x200 {
+        public static System.Drawing.Bitmap placeholder_200x200 {
             get {
                 object obj = ResourceManager.GetObject("placeholder-200x200", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -133,7 +133,7 @@ namespace IsaacLauncherGUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap postit {
+        public static System.Drawing.Bitmap postit {
             get {
                 object obj = ResourceManager.GetObject("postit", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -143,7 +143,7 @@ namespace IsaacLauncherGUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap redbutton {
+        public static System.Drawing.Bitmap redbutton {
             get {
                 object obj = ResourceManager.GetObject("redbutton", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -153,7 +153,7 @@ namespace IsaacLauncherGUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap redbuttonhover {
+        public static System.Drawing.Bitmap redbuttonhover {
             get {
                 object obj = ResourceManager.GetObject("redbuttonhover", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));

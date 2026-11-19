@@ -58,7 +58,7 @@ namespace IsaacLauncherGUI
             this.UpdateStyles();
 
             customFont.AddFontFile("upheavtt.ttf");
-            this.Icon = Properties.Resources.beast;
+            this.Icon = Properties.Resources.IsaacLauncher_Icon;
             UIHelper.ApplyCustomFont(this, customFont.Families[0]);
         }
 
