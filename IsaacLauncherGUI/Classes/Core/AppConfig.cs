@@ -20,6 +20,8 @@ namespace IsaacLauncherGUI
         public bool Reminder { get; set; } = false;
         public int? OpenX { get; set; }
         public int? OpenY { get; set; }
+        public long LastSessionSeconds { get; set; } = 0;
+        public long LauncherPlaytimeSeconds { get; set; } = 0;
         //settings
         public bool InstantLaunch { get; set; } = false;
         public bool Portable { get; set; } = false;

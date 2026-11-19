@@ -5292,7 +5292,7 @@
     <value>33</value>
   </data>
   <data name="label21.Text" xml:space="preserve">
-    <value>0000:00:00</value>
+    <value>-</value>
   </data>
   <data name="label21.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleRight</value>
@@ -5325,7 +5325,7 @@
     <value>32</value>
   </data>
   <data name="label20.Text" xml:space="preserve">
-    <value>0000:00:00</value>
+    <value>-</value>
   </data>
   <data name="label20.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleLeft</value>

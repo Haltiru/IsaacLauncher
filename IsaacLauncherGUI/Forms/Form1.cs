@@ -25,12 +25,19 @@ namespace IsaacLauncherGUI
         private PrivateFontCollection customFont = new PrivateFontCollection();
         private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
         ToolTip mainToolTip = new ToolTip();
+        private readonly Timer _sessionTimer = new Timer();
+        private readonly Stopwatch _sessionStopwatch = new Stopwatch();
         private enum PlayButtonState { Play, Stop, Starting }
         private enum GameStatus { Stopped,Starting,Running,Stopping }
         private GameStatus _currentGameStatus = GameStatus.Stopped;
+        private static readonly Color DisabledColor = Color.FromArgb(110, 110, 110);
         public IsaacLauncher()
         {
             InitializeComponent();
+
+            _sessionTimer.Interval = 1000;
+            _sessionTimer.Tick += SessionTimer_Tick;
+
             buttonTabPages.Add(launcherButton, launcherPage);
             buttonTabPages.Add(settingsButton, settingsPage);
             buttonTabPages.Add(toolsButton, toolsPage);
@@ -85,8 +92,39 @@ private async void StartPortable(object sender, EventArgs e)
 
 #endif
 
-        private static readonly Color DisabledColor = Color.FromArgb(110, 110, 110);
+        private void SessionTimer_Tick(object sender, EventArgs e)
+        {
+            UpdateSessionTime();
+            UpdateTotalPlaytime();
+        }
 
+        private void UpdateSessionTime()
+        {
+            TimeSpan elapsed = _sessionStopwatch.Elapsed;
+            label20.Text = FormatSessionTime(elapsed);
+        }
+        private string FormatSessionTime(TimeSpan elapsed)
+        {
+            int hours = (int)elapsed.TotalHours;
+            int minutes = elapsed.Minutes;
+            int seconds = elapsed.Seconds;
+
+            if (hours == 0) return $"{minutes:00}:{seconds:00}";
+            else return $"{hours:00}:{minutes:00}:{seconds:00}";
+        }
+
+        private string FormatTotalPlaytime(long totalSeconds)
+        {
+           return $"{(totalSeconds / 3600.0):F1} hours";
+        }
+
+        private void UpdateTotalPlaytime()
+        {
+            long sessionTotalSeconds = (long)_sessionStopwatch.Elapsed.TotalSeconds;
+            long savedTotalSeconds = _settings.LauncherPlaytimeSeconds;
+            if (_sessionStopwatch.IsRunning) savedTotalSeconds += sessionTotalSeconds;
+            label21.Text = FormatTotalPlaytime(savedTotalSeconds);
+        }
         private void InitializeToolTips()
         {
             var tooltips = new Dictionary<Control, string>
@@ -246,6 +284,8 @@ private async void StartPortable(object sender, EventArgs e)
             repentogonCheckbox.Checked = _settings.RepentogonChecked;
             repentogonPathText.Text = _settings.RepentogonPath;
             backupBeforePlayCheckbox.Checked = _settings.AutoBackupBeforePlay;
+            label20.Text = FormatSessionTime(TimeSpan.FromSeconds(_settings.LastSessionSeconds));
+            label21.Text = FormatTotalPlaytime(_settings.LauncherPlaytimeSeconds);
 
             LoadWindowPosition();
         }
@@ -312,7 +352,6 @@ private async void StartPortable(object sender, EventArgs e)
             try
             {
                 // 1. Várjuk meg, hogy a játék és a Repentogon elinduljon
-
                 StartupLog.Write($"GameStartupMonitor START | Repentogon={launcher.IsRepentogonEnabled}");
                 GameStartupResult gameProcessResult = await Task.Run(() => GameStartupMonitor.WaitForGameStartupAsync(launcher.IsRepentogonEnabled));
                 Process Isaac = gameProcessResult.Process;
@@ -338,7 +377,9 @@ private async void StartPortable(object sender, EventArgs e)
                 {
                     SetPlayButtonState(PlayButtonState.Stop);
                     SetGameStatus(GameStatus.Running);
-                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    _sessionStopwatch.Restart();
+                    UpdateSessionTime();
+                    _sessionTimer.Start();
                 }
 
                 // Várjuk meg, amíg a játék bezáródik, és ha a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
@@ -353,6 +394,20 @@ private async void StartPortable(object sender, EventArgs e)
             }
             finally
             {
+                _sessionTimer.Stop();
+
+                if (_sessionStopwatch.IsRunning)
+                {
+                    _sessionStopwatch.Stop();
+                    _settings.LastSessionSeconds = (long)_sessionStopwatch.Elapsed.TotalSeconds;
+                    _settings.LauncherPlaytimeSeconds += (long)_sessionStopwatch.Elapsed.TotalSeconds;
+                    
+                    AppConfig.Save(_settings);
+                    
+                    UpdateSessionTime();
+                    UpdateTotalPlaytime();
+
+                }
                 StartupLog.Write($"Game monitoring finished | GameExited={hasExited}");
                 SetPlayButtonState(PlayButtonState.Play);
                 SetGameStatus(GameStatus.Stopped);
