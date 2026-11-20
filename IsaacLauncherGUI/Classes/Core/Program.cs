@@ -421,7 +421,6 @@ namespace IsaacLauncherGUI
 
         {
 
-
             if (args.Length > 0 && args[0] == "--update")
             {
                 try
@@ -513,14 +512,7 @@ namespace IsaacLauncherGUI
                 {
                     manager.StopListeningAsync().GetAwaiter().GetResult();
                 }
-            }
-
-            
-
-            
-
-
-            
+            }      
         }
 
         private static bool IsRunningAsAdmin()

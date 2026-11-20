@@ -19,7 +19,8 @@ namespace IsaacLauncherGUI
         private ModItem _selectedMod;
         private ModItem[] _CachedMods;
         private bool _isSelecting = false;
-
+        private MemoryStream _gifStream;
+        private readonly BBCodeRenderer _bbCodeRenderer = new BBCodeRenderer();
 
 
         public ModmanagerForm(string gamePath)
@@ -79,6 +80,8 @@ namespace IsaacLauncherGUI
 
         private void Close_Click(object sender, EventArgs e)
         {
+            _gifStream = null;
+            _gifStream?.Dispose();
             this.Close();
         }
 
@@ -86,6 +89,9 @@ namespace IsaacLauncherGUI
         {
             _CachedMods = GetModItems();
             RefreshLists();
+            var firstMod = _CachedMods.FirstOrDefault(m => m.IsEnabled && !string.IsNullOrEmpty(m.ImagePath) && File.Exists(m.ImagePath));
+
+            if (firstMod != null) enabledModsListBox.SelectedItem = firstMod;
         }
 
         private async void selectedMod(object sender, EventArgs e)
@@ -115,21 +121,28 @@ namespace IsaacLauncherGUI
                 if (_selectedMod != null)
                 {
                     modName.Text = _selectedMod.DisplayName;
-                    modDescription.Text = _selectedMod.Description;
+                    _bbCodeRenderer.Render(modDescription, _selectedMod.Description);
+                    _gifStream?.Dispose();
+                    _gifStream = null;
 
                     if (modImage.Image != null)
                     {
                         var oldImage = modImage.Image;
                         modImage.Image = null;
                         oldImage?.Dispose();
+                        
                     }
 
                     if (!string.IsNullOrEmpty(_selectedMod.ImagePath) && File.Exists(_selectedMod.ImagePath))
                     {
-                        using (var tempBmp = new Bitmap(_selectedMod.ImagePath))
+                        string extension = Path.GetExtension(_selectedMod.ImagePath);
+                        if (extension.Equals(".gif", StringComparison.OrdinalIgnoreCase))
                         {
-                            modImage.Image = new Bitmap(tempBmp);
+                            _gifStream?.Dispose();
+                            _gifStream = new MemoryStream(File.ReadAllBytes(_selectedMod.ImagePath));
+                            modImage.Image = Image.FromStream(_gifStream);
                         }
+                        else using (var tempBmp = new Bitmap(_selectedMod.ImagePath)) modImage.Image = new Bitmap(tempBmp);
                     }
                     
                 }
@@ -177,7 +190,7 @@ namespace IsaacLauncherGUI
         {
             string searchText = searchbBox.Text;
             ModManager modManager = new ModManager(_gamePath);
-            ModItem[] search = search = _CachedMods.Where(m => m.IsEnabled && (m.DisplayName.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0 || m.Description.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
+            ModItem[] search = _CachedMods.Where(m => m.IsEnabled && (m.DisplayName.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0 || m.Description.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
             foreach (var mod in search) if (mod.IsEnabled) modManager.ToggleModState(mod);
             RefreshLists();
         }

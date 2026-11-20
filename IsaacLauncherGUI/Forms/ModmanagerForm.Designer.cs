@@ -35,7 +35,6 @@
             this.panel5 = new System.Windows.Forms.Panel();
             this.enabledModsListBox = new System.Windows.Forms.ListBox();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.modDescription = new System.Windows.Forms.TextBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.button3 = new System.Windows.Forms.Button();
             this.searchbBox = new System.Windows.Forms.TextBox();
@@ -48,6 +47,7 @@
             this.playButton = new System.Windows.Forms.Button();
             this.modName = new System.Windows.Forms.Label();
             this.modImage = new System.Windows.Forms.PictureBox();
+            this.modDescription = new System.Windows.Forms.RichTextBox();
             this.panel1.SuspendLayout();
             this.panel6.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -117,18 +117,6 @@
             this.panel4.Controls.Add(this.modDescription);
             resources.ApplyResources(this.panel4, "panel4");
             this.panel4.Name = "panel4";
-            // 
-            // modDescription
-            // 
-            this.modDescription.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
-            this.modDescription.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            resources.ApplyResources(this.modDescription, "modDescription");
-            this.modDescription.ForeColor = System.Drawing.Color.White;
-            this.modDescription.HideSelection = false;
-            this.modDescription.Name = "modDescription";
-            this.modDescription.ReadOnly = true;
-            this.modDescription.TabStop = false;
-            this.modDescription.Tag = "KeepComic";
             // 
             // panel3
             // 
@@ -236,10 +224,20 @@
             // 
             // modImage
             // 
-            this.modImage.BackgroundImage = global::IsaacLauncherGUI.Properties.Resources.placeholder_200x200;
             resources.ApplyResources(this.modImage, "modImage");
             this.modImage.Name = "modImage";
             this.modImage.TabStop = false;
+            // 
+            // modDescription
+            // 
+            this.modDescription.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            this.modDescription.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.modDescription.DetectUrls = false;
+            resources.ApplyResources(this.modDescription, "modDescription");
+            this.modDescription.ForeColor = System.Drawing.Color.White;
+            this.modDescription.Name = "modDescription";
+            this.modDescription.ReadOnly = true;
+            this.modDescription.Tag = "KeepComic";
             // 
             // ModmanagerForm
             // 
@@ -259,7 +257,6 @@
             this.panel6.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
-            this.panel4.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.modImage)).EndInit();
@@ -271,7 +268,6 @@
 
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox modImage;
-        private System.Windows.Forms.TextBox modDescription;
         private System.Windows.Forms.Label modName;
         private System.Windows.Forms.Label enabledMods;
         private System.Windows.Forms.Button playButton;
@@ -288,5 +284,6 @@
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.ListBox disabledModsListBox;
         private System.Windows.Forms.ListBox enabledModsListBox;
+        private System.Windows.Forms.RichTextBox modDescription;
     }
 }

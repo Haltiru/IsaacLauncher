@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Windows.Forms;
@@ -9,7 +8,7 @@ namespace IsaacLauncherGUI
     public partial class PopupUserControl : UserControl
     {
         private PrivateFontCollection customFont = new PrivateFontCollection();
-        public enum PopupChoice{Primary,Secondary,Tertiary}
+        public enum PopupChoice { Primary, Secondary, Tertiary }
         public event Action<PopupChoice> ChoiceSelected;
         public PopupUserControl()
         {
@@ -45,12 +44,12 @@ namespace IsaacLauncherGUI
 
             int textWidth = this.message.ClientSize.Width - this.message.Padding.Horizontal;
 
-            int textHeight = TextRenderer.MeasureText(this.message.Text,this.message.Font,new Size(Math.Max(1, textWidth), int.MaxValue),TextFormatFlags.WordBreak).Height;
-            
-            int singleLineHeight = TextRenderer.MeasureText("Ag",this.message.Font).Height;
+            int textHeight = TextRenderer.MeasureText(this.message.Text, this.message.Font, new Size(Math.Max(1, textWidth), int.MaxValue), TextFormatFlags.WordBreak).Height;
+
+            int singleLineHeight = TextRenderer.MeasureText("Ag", this.message.Font).Height;
 
             bool isMultiline = textHeight > singleLineHeight;
-            this.message.BackColor = isMultiline? Color.FromArgb(109, 67, 56) : Color.Transparent;
+            this.message.BackColor = isMultiline ? Color.FromArgb(109, 67, 56) : Color.Transparent;
 
             this.Height = tableLayoutPanel1.Bottom;
 

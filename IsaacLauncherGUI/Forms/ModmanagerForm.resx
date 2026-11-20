@@ -228,17 +228,14 @@
   <data name="modDescription.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
-  <data name="modDescription.Multiline" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="modDescription.ScrollBars" type="System.Windows.Forms.ScrollBars, System.Windows.Forms">
+  <data name="modDescription.ScrollBars" type="System.Windows.Forms.RichTextBoxScrollBars, System.Windows.Forms">
     <value>Vertical</value>
   </data>
   <data name="modDescription.Size" type="System.Drawing.Size, System.Drawing">
     <value>524, 154</value>
   </data>
   <data name="modDescription.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="modDescription.Text" xml:space="preserve">
     <value>mod description</value>
@@ -247,7 +244,7 @@
     <value>modDescription</value>
   </data>
   <data name="&gt;&gt;modDescription.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.RichTextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;modDescription.Parent" xml:space="preserve">
     <value>panel4</value>
@@ -794,7 +791,7 @@
     <value>9</value>
   </data>
   <data name="modImage.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Zoom</value>
+    <value>None</value>
   </data>
   <data name="modImage.Location" type="System.Drawing.Point, System.Drawing">
     <value>12, 12</value>
