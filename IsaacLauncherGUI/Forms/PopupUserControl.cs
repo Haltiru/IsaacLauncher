@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Windows.Forms;
 
 namespace IsaacLauncherGUI
 {
     public partial class PopupUserControl : UserControl
     {
+        private PrivateFontCollection customFont = new PrivateFontCollection();
         public enum PopupChoice{Primary,Secondary,Tertiary}
         public event Action<PopupChoice> ChoiceSelected;
         public PopupUserControl()
         {
             InitializeComponent();
+            customFont.AddFontFile("upheavtt.ttf");
+            UIHelper.ApplyCustomFont(this, customFont.Families[0]);
             UIHelper.ApplyHoverEffects(this);
         }
 

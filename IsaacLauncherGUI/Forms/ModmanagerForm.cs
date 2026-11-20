@@ -1,16 +1,13 @@
 ﻿// ModmanagerForm.cs
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Media;
 
 namespace IsaacLauncherGUI
 {
@@ -37,7 +34,9 @@ namespace IsaacLauncherGUI
 
             customFont.AddFontFile("upheavtt.ttf");
             this.Icon = Properties.Resources.IsaacLauncher_Icon;
-            //UIHelper.ApplyCustomFont(this, customFont.Families[0]);
+
+            UIHelper.ApplyHoverEffects(this);
+            UIHelper.ApplyCustomFont(this, customFont.Families[0]);
 
         }
 
@@ -85,63 +84,74 @@ namespace IsaacLauncherGUI
 
         private void ModManagerShown(object sender, EventArgs e)
         {
-            UIHelper.ApplyHoverEffects(this);
-            UIHelper.ApplyCustomFont(this, customFont.Families[0]);
             _CachedMods = GetModItems();
             RefreshLists();
         }
 
-        private void selectedMod(object sender, EventArgs e)
+        private async void selectedMod(object sender, EventArgs e)
         {
-            if (_isSelecting) return;
-
-            var enabledMod = ((ListBox)sender).SelectedItem as ModItem;
-            var disabledMod = ((ListBox)sender).SelectedItem as ModItem;
-            _selectedMod = enabledMod ?? disabledMod;
+            if (_isSelecting) return; 
             _isSelecting = true;
-            switch (_selectedMod?.IsEnabled)
+
+            try
             {
-                case true:
-                    enabledModsListBox.SelectedItem = _selectedMod;
-                    disabledModsListBox.SelectedItem = null;
-                    break;
-                case false:
-                    disabledModsListBox.SelectedItem = _selectedMod;
-                    enabledModsListBox.SelectedItem = null;
-                    break;
-                default:
-                    enabledModsListBox.SelectedItem = null;
-                    disabledModsListBox.SelectedItem = null;
-                    break;
-            }
-            if (_selectedMod != null) 
-            {
-                modName.Text = _selectedMod.DisplayName;
-                modDescription.Text = _selectedMod.Description;
-                if (!string.IsNullOrEmpty(_selectedMod.ImagePath) && File.Exists(_selectedMod.ImagePath))
+                var selectedMod = ((ListBox)sender).SelectedItem as ModItem;
+                _selectedMod = selectedMod;
+                switch (_selectedMod?.IsEnabled)
                 {
+                    case true:
+                        enabledModsListBox.SelectedItem = _selectedMod;
+                        disabledModsListBox.SelectedItem = null;
+                        break;
+                    case false:
+                        disabledModsListBox.SelectedItem = _selectedMod;
+                        enabledModsListBox.SelectedItem = null;
+                        break;
+                    default:
+                        enabledModsListBox.SelectedItem = null;
+                        disabledModsListBox.SelectedItem = null;
+                        break;
+                }
+                if (_selectedMod != null)
+                {
+                    modName.Text = _selectedMod.DisplayName;
+                    modDescription.Text = _selectedMod.Description;
+
                     if (modImage.Image != null)
                     {
-                        modImage.Image.Dispose();
+                        var oldImage = modImage.Image;
                         modImage.Image = null;
+                        oldImage?.Dispose();
                     }
 
-                    using (var tempBmp = new Bitmap(_selectedMod.ImagePath))
+                    if (!string.IsNullOrEmpty(_selectedMod.ImagePath) && File.Exists(_selectedMod.ImagePath))
                     {
-                        modImage.Image = new Bitmap(tempBmp);
+                        using (var tempBmp = new Bitmap(_selectedMod.ImagePath))
+                        {
+                            modImage.Image = new Bitmap(tempBmp);
+                        }
                     }
+                    
                 }
-                else
-                {
-                    if (modImage.Image != null)
-                    {
-                        modImage.Image.Dispose();
-                        modImage.Image = null;
-                    }
-                }
-
             }
-            _isSelecting = false;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+
+                await PopupManager.ShowAsync(
+                    this,
+                    "Error",
+                    $"An error occurred:\n{ex}",
+                    "OK",
+                    null,
+                    null,
+                    SystemSounds.Hand
+                );
+            }
+            finally
+            {
+                _isSelecting = false;
+            }
         }
         private void ChangeState(object sender, EventArgs e)
         {

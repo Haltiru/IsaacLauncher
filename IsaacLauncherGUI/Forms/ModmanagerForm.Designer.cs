@@ -132,9 +132,9 @@
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.panel2);
             this.panel3.Controls.Add(this.button3);
             this.panel3.Controls.Add(this.searchbBox);
-            this.panel3.Controls.Add(this.panel2);
             this.panel3.Controls.Add(this.label1);
             resources.ApplyResources(this.panel3, "panel3");
             this.panel3.Name = "panel3";
@@ -243,9 +243,9 @@
             // 
             // ModmanagerForm
             // 
-            resources.ApplyResources(this, "$this");
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            resources.ApplyResources(this, "$this");
             this.Controls.Add(this.panel1);
             this.DoubleBuffered = true;
             this.ForeColor = System.Drawing.Color.Transparent;

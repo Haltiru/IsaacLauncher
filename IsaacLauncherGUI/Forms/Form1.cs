@@ -829,7 +829,7 @@ private async void StartPortable(object sender, EventArgs e)
             if (_modManagerForm == null || _modManagerForm.IsDisposed)
             {
                 _modManagerForm = new ModmanagerForm(targetPath);
-                _modManagerForm.Show(this);
+                _modManagerForm.Show();
             }
             else
             {

@@ -72,6 +72,7 @@
             this.message.Padding = new System.Windows.Forms.Padding(20, 5, 20, 10);
             this.message.Size = new System.Drawing.Size(520, 44);
             this.message.TabIndex = 15;
+            this.message.Tag = "KeepComic";
             this.message.Text = "placeHolderText";
             this.message.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
@@ -189,8 +190,7 @@
             // 
             // PopupUserControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
             this.Controls.Add(this.panel1);
             this.Name = "PopupUserControl";
