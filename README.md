@@ -1,261 +1,179 @@
-
 # 🎮 IsaacLauncherGUI
 
 **A feature-rich Windows launcher for The Binding of Isaac: Repentance+.**
 
-IsaacLauncherGUI is an unofficial launcher designed to make launching *The Binding of Isaac: Repentance+*, managing mods, handling save backups, and customizing your gameplay experience easier — all from one application.
+IsaacLauncherGUI is an unofficial, fan-made Windows application that makes it easier to launch *The Binding of Isaac: Repentance+*, manage mods, back up saves, and customize how the game starts.
 
-**Current Version:** `v0.10.0` — Updater & Stability Release
+**Latest stable version: `v0.11.0` — Live Game Status & Beta Update Channels**
 
-[📥 Download Latest Release](https://github.com/Haltiru/IsaacLauncher/releases/latest) • [🐛 Report a Bug](https://github.com/Haltiru/IsaacLauncher/issues) • [💡 Suggest a Feature](https://github.com/Haltiru/IsaacLauncher/issues)
+[📥 Download Latest Stable Release](https://github.com/Haltiru/IsaacLauncher/releases/latest) · [🧪 All Releases (including Betas)](https://github.com/Haltiru/IsaacLauncher/releases) · [🐛 Report a Bug](https://github.com/Haltiru/IsaacLauncher/issues) · [💡 Suggest a Feature](https://github.com/Haltiru/IsaacLauncher/issues)
 
 ---
 
 ## 📸 Screenshots
 
-### 🎮 Launcher
-![Launcher Tab](docs/screenshots/launcher-tab.png)
+### 🎮 Launcher — Game Controls & Live Status
+![Launcher tab showing game options and live game status](docs/screenshots/launcher-tab.png)
 
-### ⚙️ Settings
-![Settings Tab](docs/screenshots/settings-tab.png)
+### ⚙️ Settings — Launch Preferences
+![Settings tab with launch mode and system tray preferences](docs/screenshots/settings-tab.png)
 
-### 🛠️ Tools
-![Tools Tab](docs/screenshots/tools-tab.png)
+### 🛠️ Tools — Save Backups
+![Tools tab showing save backup controls](docs/screenshots/tools-tab.png)
+
+### ℹ️ About — Updates & Links
+![About tab showing beta update option and project links](docs/screenshots/about-tab.png)
 
 ### 🧩 Mod Manager
-![Mod Manager](docs/screenshots/mod-manager.png)
+
+![Mod Manager showing a mod thumbnail, formatted description, enabled and disabled mod lists](docs/screenshots/mod-manager.png)
 
 ---
 
 ## ✨ Features
 
-### 🚀 Game Launcher
+### 🚀 Game Launcher & Monitoring
 
-- **Multiple Launch Modes** — Launch through Steam, use a custom game executable, or start an existing portable game copy.
-- **REPENTOGON Support** — Configure and launch the game with REPENTOGON.
-- **Mod Toggle** — Enable or disable mods before launching.
-- **Borderless Fullscreen** — Play in a borderless fullscreen window.
-- **Instant Launch** — Automatically start the game when the launcher opens.
-- **Smart Start** — Automatically adjust mod and REPENTOGON settings around the daily challenge reset.
-- **Automatic Steam Startup** — Detect whether Steam is ready and attempt to start it when necessary.
-- **Game Monitoring** — Detect when the game starts or stops and control it using the Play/Stop button.
+- **Multiple launch modes** — Steam, a custom executable, or an existing compatible portable installation.
+- **REPENTOGON support** — Launch with a configured REPENTOGON executable.
+- **Mod toggle** — Enable or disable mods before launching.
+- **Borderless fullscreen** — Launch in a borderless window.
+- **Instant Launch** — Start the game automatically when opening the launcher.
+- **Smart Start** — Adjust launch options around daily challenge availability.
+- **Steam readiness** — Help ensure Steam is available before Steam-mode launches.
+- **Live Game Status** — See whether the game is stopped, starting, running, or stopping.
+- **Session timer & total playtime** — Track the current session and accumulated launcher-tracked playtime.
+- **Play/Stop controls** — Monitor and stop the running game from the launcher.
 
 ### 🧩 Mod Manager
 
-Manage your installed mods without manually editing game files.
-
-- Browse installed mods with names and descriptions.
-- Separate enabled and disabled mods into dedicated lists.
-- Enable or disable individual mods.
-- Enable or disable multiple mods using search filters.
+- Browse installed mods and their descriptions.
 - Search mods by name or description.
-- Display mod thumbnails.
+- View enabled and disabled mods separately.
+- Enable or disable individual mods or multiple filtered results.
+- View mod thumbnails, including downloaded thumbnails when available.
+- View formatted mod descriptions with BBCode support.
 - Open Steam Workshop pages when available.
-- Automatically download missing mod thumbnails.
-
-### 📦 Portable Mode
-
-IsaacLauncherGUI supports launching and managing existing portable game installations.
-
-- Launch an existing compatible portable game copy.
-- Support portable save locations.
-- **Ghost Mode** — Optionally clean up newly created Isaac folders after a supported portable session, using a compatibility marker and a confirmation warning.
-
-> [!IMPORTANT]
-> Creating new portable game copies is **not available in the public release**.
->
-> Portable Mode requires an existing compatible installation.
->
-> IsaacLauncherGUI does not include or distribute game files.
->
-> **Ghost Mode warning:** On compatible portable installations, cleanup may delete temporary `options.ini`, logs and `save_backups` in the newly created Isaac folder. Back up anything important before enabling it. Existing Isaac folders are not targeted.
 
 ### 💾 Save Management
 
 - Back up save data for all three save slots.
-- Support regular Steam and existing portable save locations.
-- Open the backup directory directly from the application.
+- Support regular Steam and compatible portable save locations.
+- Create a backup before launching the game, if enabled.
+- Open the backup directory directly from the launcher.
 
-### ⚙️ Customization & Convenience
+### 📦 Existing Portable Installations
 
-- Persistent launcher configuration, with safer saves and recovery backups for corrupted config files.
-- Remember the launcher window position between sessions.
-- Custom game executable path.
-- Custom REPENTOGON executable path.
-- Minimize to the system tray instead of closing.
-- Optionally start minimized to the system tray.
-- Daily play streak tracking.
-- Smart Start streak tracking.
-- Custom-themed interface, buttons, settings, and tooltips.
+- Launch an existing compatible portable game installation.
+- Support compatible portable save locations.
+- **Ghost Mode** can clean up newly created Isaac folders after a supported portable session, with a confirmation warning.
 
-### 🔄 Automatic Updates
+> [!IMPORTANT]
+> Creating new portable game copies is **not included in public releases**. IsaacLauncherGUI does **not** include or distribute game files.
+>
+> **Ghost Mode:** Cleanup may remove temporary `options.ini`, logs, and `save_backups` from newly created Isaac folders. Back up anything important before enabling it. Existing Isaac folders are not targeted.
 
-- Automatically check GitHub Releases for new versions.
-- Display a custom update prompt with **Update / Later / Skip** choices.
-- Show download progress and installation status.
-- Download, extract, install and relaunch the updated launcher automatically.
-- Back up replaced application files and support rollback on installation errors.
-- Remove known leftover `.old` files from earlier launcher versions on startup.
+### ⚙️ Convenience & Customization
+
+- Remember settings and window position between sessions.
+- Config recovery backups for damaged configuration files.
+- Minimize to the system tray or start minimized.
+- Custom game and REPENTOGON executable paths.
+- Daily streak tracking and custom pixel-inspired UI.
+
+### 🔄 Automatic Updates — Stable & Beta
+
+- **Stable channel (default)** — Receive stable releases only.
+- **Beta channel (opt-in)** — Receive prereleases as well as newer stable releases.
+- Semantic versioning support (for example, `0.11.0-beta.1` and `0.11.0`).
+- In-app **Update / Later / Skip** choices.
+- Download progress, installation status, automatic relaunch, and rollback on installation errors.
+
+> [!WARNING]
+> Beta releases may contain bugs or unfinished features. Switching from Beta to Stable does not automatically downgrade an installed beta build.
 
 ---
 
 ## 📥 Installation
 
-1. Visit the [Latest Release](https://github.com/Haltiru/IsaacLauncher/releases/latest) page.
-2. Download the release ZIP package.
-3. Extract the ZIP to a writable folder.
-4. Launch `IsaacLauncherGUI.exe`.
-5. Configure your game directory and preferred launch settings.
-6. Enjoy!
+1. Open the [latest stable release](https://github.com/Haltiru/IsaacLauncher/releases/latest).
+2. Download the release ZIP.
+3. Extract **all files** to a writable folder; keep the included DLLs alongside the executable.
+4. Run `IsaacLauncherGUI.exe`.
+5. Configure your game path and preferred launch options.
 
----
+To try prereleases, enable **Receive Beta Updates** on the **About** tab.
 
 ## 📋 Requirements
 
 | Requirement | Details |
 |---|---|
-| Operating System | Windows |
+| Operating system | Windows |
 | Framework | .NET Framework 4.8 |
 | Game | The Binding of Isaac: Repentance+ |
 | Steam | Required for Steam launch mode |
 | REPENTOGON | Optional |
-| Portable Mode | Existing compatible portable game copy |
-
-Some features require additional files or correctly configured paths.
+| Portable mode | Existing compatible portable installation |
 
 ---
 
-## 🛠️ Building from Source
+## 🛠️ Build from Source
 
-IsaacLauncherGUI is developed in **C# using Windows Forms** and targets **.NET Framework 4.8**.
-
-### Steps
-
-1. Clone the repository:
-
-   `git clone https://github.com/Haltiru/IsaacLauncher.git`
-
+1. Clone the repository: `git clone https://github.com/Haltiru/IsaacLauncher.git`
 2. Open `IsaacLauncherGUI.sln` in Visual Studio.
-3. Restore the required NuGet packages.
-4. Select the **Release** configuration.
-5. Build the solution.
+3. Restore NuGet packages.
+4. Select the **Release** configuration and build.
 
 > [!NOTE]
-> Certain private development-only components are intentionally excluded from the public source.
->
-> The public project is intended to be built in **Release** configuration. Debug builds may require additional local development files.
+> Some private development-only components are excluded from the public source. Debug builds may require additional local files.
 
 ---
 
 ## 🗺️ Roadmap
 
-IsaacLauncherGUI is still actively being developed and improved.
-
 ### ✅ v0.9.0 — First Public Release
+Core launcher, multiple launch modes, REPENTOGON integration, Mod Manager, backups, and settings.
 
-The initial public version includes:
+### ✅ v0.10.0 — Updater & Stability
+Improved update installation, recovery, configuration reliability, window positioning, and portable cleanup safeguards.
 
-- Core game launcher
-- Multiple launch modes
-- REPENTOGON integration
-- Mod Manager
-- Save backups
-- Existing portable installation support
-- Custom launcher settings
-- Automatic updates
-- Quality-of-life features
+### ✅ v0.11.0 — Live Game Status & Beta Updates
+- Live game status, session timer, and total playtime.
+- Improved game startup and REPENTOGON monitoring.
+- Mod Manager thumbnail and BBCode improvements.
+- Stable/Beta update channels with semantic version handling.
+- UI refinements, refactoring, and stability improvements.
 
-### ✅ v0.10.0 — Updater & Stability Release
-
-- Redesigned in-app update dialog with progress and status displays.
-- Automatic update installation and launcher restart.
-- Launcher window position persistence.
-- Safer config saving and recovery from corrupted `config.json` files.
-- More cautious Ghost Mode cleanup for supported portable installations.
-- Fixed portable `options.ini` overwriting and cleaned up leftover `.old` files.
-
-### 🔧 Future v0.x Updates
-
-Portable-launcher configuration switching and other quality-of-life improvements are planned for later updates.
-
-Development will focus on:
-
-- [ ] Bug fixes and stability improvements
+### 🔧 Future v0.x Releases
+- [ ] Bug fixes and reliability improvements
 - [ ] Performance optimizations
-- [ ] UI/UX improvements and revamps
-- [ ] Quality-of-life additions
-- [ ] Improved reliability
-- [ ] General polishing and testing
+- [ ] UI/UX polishing
+- [ ] Quality-of-life features
 
-### 🎯 v1.0.0 — The Major Milestone
+### 🎯 v1.0.0 — Major Milestone
+- [ ] **Profile Manager** for gameplay configurations.
+- [ ] Complete major bug fixes and reliability improvements.
+- [ ] Optimize and polish the application and UI.
+- [ ] Thoroughly test the finished release.
 
-Version **1.0.0** will represent the first fully polished major release of IsaacLauncherGUI.
-
-Planned goals:
-
-- [ ] **Profile Manager** — Create and manage different gameplay profiles and configurations.
-- [ ] Complete major bug fixes.
-- [ ] Improve performance and optimization.
-- [ ] Revamp and polish the user interface.
-- [ ] Refine the overall user experience.
-- [ ] Reach a stable and reliable release state.
-
-> **There is no fixed release date for v1.0.0.**
->
-> It will be released when the launcher is ready, stable, and sufficiently polished.
-
-Roadmap features and priorities may change during development.
+**No fixed release date:** v1.0.0 will ship when the launcher is ready.
 
 ---
 
 ## 🙏 Credits
 
-### REPENTOGON Team
-
-The Mod Manager in IsaacLauncherGUI was strongly inspired by the REPENTOGON team's Mod Manager, particularly its design and overall workflow.
-
-IsaacLauncherGUI is an independently developed C# project, but credit goes to the **REPENTOGON Team** for the inspiration.
-
----
+The Mod Manager's design and workflow were strongly inspired by the **REPENTOGON Team**. IsaacLauncherGUI is independently developed in C#.
 
 ## 🐛 Bug Reports & Feature Requests
 
-Found a bug? Have an idea for a new feature?
-
-Feel free to open an issue on GitHub:
-
-**[🐛 Open an Issue](https://github.com/Haltiru/IsaacLauncher/issues)**
-
-When reporting a bug, please include:
-
-- Launcher version
-- Description of the problem
-- Steps to reproduce the issue
-- Relevant error messages
-- Screenshots, if applicable
-
-Your feedback helps make IsaacLauncherGUI better!
-
----
+Please [open a GitHub issue](https://github.com/Haltiru/IsaacLauncher/issues) with the launcher version, steps to reproduce, error messages, and screenshots when relevant.
 
 ## ⚠️ Disclaimer
 
-IsaacLauncherGUI is an independent, unofficial fan-made project.
+IsaacLauncherGUI is an independent, unofficial fan project. It is not affiliated with or endorsed by Edmund McMillen, the developers or publishers of *The Binding of Isaac*, or the REPENTOGON Team. No game files are included or distributed.
 
-It is **not affiliated with, endorsed by, or associated with** the developers or publishers of *The Binding of Isaac*.
+## ❤️ Support
 
-This repository does not include or distribute *The Binding of Isaac* game files.
-
-Users are responsible for obtaining the game and any optional third-party components from appropriate sources.
-
----
-
-## ❤️ Support the Project
-
-If you enjoy IsaacLauncherGUI, consider leaving a ⭐ on the repository!
-
-Suggestions, feedback, and bug reports are always appreciated.
-
-**Made with ❤️ for The Binding of Isaac community.**
+If you find the launcher useful, consider starring the repository. Feedback and bug reports are welcome!
 
 *Good luck on your next run — and may Dead God be with you!* 🏆
