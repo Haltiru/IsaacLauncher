@@ -18,6 +18,7 @@ namespace IsaacLauncherGUI
         public string DisplayName { get; set; }
         public string Description { get; set; }
         public string ImagePath { get; set; }
+        public string WorkShopId { get; set; }
         public string WorkShopLink { get; set; }
         public bool IsEnabled { get; set; } = true;
 
@@ -32,27 +33,37 @@ namespace IsaacLauncherGUI
         public string GamePath { get; set; }
         public string ModsPath { get; set; }
         public string thumbPath { get; set; }
+        public event EventHandler<ThumbnailDownloadedEventArgs> ThumbnailDownloaded;
 
         public ModManager(string gamePath)
         {
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            thumbPath = Path.Combine(appData, "IsaacLauncherGUI", "thumbs");
-            if (!Directory.Exists(thumbPath))
-            {
-                Directory.CreateDirectory(thumbPath);
-            }
+            thumbPath = Path.Combine(AppConfig.GetDataPath(), "thumbs");
+            Directory.CreateDirectory(thumbPath);
             GamePath = gamePath;
             ModsPath = Path.Combine(GamePath, "mods");
+        }
+
+        public class ThumbnailDownloadedEventArgs : EventArgs
+        {
+            public string WorkshopId { get; }
+            public string ImagePath { get; }
+            public ThumbnailDownloadedEventArgs(string workshopId, string imagePath)
+            {
+                WorkshopId = workshopId;
+                ImagePath = imagePath;
+            }
+        }
+
+        private void OnThumbnailDownloaded(string workshopId, string imagePath)
+        {
+            ThumbnailDownloaded?.Invoke(this, new ThumbnailDownloadedEventArgs(workshopId, imagePath));
         }
 
         private string[] GetInstalledMods()
         {
             try
             {
-                if (!Directory.Exists(ModsPath))
-                {
-                    Directory.CreateDirectory(ModsPath);
-                }
+                if (!Directory.Exists(ModsPath)) Directory.CreateDirectory(ModsPath);
                 return Directory.GetDirectories(ModsPath).Select(Path.GetFileName).ToArray();
             }
             catch
@@ -129,6 +140,7 @@ namespace IsaacLauncherGUI
                         DisplayName = modDisplayName,
                         Description = Description,
                         ImagePath = ImagePath,
+                        WorkShopId = WorkshopId,
                         WorkShopLink = string.IsNullOrEmpty(WorkshopId) ? "" : $"https://steamcommunity.com/sharedfiles/filedetails/?id={WorkshopId}",
                         IsEnabled = !File.Exists(disabledMod)
                     };
@@ -196,6 +208,7 @@ namespace IsaacLauncherGUI
 
                                     string savePath = Path.Combine(thumbPath, $"{id}{extension}");
                                     File.WriteAllBytes(savePath, imageBytes);
+                                    OnThumbnailDownloaded(id, savePath);
                                 }
                             }
                         }        

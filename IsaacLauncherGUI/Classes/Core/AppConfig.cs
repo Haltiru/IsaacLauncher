@@ -52,6 +52,12 @@ namespace IsaacLauncherGUI
             Directory.CreateDirectory(path);
             return Path.Combine(path, "config.json");
         }
+
+        public static string GetDataPath()
+        {
+            string configPath = GetConfigPath();
+            return Path.GetDirectoryName(configPath);
+        }
         public static void Save(AppSettings settings)
         {
             string filePath = GetConfigPath();
