@@ -26,6 +26,10 @@ namespace IsaacLauncherGUI
         public ModmanagerForm(string gamePath)
         {
             InitializeComponent();
+#if DEBUG
+            btnConflictDebug.Visible = true;
+#endif
+
 
             _gamePath = gamePath;
             _modsFolderPath = Path.Combine(_gamePath, "mods");
@@ -246,5 +250,23 @@ namespace IsaacLauncherGUI
             _gifStream?.Dispose();
             _gifStream = null;
         }
+
+
+
+
+#if DEBUG
+        private async void btnConflictDebug_Click(object sender, EventArgs e)
+        {
+            string gamePath = @"M:\SteamLibrary\steamapps\common\The Binding of Isaac Rebirth";
+
+            await ModConflictDebugger.RunAsync(
+                this,
+                Path.Combine(gamePath, "mods"),
+                Path.Combine(gamePath, "isaac-ng.exe")
+            );
+        }
+#endif
+
+
     }
 }

@@ -23,6 +23,7 @@ namespace IsaacLauncherGUI
         public long LastSessionSeconds { get; set; } = 0;
         public long LauncherPlaytimeSeconds { get; set; } = 0;
         //settings
+        public UpdateChannel UpdateChannel { get; set; } = UpdateChannel.Stable;
         public bool InstantLaunch { get; set; } = false;
         public bool Portable { get; set; } = false;
         public bool OnTray { get; set; } = false;

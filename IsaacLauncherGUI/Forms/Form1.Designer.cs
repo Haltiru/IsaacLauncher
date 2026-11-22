@@ -118,6 +118,8 @@
             this.label12 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.panel10 = new System.Windows.Forms.Panel();
+            this.label27 = new System.Windows.Forms.Label();
+            this.BetaReleaseCheckbox = new System.Windows.Forms.CheckBox();
             this.label16 = new System.Windows.Forms.Label();
             this.checkForUpdatesButton = new System.Windows.Forms.Button();
             this.menu.SuspendLayout();
@@ -943,10 +945,29 @@
             // 
             // panel10
             // 
+            this.panel10.Controls.Add(this.label27);
+            this.panel10.Controls.Add(this.BetaReleaseCheckbox);
             this.panel10.Controls.Add(this.label16);
             this.panel10.Controls.Add(this.checkForUpdatesButton);
             resources.ApplyResources(this.panel10, "panel10");
             this.panel10.Name = "panel10";
+            // 
+            // label27
+            // 
+            resources.ApplyResources(this.label27, "label27");
+            this.label27.ForeColor = System.Drawing.Color.OrangeRed;
+            this.label27.Name = "label27";
+            this.label27.Tag = "KeepComic";
+            // 
+            // BetaReleaseCheckbox
+            // 
+            resources.ApplyResources(this.BetaReleaseCheckbox, "BetaReleaseCheckbox");
+            this.BetaReleaseCheckbox.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.BetaReleaseCheckbox.FlatAppearance.BorderSize = 100;
+            this.BetaReleaseCheckbox.ForeColor = System.Drawing.Color.White;
+            this.BetaReleaseCheckbox.Name = "BetaReleaseCheckbox";
+            this.BetaReleaseCheckbox.UseVisualStyleBackColor = true;
+            this.BetaReleaseCheckbox.CheckedChanged += new System.EventHandler(this.betaUpdatesCheckBox_CheckedChanged);
             // 
             // label16
             // 
@@ -1114,6 +1135,8 @@
         private System.Windows.Forms.Label label23;
         private ReaLTaiizor.Controls.Panel panel12;
         private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.CheckBox BetaReleaseCheckbox;
+        private System.Windows.Forms.Label label27;
     }
 }
 

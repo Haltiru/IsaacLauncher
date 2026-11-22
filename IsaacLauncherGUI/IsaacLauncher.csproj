@@ -87,6 +87,9 @@
     <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
+    <Reference Include="NuGet.Versioning, Version=8.0.0.137, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\NuGet.Versioning.8.0.0\lib\net472\NuGet.Versioning.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="ReaLTaiizor, Version=3.8.2.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ReaLTaiizor.3.8.2.1\lib\net48\ReaLTaiizor.dll</HintPath>
@@ -135,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Core\StartupLog.cs" />
+    <Compile Include="Classes\Core\UpdateChannel.cs" />
     <Compile Include="Classes\Game\GameCleanupManager.cs" />
     <Compile Include="Classes\Game\GameProcessMonitor.cs" />
     <Compile Include="Classes\Game\GameStartupMonitor.cs" />
@@ -143,6 +147,7 @@
     <Compile Include="Classes\Game\Portable.cs" Condition="'$(Configuration)' == 'Debug'" />
     <Compile Include="Classes\Core\SingleInstanceManager.cs" />
     <Compile Include="Classes\Services\BrowserHelper.cs" />
+    <Compile Include="Classes\Services\ModConflictDebugger.cs" />
     <Compile Include="Classes\UI\BBCodeRenderer.cs" />
     <Compile Include="Classes\UI\PopupManager.cs" />
     <Compile Include="Classes\UI\UIHelper.cs" />

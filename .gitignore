@@ -8,6 +8,7 @@
 privateDLLs/
 ultimateplan.txt
 /IsaacLauncherGUI/Classes/Game/Portable.cs
+**/ModConflictDebugger.cs
 
 
 # User-specific files

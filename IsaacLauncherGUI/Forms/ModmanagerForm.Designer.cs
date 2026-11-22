@@ -48,6 +48,7 @@
             this.playButton = new System.Windows.Forms.Button();
             this.modName = new System.Windows.Forms.Label();
             this.modImage = new System.Windows.Forms.PictureBox();
+            this.btnConflictDebug = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel6.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -60,6 +61,7 @@
             // 
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.panel1, "panel1");
+            this.panel1.Controls.Add(this.btnConflictDebug);
             this.panel1.Controls.Add(this.panel6);
             this.panel1.Controls.Add(this.panel5);
             this.panel1.Controls.Add(this.panel4);
@@ -239,6 +241,22 @@
             this.modImage.Name = "modImage";
             this.modImage.TabStop = false;
             // 
+            // btnConflictDebug
+            // 
+            this.btnConflictDebug.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.btnConflictDebug, "btnConflictDebug");
+            this.btnConflictDebug.Cursor = System.Windows.Forms.Cursors.Default;
+            this.btnConflictDebug.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnConflictDebug.FlatAppearance.BorderSize = 0;
+            this.btnConflictDebug.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.btnConflictDebug.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btnConflictDebug.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.btnConflictDebug.Name = "btnConflictDebug";
+            this.btnConflictDebug.UseVisualStyleBackColor = false;
+#if DEBUG
+            this.btnConflictDebug.Click += new System.EventHandler(this.btnConflictDebug_Click);
+#endif
+            // 
             // ModmanagerForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -286,5 +304,6 @@
         private System.Windows.Forms.ListBox disabledModsListBox;
         private System.Windows.Forms.ListBox enabledModsListBox;
         private System.Windows.Forms.RichTextBox modDescription;
+        private System.Windows.Forms.Button btnConflictDebug;
     }
 }
