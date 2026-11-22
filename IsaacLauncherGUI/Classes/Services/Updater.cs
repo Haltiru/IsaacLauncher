@@ -9,8 +9,10 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NuGet.Versioning;
+using System.Reflection;
 
-namespace IsaacLauncherGUI.Classes
+namespace IsaacLauncherGUI
 {
     public class Updater
     {
@@ -24,8 +26,11 @@ namespace IsaacLauncherGUI.Classes
         private readonly List<string> createdFiles = new List<string>();
         private AppSettings _settings;
 
-        public Version LocalVersion { get; set; }
-        public Version RemoteVersion { get; set; }
+
+        public NuGetVersion LocalVersion { get; set; }
+        public NuGetVersion RemoteVersion { get; set; }
+        public string RemoteTag { get; private set; } = "";
+        public bool RemoteIsPrerelease { get; private set; }
         public string GithubOwner { get; set; } = "Haltiru";
         public string GithubRepoName { get; set; } = "IsaacLauncher";
         public string downloadUrl { get; set; } = "";
@@ -37,62 +42,112 @@ namespace IsaacLauncherGUI.Classes
         public Updater(string installationDirectory, string updateDirectory)
         {
             installPath = Path.GetFullPath(installationDirectory);
-            workPath = updateDirectory == null
-                ? Path.Combine(Path.GetTempPath(), "IsaacLauncher_Update_" + Guid.NewGuid().ToString("N"))
-                : Path.GetFullPath(updateDirectory);
-            LocalVersion = new Version(Application.ProductVersion);
+            workPath = updateDirectory == null ? Path.Combine(Path.GetTempPath(), "IsaacLauncher_Update_" + Guid.NewGuid().ToString("N")): Path.GetFullPath(updateDirectory);
+            string localVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            if (!NuGetVersion.TryParse(localVersion, out NuGetVersion parsedVersion)) throw new InvalidOperationException("Invalid launcher version: " + localVersion);
+
+            LocalVersion = parsedVersion;
+
         }
 
         private string ZipPath => Path.Combine(workPath, "package.zip");
         private string ExtractPath => Path.Combine(workPath, "extracted");
 
-        public async Task<bool> GetRemoteVersion()
+
+        public async Task<bool> GetRemoteVersion(UpdateChannel channel = UpdateChannel.Stable)
         {
             downloadUrl = "";
             RemoteVersion = null;
+            RemoteTag = "";
+            RemoteIsPrerelease = false;
+
             try
             {
                 using (var client = new HttpClient())
                 {
                     client.Timeout = TimeSpan.FromSeconds(30);
                     client.DefaultRequestHeaders.UserAgent.ParseAdd("IsaacLauncherGUI/1.0");
-                    string url = "https://api.github.com/repos/" + GithubOwner + "/" + GithubRepoName + "/releases/latest";
+
+                    string url = $"https://api.github.com/repos/{GithubOwner}/{GithubRepoName}/releases?per_page=100";
                     string json = await client.GetStringAsync(url);
+
                     using (JsonDocument doc = JsonDocument.Parse(json))
                     {
-                        JsonElement root = doc.RootElement;
-                        string tag = root.GetProperty("tag_name").GetString();
-                        Version version;
-                        if (string.IsNullOrWhiteSpace(tag) ||
-                            !Version.TryParse(tag.TrimStart('v', 'V', '.'), out version)) return false;
+                        NuGetVersion bestVersion = null;
+                        string bestDownloadUrl = "";
+                        string bestTag = "";
+                        bool bestPrerelease = false;
 
-                        foreach (JsonElement asset in root.GetProperty("assets").EnumerateArray())
+                        foreach (JsonElement release in doc.RootElement.EnumerateArray())
                         {
-                            string name = asset.GetProperty("name").GetString();
-                            if (name != null && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                            if (release.GetProperty("draft").GetBoolean()) continue;
+                            bool isPrerelease = release.GetProperty("prerelease").GetBoolean();
+
+                            if (channel == UpdateChannel.Stable && isPrerelease) continue;
+                            string tag = release.GetProperty("tag_name").GetString();
+
+                            if (string.IsNullOrWhiteSpace(tag)) continue;
+                            string versionText = tag.Trim();
+
+                            if (versionText.StartsWith("v", StringComparison.OrdinalIgnoreCase)) versionText = versionText.Substring(1);
+                            if (!NuGetVersion.TryParse(versionText, out NuGetVersion version)) continue;
+
+                            // Stable must never accept a SemVer prerelease.
+                            if (channel == UpdateChannel.Stable &&version.IsPrerelease) continue;
+
+                            // GitHub's prerelease flag and SemVer label
+                            // should agree. Never expose a beta to Stable.
+                            if (isPrerelease != version.IsPrerelease) continue;
+                            if (bestVersion != null && version.CompareTo(bestVersion) <= 0) continue;
+
+                            string assetUrl = "";
+
+                            foreach (JsonElement asset in release .GetProperty("assets").EnumerateArray())
                             {
-                                string candidate = asset.GetProperty("browser_download_url").GetString();
-                                Uri uri;
-                                if (!Uri.TryCreate(candidate, UriKind.Absolute, out uri) ||
-                                    uri.Scheme != Uri.UriSchemeHttps) continue;
-                                downloadUrl = candidate;
-                                RemoteVersion = version;
-                                return true;
+                                string name = asset.GetProperty("name").GetString();
+                                if (string.IsNullOrWhiteSpace(name) ||!name.EndsWith(".zip",StringComparison.OrdinalIgnoreCase)) continue;
+
+                                string candidate = asset .GetProperty("browser_download_url").GetString();
+                                if (!Uri.TryCreate(candidate, UriKind.Absolute, out Uri uri) ||uri.Scheme != Uri.UriSchemeHttps ||!string.Equals(uri.Host, "github.com",StringComparison.OrdinalIgnoreCase))continue;
+
+                                assetUrl = candidate;
+                                break;
                             }
+
+                            if (string.IsNullOrEmpty(assetUrl))continue;
+
+                            bestVersion = version;
+                            bestDownloadUrl = assetUrl;
+                            bestTag = tag;
+                            bestPrerelease = isPrerelease;
                         }
+
+                        if (bestVersion == null) return false;
+
+                        RemoteVersion = bestVersion;
+                        downloadUrl = bestDownloadUrl;
+                        RemoteTag = bestTag;
+                        RemoteIsPrerelease = bestPrerelease;
+
+                        return true;
                     }
                 }
             }
-            catch (Exception ex) when (ex is HttpRequestException || ex is TaskCanceledException ||
-                                        ex is JsonException || ex is KeyNotFoundException ||
-                                        ex is InvalidOperationException || ex is ArgumentException)
+            catch (Exception ex) when (
+                ex is HttpRequestException ||
+                ex is TaskCanceledException ||
+                ex is JsonException ||
+                ex is InvalidOperationException ||
+                ex is ArgumentException ||
+                ex is KeyNotFoundException)
             {
                 return false;
             }
-            return false;
         }
 
-        public bool IsUpdateAvailable() => RemoteVersion != null && RemoteVersion > LocalVersion;
+
+
+        public bool IsUpdateAvailable() { return RemoteVersion != null && RemoteVersion.CompareTo(LocalVersion) > 0; }
 
         public bool IsProtectedPath(string relativePath)
         {

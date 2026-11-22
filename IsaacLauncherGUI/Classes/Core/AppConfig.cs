@@ -9,6 +9,7 @@ namespace IsaacLauncherGUI
 {
     public class AppSettings
     {
+        //Launcher
         public bool Mods { get; set; } = true;
         public bool SmartStart { get; set; } = false;
         public string GamePath { get; set; } = "path to isaac-ng.exe";
@@ -19,6 +20,10 @@ namespace IsaacLauncherGUI
         public bool Reminder { get; set; } = false;
         public int? OpenX { get; set; }
         public int? OpenY { get; set; }
+        public long LastSessionSeconds { get; set; } = 0;
+        public long LauncherPlaytimeSeconds { get; set; } = 0;
+        //settings
+        public UpdateChannel UpdateChannel { get; set; } = UpdateChannel.Stable;
         public bool InstantLaunch { get; set; } = false;
         public bool Portable { get; set; } = false;
         public bool OnTray { get; set; } = false;
@@ -30,6 +35,9 @@ namespace IsaacLauncherGUI
         public string LastUpdateCheck { get; set; } = string.Empty;
         public int DailyStreak { get; set; } = 0;
         public int Streak { get; set; } = 0;
+        //tools
+        public bool AutoBackupBeforePlay { get; set; } = false;
+        //about
 
     }
 
@@ -44,6 +52,12 @@ namespace IsaacLauncherGUI
 
             Directory.CreateDirectory(path);
             return Path.Combine(path, "config.json");
+        }
+
+        public static string GetDataPath()
+        {
+            string configPath = GetConfigPath();
+            return Path.GetDirectoryName(configPath);
         }
         public static void Save(AppSettings settings)
         {

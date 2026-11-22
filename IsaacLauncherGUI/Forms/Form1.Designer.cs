@@ -29,16 +29,40 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TabPage launcherPage;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IsaacLauncher));
+            this.launcherButton = new System.Windows.Forms.Button();
+            this.settingsButton = new System.Windows.Forms.Button();
+            this.toolsButton = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.menu = new ReaLTaiizor.Controls.CrownContextMenuStrip();
+            this.Play = new System.Windows.Forms.ToolStripMenuItem();
+            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutButton = new System.Windows.Forms.Button();
+            this.tabControl1 = new IsaacLauncherGUI.NoBorderTabControl();
+            this.launcherPage = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.panel9 = new System.Windows.Forms.Panel();
+            this.label26 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.panel12 = new ReaLTaiizor.Controls.Panel();
+            this.label25 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label24 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.panel11 = new ReaLTaiizor.Controls.Panel();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
-            this.panel5 = new System.Windows.Forms.Panel();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.smartStartTooltip = new System.Windows.Forms.PictureBox();
             this.repentogonToolTip = new System.Windows.Forms.PictureBox();
@@ -50,16 +74,6 @@
             this.repentogonCheckbox = new System.Windows.Forms.CheckBox();
             this.smart = new System.Windows.Forms.CheckBox();
             this.mods = new System.Windows.Forms.CheckBox();
-            this.launcherButton = new System.Windows.Forms.Button();
-            this.settingsButton = new System.Windows.Forms.Button();
-            this.toolsButton = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
-            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.menu = new ReaLTaiizor.Controls.CrownContextMenuStrip();
-            this.Play = new System.Windows.Forms.ToolStripMenuItem();
-            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl1 = new IsaacLauncherGUI.NoBorderTabControl();
             this.settingsPage = new System.Windows.Forms.TabPage();
             this.panel4 = new System.Windows.Forms.Panel();
             this.repentogonPathToolTip = new System.Windows.Forms.PictureBox();
@@ -86,24 +100,39 @@
             this.pathText = new System.Windows.Forms.Label();
             this.toolsPage = new System.Windows.Forms.TabPage();
             this.panel6 = new System.Windows.Forms.Panel();
+            this.backupBeforePlayToolip = new System.Windows.Forms.PictureBox();
+            this.backupBeforePlayCheckbox = new System.Windows.Forms.CheckBox();
             this.button1 = new System.Windows.Forms.Button();
             this.backupButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.portableCreate = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            launcherPage = new System.Windows.Forms.TabPage();
-            launcherPage.SuspendLayout();
+            this.aboutPage = new System.Windows.Forms.TabPage();
+            this.panel7 = new System.Windows.Forms.Panel();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.panel8 = new System.Windows.Forms.Panel();
+            this.button6 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.label12 = new System.Windows.Forms.Label();
+            this.button3 = new System.Windows.Forms.Button();
+            this.panel10 = new System.Windows.Forms.Panel();
+            this.label27 = new System.Windows.Forms.Label();
+            this.BetaReleaseCheckbox = new System.Windows.Forms.CheckBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.checkForUpdatesButton = new System.Windows.Forms.Button();
+            this.menu.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.launcherPage.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
-            this.panel5.SuspendLayout();
+            this.panel9.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.smartStartTooltip)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.repentogonToolTip)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.modsToolTip)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.borderlessFullscreenTooltip)).BeginInit();
-            this.menu.SuspendLayout();
-            this.tabControl1.SuspendLayout();
             this.settingsPage.SuspendLayout();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.repentogonPathToolTip)).BeginInit();
@@ -116,15 +145,135 @@
             ((System.ComponentModel.ISupportInitialize)(this.customToolTip)).BeginInit();
             this.toolsPage.SuspendLayout();
             this.panel6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.backupBeforePlayToolip)).BeginInit();
+            this.aboutPage.SuspendLayout();
+            this.panel7.SuspendLayout();
+            this.panel8.SuspendLayout();
+            this.panel10.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // launcherButton
+            // 
+            this.launcherButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.launcherButton, "launcherButton");
+            this.launcherButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.launcherButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.launcherButton.FlatAppearance.BorderSize = 0;
+            this.launcherButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.launcherButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.launcherButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.launcherButton.Name = "launcherButton";
+            this.launcherButton.UseVisualStyleBackColor = false;
+            this.launcherButton.Click += new System.EventHandler(this.NavigationButton_Click);
+            // 
+            // settingsButton
+            // 
+            this.settingsButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.settingsButton, "settingsButton");
+            this.settingsButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.settingsButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.settingsButton.FlatAppearance.BorderSize = 0;
+            this.settingsButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.settingsButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.settingsButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.settingsButton.Name = "settingsButton";
+            this.settingsButton.UseVisualStyleBackColor = false;
+            this.settingsButton.Click += new System.EventHandler(this.NavigationButton_Click);
+            // 
+            // toolsButton
+            // 
+            this.toolsButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.toolsButton, "toolsButton");
+            this.toolsButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.toolsButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.toolsButton.FlatAppearance.BorderSize = 0;
+            this.toolsButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.toolsButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.toolsButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.toolsButton.Name = "toolsButton";
+            this.toolsButton.UseVisualStyleBackColor = false;
+            this.toolsButton.Click += new System.EventHandler(this.NavigationButton_Click);
+            // 
+            // label7
+            // 
+            resources.ApplyResources(this.label7, "label7");
+            this.label7.ForeColor = System.Drawing.Color.Gold;
+            this.label7.Name = "label7";
+            // 
+            // notifyIcon1
+            // 
+            this.notifyIcon1.ContextMenuStrip = this.menu;
+            resources.ApplyResources(this.notifyIcon1, "notifyIcon1");
+            this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ShowApp);
+            // 
+            // menu
+            // 
+            this.menu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.menu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Play,
+            this.showToolStripMenuItem,
+            this.closeToolStripMenuItem});
+            this.menu.Name = "menu";
+            resources.ApplyResources(this.menu, "menu");
+            this.menu.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ShowApp);
+            // 
+            // Play
+            // 
+            this.Play.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.Play.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.Play.Name = "Play";
+            resources.ApplyResources(this.Play, "Play");
+            this.Play.Click += new System.EventHandler(this.PlayButton_Click);
+            // 
+            // showToolStripMenuItem
+            // 
+            this.showToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.showToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
+            resources.ApplyResources(this.showToolStripMenuItem, "showToolStripMenuItem");
+            this.showToolStripMenuItem.Click += new System.EventHandler(this.ShowApp);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.closeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            resources.ApplyResources(this.closeToolStripMenuItem, "closeToolStripMenuItem");
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.Close_Click);
+            // 
+            // aboutButton
+            // 
+            this.aboutButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.aboutButton, "aboutButton");
+            this.aboutButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.aboutButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.aboutButton.FlatAppearance.BorderSize = 0;
+            this.aboutButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.aboutButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.aboutButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.aboutButton.Name = "aboutButton";
+            this.aboutButton.UseVisualStyleBackColor = false;
+            this.aboutButton.Click += new System.EventHandler(this.NavigationButton_Click);
+            // 
+            // tabControl1
+            // 
+            resources.ApplyResources(this.tabControl1, "tabControl1");
+            this.tabControl1.Controls.Add(this.launcherPage);
+            this.tabControl1.Controls.Add(this.settingsPage);
+            this.tabControl1.Controls.Add(this.toolsPage);
+            this.tabControl1.Controls.Add(this.aboutPage);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             // 
             // launcherPage
             // 
-            launcherPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
-            resources.ApplyResources(launcherPage, "launcherPage");
-            launcherPage.Controls.Add(this.panel1);
-            launcherPage.ForeColor = System.Drawing.Color.Transparent;
-            launcherPage.Name = "launcherPage";
+            this.launcherPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            resources.ApplyResources(this.launcherPage, "launcherPage");
+            this.launcherPage.Controls.Add(this.panel1);
+            this.launcherPage.ForeColor = System.Drawing.Color.Transparent;
+            this.launcherPage.Name = "launcherPage";
             // 
             // panel1
             // 
@@ -136,11 +285,133 @@
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.panel9);
             this.panel3.Controls.Add(this.label11);
             this.panel3.Controls.Add(this.button2);
-            this.panel3.Controls.Add(this.panel5);
             resources.ApplyResources(this.panel3, "panel3");
             this.panel3.Name = "panel3";
+            // 
+            // panel9
+            // 
+            this.panel9.BackgroundImage = global::IsaacLauncherGUI.Properties.Resources.button;
+            resources.ApplyResources(this.panel9, "panel9");
+            this.panel9.Controls.Add(this.label26);
+            this.panel9.Controls.Add(this.label9);
+            this.panel9.Controls.Add(this.label10);
+            this.panel9.Controls.Add(this.panel12);
+            this.panel9.Controls.Add(this.label25);
+            this.panel9.Controls.Add(this.label1);
+            this.panel9.Controls.Add(this.label24);
+            this.panel9.Controls.Add(this.label23);
+            this.panel9.Controls.Add(this.label22);
+            this.panel9.Controls.Add(this.label21);
+            this.panel9.Controls.Add(this.label20);
+            this.panel9.Controls.Add(this.label19);
+            this.panel9.Controls.Add(this.label18);
+            this.panel9.Controls.Add(this.panel11);
+            this.panel9.Controls.Add(this.label17);
+            this.panel9.Controls.Add(this.label15);
+            this.panel9.Name = "panel9";
+            // 
+            // label26
+            // 
+            resources.ApplyResources(this.label26, "label26");
+            this.label26.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label26.Name = "label26";
+            // 
+            // label9
+            // 
+            resources.ApplyResources(this.label9, "label9");
+            this.label9.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label9.Name = "label9";
+            // 
+            // label10
+            // 
+            resources.ApplyResources(this.label10, "label10");
+            this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label10.Name = "label10";
+            // 
+            // panel12
+            // 
+            this.panel12.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.panel12.EdgeColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.panel12, "panel12");
+            this.panel12.Name = "panel12";
+            this.panel12.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            // 
+            // label25
+            // 
+            resources.ApplyResources(this.label25, "label25");
+            this.label25.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label25.Name = "label25";
+            // 
+            // label1
+            // 
+            resources.ApplyResources(this.label1, "label1");
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label1.Name = "label1";
+            // 
+            // label24
+            // 
+            resources.ApplyResources(this.label24, "label24");
+            this.label24.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label24.Name = "label24";
+            // 
+            // label23
+            // 
+            resources.ApplyResources(this.label23, "label23");
+            this.label23.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label23.Name = "label23";
+            // 
+            // label22
+            // 
+            resources.ApplyResources(this.label22, "label22");
+            this.label22.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label22.Name = "label22";
+            // 
+            // label21
+            // 
+            resources.ApplyResources(this.label21, "label21");
+            this.label21.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label21.Name = "label21";
+            // 
+            // label20
+            // 
+            resources.ApplyResources(this.label20, "label20");
+            this.label20.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label20.Name = "label20";
+            // 
+            // label19
+            // 
+            resources.ApplyResources(this.label19, "label19");
+            this.label19.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label19.Name = "label19";
+            // 
+            // label18
+            // 
+            resources.ApplyResources(this.label18, "label18");
+            this.label18.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label18.Name = "label18";
+            // 
+            // panel11
+            // 
+            this.panel11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.panel11.EdgeColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.panel11, "panel11");
+            this.panel11.Name = "panel11";
+            this.panel11.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            // 
+            // label17
+            // 
+            resources.ApplyResources(this.label17, "label17");
+            this.label17.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label17.Name = "label17";
+            // 
+            // label15
+            // 
+            resources.ApplyResources(this.label15, "label15");
+            this.label15.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.label15.Name = "label15";
             // 
             // label11
             // 
@@ -161,33 +432,6 @@
             this.button2.Name = "button2";
             this.button2.UseVisualStyleBackColor = false;
             this.button2.Click += new System.EventHandler(this.OpenModManagerButton_Click);
-            // 
-            // panel5
-            // 
-            this.panel5.BackgroundImage = global::IsaacLauncherGUI.Properties.Resources.postit;
-            resources.ApplyResources(this.panel5, "panel5");
-            this.panel5.Controls.Add(this.label10);
-            this.panel5.Controls.Add(this.label9);
-            this.panel5.Controls.Add(this.label1);
-            this.panel5.Name = "panel5";
-            // 
-            // label10
-            // 
-            resources.ApplyResources(this.label10, "label10");
-            this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.label10.Name = "label10";
-            // 
-            // label9
-            // 
-            resources.ApplyResources(this.label9, "label9");
-            this.label9.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.label9.Name = "label9";
-            // 
-            // label1
-            // 
-            resources.ApplyResources(this.label1, "label1");
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.label1.Name = "label1";
             // 
             // panel2
             // 
@@ -273,6 +517,7 @@
             this.repentogonCheckbox.ForeColor = System.Drawing.Color.White;
             this.repentogonCheckbox.Name = "repentogonCheckbox";
             this.repentogonCheckbox.UseVisualStyleBackColor = true;
+            this.repentogonCheckbox.CheckedChanged += new System.EventHandler(this.CheckBox_CheckedChanged);
             // 
             // smart
             // 
@@ -282,7 +527,7 @@
             this.smart.ForeColor = System.Drawing.Color.White;
             this.smart.Name = "smart";
             this.smart.UseVisualStyleBackColor = true;
-            this.smart.CheckedChanged += new System.EventHandler(this.SmartStartChecked);
+            this.smart.CheckedChanged += new System.EventHandler(this.CheckBox_CheckedChanged);
             // 
             // mods
             // 
@@ -292,106 +537,7 @@
             this.mods.ForeColor = System.Drawing.Color.White;
             this.mods.Name = "mods";
             this.mods.UseVisualStyleBackColor = true;
-            // 
-            // launcherButton
-            // 
-            this.launcherButton.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.launcherButton, "launcherButton");
-            this.launcherButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.launcherButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.launcherButton.FlatAppearance.BorderSize = 0;
-            this.launcherButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.launcherButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.launcherButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.launcherButton.Name = "launcherButton";
-            this.launcherButton.UseVisualStyleBackColor = false;
-            this.launcherButton.Click += new System.EventHandler(this.LauncherButton_Click);
-            // 
-            // settingsButton
-            // 
-            this.settingsButton.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.settingsButton, "settingsButton");
-            this.settingsButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.settingsButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.settingsButton.FlatAppearance.BorderSize = 0;
-            this.settingsButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.settingsButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.settingsButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.settingsButton.Name = "settingsButton";
-            this.settingsButton.UseVisualStyleBackColor = false;
-            this.settingsButton.Click += new System.EventHandler(this.SettingsButton_Click);
-            // 
-            // toolsButton
-            // 
-            this.toolsButton.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.toolsButton, "toolsButton");
-            this.toolsButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.toolsButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.toolsButton.FlatAppearance.BorderSize = 0;
-            this.toolsButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.toolsButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.toolsButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.toolsButton.Name = "toolsButton";
-            this.toolsButton.UseVisualStyleBackColor = false;
-            this.toolsButton.Click += new System.EventHandler(this.ToolsButton_Click);
-            // 
-            // label7
-            // 
-            resources.ApplyResources(this.label7, "label7");
-            this.label7.ForeColor = System.Drawing.Color.Gold;
-            this.label7.Name = "label7";
-            // 
-            // notifyIcon1
-            // 
-            this.notifyIcon1.ContextMenuStrip = this.menu;
-            resources.ApplyResources(this.notifyIcon1, "notifyIcon1");
-            this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ShowApp);
-            // 
-            // menu
-            // 
-            this.menu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.menu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.Play,
-            this.showToolStripMenuItem,
-            this.closeToolStripMenuItem});
-            this.menu.Name = "menu";
-            resources.ApplyResources(this.menu, "menu");
-            this.menu.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ShowApp);
-            // 
-            // Play
-            // 
-            this.Play.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.Play.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.Play.Name = "Play";
-            resources.ApplyResources(this.Play, "Play");
-            this.Play.Click += new System.EventHandler(this.PlayButton_Click);
-            // 
-            // showToolStripMenuItem
-            // 
-            this.showToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.showToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            resources.ApplyResources(this.showToolStripMenuItem, "showToolStripMenuItem");
-            this.showToolStripMenuItem.Click += new System.EventHandler(this.ShowApp);
-            // 
-            // closeToolStripMenuItem
-            // 
-            this.closeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.closeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            resources.ApplyResources(this.closeToolStripMenuItem, "closeToolStripMenuItem");
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.Close_Click);
-            // 
-            // tabControl1
-            // 
-            resources.ApplyResources(this.tabControl1, "tabControl1");
-            this.tabControl1.Controls.Add(launcherPage);
-            this.tabControl1.Controls.Add(this.settingsPage);
-            this.tabControl1.Controls.Add(this.toolsPage);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+            this.mods.CheckedChanged += new System.EventHandler(this.CheckBox_CheckedChanged);
             // 
             // settingsPage
             // 
@@ -565,7 +711,7 @@
             this.portable.ForeColor = System.Drawing.Color.White;
             this.portable.Name = "portable";
             this.portable.UseVisualStyleBackColor = true;
-            this.portable.Click += new System.EventHandler(this.UsePortableVersionClick);
+            this.portable.CheckedChanged += new System.EventHandler(this.CheckBox_CheckedChanged);
             // 
             // instantLaunch
             // 
@@ -598,7 +744,7 @@
             this.custom.ForeColor = System.Drawing.Color.White;
             this.custom.Name = "custom";
             this.custom.UseVisualStyleBackColor = true;
-            this.custom.CheckedChanged += new System.EventHandler(this.UseCustomVersion);
+            this.custom.CheckedChanged += new System.EventHandler(this.CheckBox_CheckedChanged);
             // 
             // pathText
             // 
@@ -622,6 +768,8 @@
             // panel6
             // 
             this.panel6.BackColor = System.Drawing.Color.Transparent;
+            this.panel6.Controls.Add(this.backupBeforePlayToolip);
+            this.panel6.Controls.Add(this.backupBeforePlayCheckbox);
             this.panel6.Controls.Add(this.button1);
             this.panel6.Controls.Add(this.backupButton);
             this.panel6.Controls.Add(this.label2);
@@ -629,6 +777,23 @@
             this.panel6.Controls.Add(this.label6);
             resources.ApplyResources(this.panel6, "panel6");
             this.panel6.Name = "panel6";
+            // 
+            // backupBeforePlayToolip
+            // 
+            this.backupBeforePlayToolip.BackgroundImage = global::IsaacLauncherGUI.Properties.Resources.hdsecretroom;
+            resources.ApplyResources(this.backupBeforePlayToolip, "backupBeforePlayToolip");
+            this.backupBeforePlayToolip.Cursor = System.Windows.Forms.Cursors.Default;
+            this.backupBeforePlayToolip.Name = "backupBeforePlayToolip";
+            this.backupBeforePlayToolip.TabStop = false;
+            // 
+            // backupBeforePlayCheckbox
+            // 
+            resources.ApplyResources(this.backupBeforePlayCheckbox, "backupBeforePlayCheckbox");
+            this.backupBeforePlayCheckbox.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.backupBeforePlayCheckbox.FlatAppearance.BorderSize = 100;
+            this.backupBeforePlayCheckbox.ForeColor = System.Drawing.Color.White;
+            this.backupBeforePlayCheckbox.Name = "backupBeforePlayCheckbox";
+            this.backupBeforePlayCheckbox.UseVisualStyleBackColor = true;
             // 
             // button1
             // 
@@ -688,11 +853,148 @@
             resources.ApplyResources(this.label5, "label5");
             this.label5.Name = "label5";
             // 
+            // aboutPage
+            // 
+            this.aboutPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            resources.ApplyResources(this.aboutPage, "aboutPage");
+            this.aboutPage.Controls.Add(this.panel7);
+            this.aboutPage.Name = "aboutPage";
+            // 
+            // panel7
+            // 
+            resources.ApplyResources(this.panel7, "panel7");
+            this.panel7.BackColor = System.Drawing.Color.Transparent;
+            this.panel7.Controls.Add(this.label14);
+            this.panel7.Controls.Add(this.label13);
+            this.panel7.Controls.Add(this.panel8);
+            this.panel7.Controls.Add(this.panel10);
+            this.panel7.Name = "panel7";
+            // 
+            // label14
+            // 
+            resources.ApplyResources(this.label14, "label14");
+            this.label14.ForeColor = System.Drawing.Color.White;
+            this.label14.Name = "label14";
+            this.label14.Tag = "KeepComic";
+            // 
+            // label13
+            // 
+            resources.ApplyResources(this.label13, "label13");
+            this.label13.ForeColor = System.Drawing.Color.Gold;
+            this.label13.Name = "label13";
+            // 
+            // panel8
+            // 
+            this.panel8.Controls.Add(this.button6);
+            this.panel8.Controls.Add(this.button5);
+            this.panel8.Controls.Add(this.label12);
+            this.panel8.Controls.Add(this.button3);
+            resources.ApplyResources(this.panel8, "panel8");
+            this.panel8.Name = "panel8";
+            // 
+            // button6
+            // 
+            this.button6.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.button6, "button6");
+            this.button6.Cursor = System.Windows.Forms.Cursors.Default;
+            this.button6.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.button6.FlatAppearance.BorderSize = 0;
+            this.button6.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button6.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.button6.Name = "button6";
+            this.button6.Tag = "https://ko-fi.com/haltiru";
+            this.button6.UseVisualStyleBackColor = false;
+            this.button6.Click += new System.EventHandler(this.OpenLinkOnClick);
+            // 
+            // button5
+            // 
+            this.button5.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.button5, "button5");
+            this.button5.Cursor = System.Windows.Forms.Cursors.Default;
+            this.button5.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.button5.FlatAppearance.BorderSize = 0;
+            this.button5.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button5.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.button5.Name = "button5";
+            this.button5.Tag = "https://github.com/Haltiru/IsaacLauncher/issues/new/choose";
+            this.button5.UseVisualStyleBackColor = false;
+            this.button5.Click += new System.EventHandler(this.OpenLinkOnClick);
+            // 
+            // label12
+            // 
+            resources.ApplyResources(this.label12, "label12");
+            this.label12.ForeColor = System.Drawing.Color.Gold;
+            this.label12.Name = "label12";
+            // 
+            // button3
+            // 
+            this.button3.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.button3, "button3");
+            this.button3.Cursor = System.Windows.Forms.Cursors.Default;
+            this.button3.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.button3.FlatAppearance.BorderSize = 0;
+            this.button3.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button3.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.button3.Name = "button3";
+            this.button3.Tag = "https://github.com/Haltiru/IsaacLauncher";
+            this.button3.UseVisualStyleBackColor = false;
+            this.button3.Click += new System.EventHandler(this.OpenLinkOnClick);
+            // 
+            // panel10
+            // 
+            this.panel10.Controls.Add(this.label27);
+            this.panel10.Controls.Add(this.BetaReleaseCheckbox);
+            this.panel10.Controls.Add(this.label16);
+            this.panel10.Controls.Add(this.checkForUpdatesButton);
+            resources.ApplyResources(this.panel10, "panel10");
+            this.panel10.Name = "panel10";
+            // 
+            // label27
+            // 
+            resources.ApplyResources(this.label27, "label27");
+            this.label27.ForeColor = System.Drawing.Color.OrangeRed;
+            this.label27.Name = "label27";
+            this.label27.Tag = "KeepComic";
+            // 
+            // BetaReleaseCheckbox
+            // 
+            resources.ApplyResources(this.BetaReleaseCheckbox, "BetaReleaseCheckbox");
+            this.BetaReleaseCheckbox.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.BetaReleaseCheckbox.FlatAppearance.BorderSize = 100;
+            this.BetaReleaseCheckbox.ForeColor = System.Drawing.Color.White;
+            this.BetaReleaseCheckbox.Name = "BetaReleaseCheckbox";
+            this.BetaReleaseCheckbox.UseVisualStyleBackColor = true;
+            this.BetaReleaseCheckbox.CheckedChanged += new System.EventHandler(this.betaUpdatesCheckBox_CheckedChanged);
+            // 
+            // label16
+            // 
+            resources.ApplyResources(this.label16, "label16");
+            this.label16.ForeColor = System.Drawing.Color.Gold;
+            this.label16.Name = "label16";
+            // 
+            // checkForUpdatesButton
+            // 
+            this.checkForUpdatesButton.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.checkForUpdatesButton, "checkForUpdatesButton");
+            this.checkForUpdatesButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.checkForUpdatesButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.checkForUpdatesButton.FlatAppearance.BorderSize = 0;
+            this.checkForUpdatesButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.checkForUpdatesButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.checkForUpdatesButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.checkForUpdatesButton.Name = "checkForUpdatesButton";
+            this.checkForUpdatesButton.UseVisualStyleBackColor = false;
+            this.checkForUpdatesButton.Click += new System.EventHandler(this.CheckForUpdatesButton_Click);
+            // 
             // IsaacLauncher
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             resources.ApplyResources(this, "$this");
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            this.Controls.Add(this.aboutButton);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.toolsButton);
             this.Controls.Add(this.settingsButton);
@@ -707,18 +1009,18 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.IsaacLauncher_FormClosing);
             this.Load += new System.EventHandler(this.IsaacLauncher_Load);
             this.Shown += new System.EventHandler(this.IsaacLauncher_Shown);
-            launcherPage.ResumeLayout(false);
-            launcherPage.PerformLayout();
+            this.menu.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
+            this.launcherPage.ResumeLayout(false);
+            this.launcherPage.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
-            this.panel5.ResumeLayout(false);
+            this.panel9.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.smartStartTooltip)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.repentogonToolTip)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.modsToolTip)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.borderlessFullscreenTooltip)).EndInit();
-            this.menu.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
             this.settingsPage.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.repentogonPathToolTip)).EndInit();
@@ -732,6 +1034,12 @@
             this.toolsPage.ResumeLayout(false);
             this.toolsPage.PerformLayout();
             this.panel6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.backupBeforePlayToolip)).EndInit();
+            this.aboutPage.ResumeLayout(false);
+            this.aboutPage.PerformLayout();
+            this.panel7.ResumeLayout(false);
+            this.panel8.ResumeLayout(false);
+            this.panel10.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -748,7 +1056,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button settingsButton;
         private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox borderless;
         private System.Windows.Forms.CheckBox instantLaunch;
@@ -798,6 +1105,38 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button aboutButton;
+        private System.Windows.Forms.TabPage launcherPage;
+        private System.Windows.Forms.TabPage aboutPage;
+        private System.Windows.Forms.Panel panel7;
+        private System.Windows.Forms.Panel panel8;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Panel panel10;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Button checkForUpdatesButton;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.PictureBox backupBeforePlayToolip;
+        private System.Windows.Forms.CheckBox backupBeforePlayCheckbox;
+        private System.Windows.Forms.Panel panel9;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label18;
+        private ReaLTaiizor.Controls.Panel panel11;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label label23;
+        private ReaLTaiizor.Controls.Panel panel12;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.CheckBox BetaReleaseCheckbox;
+        private System.Windows.Forms.Label label27;
     }
 }
 

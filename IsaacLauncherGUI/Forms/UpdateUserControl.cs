@@ -14,10 +14,10 @@ namespace IsaacLauncherGUI
     public partial class UpdateUserControl : UserControl
     {
         public event Action<DialogResult> ChoiceSelected;
-        public UpdateUserControl()
+        public UpdateUserControl(string version)
         {
-
             InitializeComponent();
+            label1.Text = $"A new version is available: v{version}. Would you like to update now?";
         }
 
         private void updateButton_Click(object sender, EventArgs e)
@@ -38,9 +38,7 @@ namespace IsaacLauncherGUI
         private async void onUpdateUserControlLoad(object sender, EventArgs e)
         {
             UIHelper.ApplyHoverEffects(this);
-            Updater updater = new Updater();
-            await updater.GetRemoteVersion(); 
-            if (updater.RemoteVersion != null) label1.Text = $"A new version is available: v{updater.RemoteVersion} . Would you like to update now?";        
         }
+    
     }
 }

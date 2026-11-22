@@ -55,12 +55,9 @@ namespace IsaacLauncherGUI
         private bool IsSteamReady()
         {
             // 1. Csekkoljuk, hogy létezik-e egyáltalán a steam processz a gépén
-            if (!IsSteamProcessRunning())
-            {
-                return false;
-            }
+            if (!IsSteamProcessRunning()) {return false;}
 
-            // 2. Kiolvassuk az ActiveUser értéket a registry-ből (alapértelmezett 0, ha nincs)
+            //// 2. Kiolvassuk az ActiveUser értéket a registry-ből (alapértelmezett 0, ha nincs)
             object activeUserObj = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess", "ActiveUser", 0);
 
             // 3. Biztonságos castolás: kezeljük a null-t és az esetleges string/int konverziót
@@ -75,57 +72,64 @@ namespace IsaacLauncherGUI
             return activeUser != 0;
         }
 
+
         public async Task<string> EnsureSteamRunning()
         {
+            Stopwatch timer = Stopwatch.StartNew();
+            StartupLog.Write($"Steam check START | Running={IsSteamProcessRunning()} | Ready={IsSteamReady()}");
+
             if (IsSteamReady())
             {
+                StartupLog.Write("Steam already READY.");
                 return null;
             }
+
             if (!IsSteamProcessRunning())
             {
-                string steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamExe", null) as string;
-                if (File.Exists(steamPath))
+                string steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam","SteamExe", null) as string;
+
+                if (string.IsNullOrEmpty(steamPath) || !File.Exists(steamPath))
                 {
-                    await Task.Delay(3000);
-                    steamPath = Path.GetFullPath(steamPath);
-                    ProcessStartInfo AdminSteamStart = new ProcessStartInfo
-                    {
-                        FileName = steamPath,
-                        Arguments = "-silent",
-                        UseShellExecute = true,
-                    };
-                    Process.Start(AdminSteamStart);
-                }
-                else
-                {
+                    StartupLog.Write("ERROR: Steam executable not found.");
                     return "Steam executable not found!";
                 }
+
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = Path.GetFullPath(steamPath),
+                    Arguments = "-silent",
+                    UseShellExecute = true
+                };
+
+                Process process = Process.Start(startInfo);
+                StartupLog.Write($"Steam start requested | PID={process?.Id}");
             }
 
-
-
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             try
             {
-                while (!IsSteamReady() && stopwatch.ElapsedMilliseconds < 60000)
-                {
-                    await Task.Delay(250);
-                }
+                Stopwatch waitTimer = Stopwatch.StartNew();
 
-                if (!IsSteamReady())
-                {
-                    return "Timeout: Steam didn't start in time!";
-                }
+                while (!IsSteamReady() && waitTimer.ElapsedMilliseconds < 60000) await Task.Delay(250);
+                bool ready = IsSteamReady();
+
+                object activeUser = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess","ActiveUser", 0);
+
+                StartupLog.Write($"Steam check END | Ready={ready} | ActiveUser={activeUser} | " + $"Wait={waitTimer.ElapsedMilliseconds}ms | Total={timer.ElapsedMilliseconds}ms");
+
+                if (!ready) return "Timeout: Steam didn't start in time!";
+                StartupLog.Write("Steam ready. Waiting 5 seconds...");
+                await Task.Delay(5000);
+                StartupLog.Write("Steam initialization delay finished.");
             }
-            catch
+            catch (Exception ex)
             {
+                StartupLog.Write($"Steam ERROR: {ex}");
                 return "Timeout: Steam didn't start in time!";
             }
             return null;
         }
 
-        public async Task<string> LaunchGame()
+        public string LaunchGame()
         {
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
             switch (CurrentMode)
@@ -138,10 +142,7 @@ namespace IsaacLauncherGUI
                         if (!File.Exists(RepentogonPath)) return "RepentogonLauncher.exe not found!";
                         if (!File.Exists(isaacExe)) return "isaac-ng.exe not found in game folder!";
 
-                        string steamErr = await EnsureSteamRunning();
-                        if (steamErr != null) return steamErr;
-
-
+                        StartupLog.Write("REPENTOGON: Steam check passed.");
                         ProcessStartInfo AdminStart = new ProcessStartInfo
                         {
                             FileName = $"{RepentogonPath}",
@@ -149,7 +150,10 @@ namespace IsaacLauncherGUI
                             UseShellExecute = true,
                             WorkingDirectory = Path.GetDirectoryName(RepentogonPath)
                         };
-                        Process.Start(AdminStart);
+
+                        StartupLog.Write("REPENTOGON: Starting launcher...");
+                        Process process = Process.Start(AdminStart);
+                        StartupLog.Write($"REPENTOGON: Launch requested | PID={process?.Id}");
                     }
                     else
                     {
@@ -184,8 +188,7 @@ namespace IsaacLauncherGUI
             return null;
         }
 
-
-        public void DeleteNotExistedFolders()
+        public bool DeleteNotExistedFolders()
         {
             string portableDir = Path.Combine(Application.StartupPath, "portable-saac");
             if (CurrentMode == LaunchMode.Portable && File.Exists(Path.Combine(portableDir, ".isaaclauncher-marker")))
@@ -193,19 +196,21 @@ namespace IsaacLauncherGUI
                 try
                 {
                     if (!DoesRepPlusExist && Directory.Exists(RepPlus)) Directory.Delete(RepPlus, true);
-
-                 if (!DoesMyGamesExist && Directory.Exists(MyGames) && Directory.GetFileSystemEntries(MyGames).Length == 0) Directory.Delete(MyGames, false);  
+                    if (!DoesMyGamesExist && Directory.Exists(MyGames) && Directory.GetFileSystemEntries(MyGames).Length == 0) Directory.Delete(MyGames, false);
+                    return true;
                 }
                 catch (IOException ex)
                 {
                     Debug.WriteLine($"Ghost Mode IO error: {ex}");
+                    return false;
                 }
                 catch (UnauthorizedAccessException ex)
                 {
                     Debug.WriteLine($"Ghost Mode access denied: {ex}");
+                    return false;
                 }
-
             }
+            return false;
         }
             
             
@@ -349,18 +354,17 @@ namespace IsaacLauncherGUI
 
         public async Task<string> InitializeAndLaunch(bool fullscreenEnabled, bool areModsEnabled, bool isRepentogonEnabled, AppSettings settings)
         {
-            if (IsSmartStart)
+           
+            
+            if (CurrentMode == LaunchMode.Steam)
             {
-                if (CurrentMode == LaunchMode.Steam)
-                {
-                    string steamErr = await EnsureSteamRunning();
-                    if (steamErr != null) return steamErr;
-                }
-                SmartStart(AreModsEnabled, IsRepentogonEnabled, settings);
+                string steamErr = await EnsureSteamRunning();
+                if (steamErr != null) return steamErr;
             }
+            if (IsSmartStart) SmartStart(AreModsEnabled, IsRepentogonEnabled, settings);
             StreakChecker(settings);
             ChangeIni(CurrentMode, fullscreenEnabled, settings);
-            return await LaunchGame();
+            return LaunchGame();
         }
     }
 
@@ -417,7 +421,6 @@ namespace IsaacLauncherGUI
 
         {
 
-
             if (args.Length > 0 && args[0] == "--update")
             {
                 try
@@ -459,6 +462,7 @@ namespace IsaacLauncherGUI
             }
 
             // Clean up old temporary updater copies; do not delete arbitrary .old files.
+            if (SingleInstanceManager.NotifyExistingInstanceAsync().GetAwaiter().GetResult()) return;
             Updater.CleanupOldWork();
 
             if (!IsRunningAsAdmin())
@@ -479,11 +483,36 @@ namespace IsaacLauncherGUI
                 }
             }
 
-            CleanupLegacyFiles();
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new IsaacLauncher());
+
+            using (SingleInstanceManager manager = new SingleInstanceManager())
+            {
+                if (!manager.TryAcquire())
+                {
+                    SingleInstanceManager.NotifyExistingInstanceAsync().GetAwaiter().GetResult();
+                    return;
+                }
+
+                CleanupLegacyFiles();   
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                IsaacLauncher form = new IsaacLauncher();
+                manager.ShowWindowRequested += () => {if (!form.IsDisposed && form.IsHandleCreated)form.BeginInvoke(new Action(() => form.ShowMainWindow()));};
+
+                var handle = form.Handle;
+                manager.StartListening();
+
+
+                try
+                {
+                    Application.Run(form);
+                }
+                finally
+                {
+                    manager.StopListeningAsync().GetAwaiter().GetResult();
+                }
+            }      
         }
 
         private static bool IsRunningAsAdmin()

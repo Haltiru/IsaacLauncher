@@ -35,11 +35,11 @@
             this.panel5 = new System.Windows.Forms.Panel();
             this.enabledModsListBox = new System.Windows.Forms.ListBox();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.modDescription = new System.Windows.Forms.TextBox();
+            this.modDescription = new System.Windows.Forms.RichTextBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.panel2 = new ReaLTaiizor.Controls.Panel();
             this.button3 = new System.Windows.Forms.Button();
             this.searchbBox = new System.Windows.Forms.TextBox();
-            this.panel2 = new ReaLTaiizor.Controls.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.enableAll = new System.Windows.Forms.Button();
             this.disableAll = new System.Windows.Forms.Button();
@@ -48,6 +48,7 @@
             this.playButton = new System.Windows.Forms.Button();
             this.modName = new System.Windows.Forms.Label();
             this.modImage = new System.Windows.Forms.PictureBox();
+            this.btnConflictDebug = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel6.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -60,6 +61,7 @@
             // 
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.panel1, "panel1");
+            this.panel1.Controls.Add(this.btnConflictDebug);
             this.panel1.Controls.Add(this.panel6);
             this.panel1.Controls.Add(this.panel5);
             this.panel1.Controls.Add(this.panel4);
@@ -122,22 +124,29 @@
             // 
             this.modDescription.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
             this.modDescription.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.modDescription.DetectUrls = false;
             resources.ApplyResources(this.modDescription, "modDescription");
             this.modDescription.ForeColor = System.Drawing.Color.White;
-            this.modDescription.HideSelection = false;
             this.modDescription.Name = "modDescription";
             this.modDescription.ReadOnly = true;
-            this.modDescription.TabStop = false;
             this.modDescription.Tag = "KeepComic";
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.panel2);
             this.panel3.Controls.Add(this.button3);
             this.panel3.Controls.Add(this.searchbBox);
-            this.panel3.Controls.Add(this.panel2);
             this.panel3.Controls.Add(this.label1);
             resources.ApplyResources(this.panel3, "panel3");
             this.panel3.Name = "panel3";
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(233)))), ((int)(((byte)(218)))), ((int)(((byte)(223)))));
+            this.panel2.EdgeColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.panel2, "panel2");
+            this.panel2.Name = "panel2";
+            this.panel2.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             // 
             // button3
             // 
@@ -161,14 +170,6 @@
             this.searchbBox.ForeColor = System.Drawing.Color.White;
             this.searchbBox.Name = "searchbBox";
             this.searchbBox.TextChanged += new System.EventHandler(this.SearchChanged);
-            // 
-            // panel2
-            // 
-            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(233)))), ((int)(((byte)(218)))), ((int)(((byte)(223)))));
-            this.panel2.EdgeColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.panel2, "panel2");
-            this.panel2.Name = "panel2";
-            this.panel2.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             // 
             // label1
             // 
@@ -236,16 +237,31 @@
             // 
             // modImage
             // 
-            this.modImage.BackgroundImage = global::IsaacLauncherGUI.Properties.Resources.placeholder_200x200;
             resources.ApplyResources(this.modImage, "modImage");
             this.modImage.Name = "modImage";
             this.modImage.TabStop = false;
             // 
+            // btnConflictDebug
+            // 
+            this.btnConflictDebug.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.btnConflictDebug, "btnConflictDebug");
+            this.btnConflictDebug.Cursor = System.Windows.Forms.Cursors.Default;
+            this.btnConflictDebug.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnConflictDebug.FlatAppearance.BorderSize = 0;
+            this.btnConflictDebug.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.btnConflictDebug.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btnConflictDebug.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.btnConflictDebug.Name = "btnConflictDebug";
+            this.btnConflictDebug.UseVisualStyleBackColor = false;
+#if DEBUG
+            this.btnConflictDebug.Click += new System.EventHandler(this.btnConflictDebug_Click);
+#endif
+            // 
             // ModmanagerForm
             // 
-            resources.ApplyResources(this, "$this");
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(67)))), ((int)(((byte)(56)))));
+            resources.ApplyResources(this, "$this");
             this.Controls.Add(this.panel1);
             this.DoubleBuffered = true;
             this.ForeColor = System.Drawing.Color.Transparent;
@@ -253,13 +269,13 @@
             this.MaximizeBox = false;
             this.Name = "ModmanagerForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ModManagerClosing);
             this.Shown += new System.EventHandler(this.ModManagerShown);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel6.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
-            this.panel4.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.modImage)).EndInit();
@@ -271,7 +287,6 @@
 
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox modImage;
-        private System.Windows.Forms.TextBox modDescription;
         private System.Windows.Forms.Label modName;
         private System.Windows.Forms.Label enabledMods;
         private System.Windows.Forms.Button playButton;
@@ -288,5 +303,7 @@
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.ListBox disabledModsListBox;
         private System.Windows.Forms.ListBox enabledModsListBox;
+        private System.Windows.Forms.RichTextBox modDescription;
+        private System.Windows.Forms.Button btnConflictDebug;
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace IsaacLauncherGUI
 {
@@ -28,12 +29,19 @@ namespace IsaacLauncherGUI
             if (!Directory.Exists(SavePath)) throw new ArgumentException("Save path does not exist.", nameof(SavePath));
         }
 
-        public void Save()
+        public void Save(bool autoBackup = false)
         {
             string pathToSave = IsPortable ? Path.Combine(Application.StartupPath, "Backups", "Portable") : Path.Combine(Application.StartupPath, "Backups", "Steam");
+            if (autoBackup)
+            {
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+                pathToSave = Path.Combine(pathToSave, "Auto", timestamp);
+            }
+
             string correctedPath = IsPortable ? SavePath : Path.Combine(SavePath, "save_backups");
             if (!Directory.Exists(pathToSave)) Directory.CreateDirectory(pathToSave);
 
+            int backedUpSlots = 0;
             for (int i = 1; i <= 3; i++)
             {
 
@@ -56,15 +64,12 @@ namespace IsaacLauncherGUI
                 }
 
                 string gameStateFileName = $"gamestate{i}.dat";
-                if (!File.Exists(Path.Combine(correctedPath, saveFileName)))
-                {
-                    MessageBox.Show($"Save files for slot {i} not found. Please ensure the game has been played and saved at least once. {saveFileName}, {correctedPath}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    continue;
-                }
+                if (!File.Exists(Path.Combine(correctedPath, saveFileName))) continue;
 
                 string saveFileNameAbsPath = Path.Combine(correctedPath, saveFileName);
                 string destPath = Path.Combine(pathToSave, saveFileName);
                 File.Copy(saveFileNameAbsPath, destPath, true);
+                backedUpSlots++;
 
 
                 string gameStateFileNameAbsPath = Path.Combine(SavePath, gameStateFileName);
@@ -73,6 +78,7 @@ namespace IsaacLauncherGUI
                 File.Copy(gameStateFileNameAbsPath, destPath, true);
 
             }
+            if (backedUpSlots == 0) throw new InvalidOperationException("No valid save files were found to back up.");
         }
 
         public void OpenBackupFolder()
