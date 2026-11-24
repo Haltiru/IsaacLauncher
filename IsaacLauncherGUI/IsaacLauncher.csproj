@@ -144,6 +144,7 @@
     <Compile Include="Classes\Game\GameStartupMonitor.cs" />
     <Compile Include="Classes\Game\GameStartupResult.cs" />
     <Compile Include="Classes\Game\GameWindowManager.cs" />
+    <Compile Include="Classes\Game\PlaytimeTracker.cs" />
     <Compile Include="Classes\Game\Portable.cs" Condition="'$(Configuration)' == 'Debug'" />
     <Compile Include="Classes\Core\SingleInstanceManager.cs" />
     <Compile Include="Classes\Services\BrowserHelper.cs" />
@@ -153,6 +154,7 @@
     <Compile Include="Classes\UI\UIHelper.cs" />
     <Compile Include="Classes\Core\AppConfig.cs" />
     <Compile Include="Classes\Services\Updater.cs" />
+    <Compile Include="Classes\UI\WindowPositionManager.cs" />
     <Compile Include="Forms\Form1.cs">
       <SubType>Form</SubType>
     </Compile>

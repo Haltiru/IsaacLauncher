@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModmanagerForm));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnConflictDebug = new System.Windows.Forms.Button();
             this.panel6 = new System.Windows.Forms.Panel();
             this.disabledModsListBox = new System.Windows.Forms.ListBox();
             this.panel5 = new System.Windows.Forms.Panel();
@@ -48,7 +49,7 @@
             this.playButton = new System.Windows.Forms.Button();
             this.modName = new System.Windows.Forms.Label();
             this.modImage = new System.Windows.Forms.PictureBox();
-            this.btnConflictDebug = new System.Windows.Forms.Button();
+            this.totalMods = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel6.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -61,6 +62,7 @@
             // 
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.panel1, "panel1");
+            this.panel1.Controls.Add(this.totalMods);
             this.panel1.Controls.Add(this.btnConflictDebug);
             this.panel1.Controls.Add(this.panel6);
             this.panel1.Controls.Add(this.panel5);
@@ -74,6 +76,19 @@
             this.panel1.Controls.Add(this.modName);
             this.panel1.Controls.Add(this.modImage);
             this.panel1.Name = "panel1";
+            // 
+            // btnConflictDebug
+            // 
+            this.btnConflictDebug.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.btnConflictDebug, "btnConflictDebug");
+            this.btnConflictDebug.Cursor = System.Windows.Forms.Cursors.Default;
+            this.btnConflictDebug.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnConflictDebug.FlatAppearance.BorderSize = 0;
+            this.btnConflictDebug.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.btnConflictDebug.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btnConflictDebug.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.btnConflictDebug.Name = "btnConflictDebug";
+            this.btnConflictDebug.UseVisualStyleBackColor = false;
             // 
             // panel6
             // 
@@ -241,21 +256,10 @@
             this.modImage.Name = "modImage";
             this.modImage.TabStop = false;
             // 
-            // btnConflictDebug
+            // totalMods
             // 
-            this.btnConflictDebug.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.btnConflictDebug, "btnConflictDebug");
-            this.btnConflictDebug.Cursor = System.Windows.Forms.Cursors.Default;
-            this.btnConflictDebug.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnConflictDebug.FlatAppearance.BorderSize = 0;
-            this.btnConflictDebug.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.btnConflictDebug.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btnConflictDebug.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.btnConflictDebug.Name = "btnConflictDebug";
-            this.btnConflictDebug.UseVisualStyleBackColor = false;
-#if DEBUG
-            this.btnConflictDebug.Click += new System.EventHandler(this.btnConflictDebug_Click);
-#endif
+            resources.ApplyResources(this.totalMods, "totalMods");
+            this.totalMods.Name = "totalMods";
             // 
             // ModmanagerForm
             // 
@@ -305,5 +309,6 @@
         private System.Windows.Forms.ListBox enabledModsListBox;
         private System.Windows.Forms.RichTextBox modDescription;
         private System.Windows.Forms.Button btnConflictDebug;
+        private System.Windows.Forms.Label totalMods;
     }
 }

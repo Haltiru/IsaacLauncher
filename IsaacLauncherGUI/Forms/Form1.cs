@@ -62,7 +62,7 @@ using static IsaacLauncherGUI.Launcher;
             }
 
 
-    #if DEBUG
+#if DEBUG
 
     private async void StartPortable(object sender, EventArgs e)
             {
@@ -89,40 +89,22 @@ using static IsaacLauncherGUI.Launcher;
         
             } 
 
-    #endif
+#endif
+
+            protected override CreateParams CreateParams
+            {
+                get
+                {
+                    CreateParams cp = base.CreateParams;
+                    cp.ExStyle |= 0x02000000;
+                    return cp;
+                }
+            }
 
             private void SessionTimer_Tick(object sender, EventArgs e)
             {
-                UpdateSessionTime();
-                UpdateTotalPlaytime();
-            }
-
-            private void UpdateSessionTime()
-            {
-                TimeSpan elapsed = _sessionStopwatch.Elapsed;
-                label20.Text = FormatSessionTime(elapsed);
-            }
-            private string FormatSessionTime(TimeSpan elapsed)
-            {
-                int hours = (int)elapsed.TotalHours;
-                int minutes = elapsed.Minutes;
-                int seconds = elapsed.Seconds;
-
-                if (hours == 0) return $"{minutes:00}:{seconds:00}";
-                else return $"{hours:00}:{minutes:00}:{seconds:00}";
-            }
-
-            private string FormatTotalPlaytime(long totalSeconds)
-            {
-               return $"{(totalSeconds / 3600.0):F1} hours";
-            }
-
-            private void UpdateTotalPlaytime()
-            {
-                long sessionTotalSeconds = (long)_sessionStopwatch.Elapsed.TotalSeconds;
-                long savedTotalSeconds = _settings.LauncherPlaytimeSeconds;
-                if (_sessionStopwatch.IsRunning) savedTotalSeconds += sessionTotalSeconds;
-                label21.Text = FormatTotalPlaytime(savedTotalSeconds);
+                PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
+                PlaytimeTracker.UpdateTotalPlaytime(_sessionStopwatch, totalTime, _settings);
             }
             private void InitializeToolTips()
             {
@@ -214,22 +196,6 @@ using static IsaacLauncherGUI.Launcher;
             private void SetActiveButton(Button selectedButton) { UIHelper.SetActiveNavigationButton(selectedButton, tabControl1, buttonTabPages); }
             private void NavigationButton_Click(object sender, EventArgs e) { SetActiveButton(sender as Button); }
 
-            protected override CreateParams CreateParams
-            {
-                get
-                {
-                    CreateParams cp = base.CreateParams;
-                    cp.ExStyle |= 0x02000000;
-                    return cp;
-                }
-            }
-            private void SaveWindowPosition()
-            {
-                Point location = this.WindowState == FormWindowState.Normal ? this.Location : this.RestoreBounds.Location;
-                _settings.OpenX = location.X;
-                _settings.OpenY = location.Y;
-            }
-
             private void SaveSettings()
             {
                 _settings.Mods = mods.Checked;
@@ -245,26 +211,9 @@ using static IsaacLauncherGUI.Launcher;
                 _settings.RepentogonChecked = repentogonCheckbox.Checked;
                 _settings.RepentogonPath = repentogonPathText.Text;
                 _settings.AutoBackupBeforePlay = backupBeforePlayCheckbox.Checked;
-                SaveWindowPosition();
+                WindowPositionManager.SaveWindowPosition(this, _settings);
 
                 AppConfig.Save(_settings);
-            }
-            private void LoadWindowPosition()
-            {
-                if (!_settings.OpenX.HasValue || !_settings.OpenY.HasValue) return;
-                {
-                    Point savedLocation = new Point(_settings.OpenX.Value,_settings.OpenY.Value);
-                    Rectangle windowBounds = new Rectangle(savedLocation, this.Size);
-
-                    foreach (Screen screen in Screen.AllScreens)
-                    {
-                        if (!screen.WorkingArea.Contains(windowBounds)) continue;
-                    
-                        this.StartPosition = FormStartPosition.Manual;
-                        this.Location = savedLocation;
-                        break;
-                    }
-                }
             }
             private void LoadSettings()
             {
@@ -283,12 +232,10 @@ using static IsaacLauncherGUI.Launcher;
                 repentogonCheckbox.Checked = _settings.RepentogonChecked;
                 repentogonPathText.Text = _settings.RepentogonPath;
                 backupBeforePlayCheckbox.Checked = _settings.AutoBackupBeforePlay;
-                label20.Text = FormatSessionTime(TimeSpan.FromSeconds(_settings.LastSessionSeconds));
-                label21.Text = FormatTotalPlaytime(_settings.LauncherPlaytimeSeconds);
+                sessionTime.Text = PlaytimeTracker.FormatSessionTime(TimeSpan.FromSeconds(_settings.LastSessionSeconds));
+                totalTime.Text = PlaytimeTracker.FormatTotalPlaytime(_settings.LauncherPlaytimeSeconds);
                 BetaReleaseCheckbox.Checked =_settings.UpdateChannel == UpdateChannel.Beta;
-
-
-                LoadWindowPosition();
+                WindowPositionManager.LoadWindowPosition(this, _settings);
             }
 
             private void SetPlayButtonState(PlayButtonState playButtonState)
@@ -379,7 +326,7 @@ using static IsaacLauncherGUI.Launcher;
                         SetPlayButtonState(PlayButtonState.Stop);
                         SetGameStatus(GameStatus.Running);
                         _sessionStopwatch.Restart();
-                        UpdateSessionTime();
+                        PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
                         _sessionTimer.Start();
                     }
 
@@ -404,9 +351,9 @@ using static IsaacLauncherGUI.Launcher;
                         _settings.LauncherPlaytimeSeconds += (long)_sessionStopwatch.Elapsed.TotalSeconds;
                     
                         AppConfig.Save(_settings);
-                    
-                        UpdateSessionTime();
-                        UpdateTotalPlaytime();
+
+                        PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
+                        PlaytimeTracker.UpdateTotalPlaytime(_sessionStopwatch, totalTime, _settings);
 
                     }
                     StartupLog.Write($"Game monitoring finished | GameExited={hasExited}");
@@ -616,7 +563,6 @@ using static IsaacLauncherGUI.Launcher;
                     else
                     {
                         if (!autoCheck) await PopupManager.ShowAsync(this, "NO UPDATE AVAILABLE", $"You are using the latest version of the launcher: {updater.LocalVersion}.", "OK", null, null, SystemSounds.Asterisk);
-                    
                         return true;
                     }
                 }
@@ -741,17 +687,7 @@ using static IsaacLauncherGUI.Launcher;
             {
                 if (!ghost.Checked || _loadingSettings) return;
 
-                var choice = await PopupManager.ShowAsync(
-                    this,
-                    "ENABLE GHOST MODE?",
-                    "Ghost Mode automatically deletes temporary Isaac files from the My Games folder after the portable game closes.\n\n" +
-                    "This includes options.ini, logs, and save backups stored in that folder.\n\n" +
-                    "IMPORTANT: Only use Ghost Mode with a supported portable installation. Make sure your saves are backed up!",
-                    "YES",
-                    "NO",
-                    null,
-                    SystemSounds.Exclamation
-                );
+                var choice = await PopupManager.ShowAsync(this,"ENABLE GHOST MODE?","Ghost Mode automatically deletes temporary Isaac files from the My Games folder after the portable game closes.\n\n" +"This includes options.ini, logs, and save backups stored in that folder.\n\n" +"IMPORTANT: Only use Ghost Mode with a supported portable installation. Make sure your saves are backed up!","YES","NO",null,SystemSounds.Exclamation);
                 if (choice != PopupUserControl.PopupChoice.Primary) ghost.Checked = false;
             }
 
@@ -934,10 +870,7 @@ using static IsaacLauncherGUI.Launcher;
                     notifyIcon1.Visible = true;
                     notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
                 }
-                else
-                {
-                    ShowMainWindow();
-                }
+                else ShowMainWindow();
                 if (instantLaunch.Checked) await LaunchGameAsync(true);
             }
 

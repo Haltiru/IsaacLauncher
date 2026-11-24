@@ -89,6 +89,8 @@ namespace IsaacLauncherGUI
 
                 if (enabledModsListBox.Items.Count > 0) enabledModsListBox.TopIndex = Math.Min(enabledTop,enabledModsListBox.Items.Count - 1);
                 if (disabledModsListBox.Items.Count > 0)disabledModsListBox.TopIndex = Math.Min(disabledTop,disabledModsListBox.Items.Count - 1);
+
+                UpdateModCounters();
             }
             finally
             {
@@ -96,6 +98,13 @@ namespace IsaacLauncherGUI
                 disabledModsListBox.EndUpdate();
             }
      
+        }
+
+        public void UpdateModCounters()
+        {
+            enabledMods.Text = $"Enabled Mods ({enabledModsListBox.Items.Count})";
+            disabledMods.Text = $"Disabled Mods ({disabledModsListBox.Items.Count})";
+            totalMods.Text = $"Total Mods {_CachedMods.Length}";
         }
 
         private void Close_Click(object sender, EventArgs e)

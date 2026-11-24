@@ -54,8 +54,8 @@
             this.label24 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
+            this.totalTime = new System.Windows.Forms.Label();
+            this.sessionTime = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.panel11 = new ReaLTaiizor.Controls.Panel();
@@ -304,8 +304,8 @@
             this.panel9.Controls.Add(this.label24);
             this.panel9.Controls.Add(this.label23);
             this.panel9.Controls.Add(this.label22);
-            this.panel9.Controls.Add(this.label21);
-            this.panel9.Controls.Add(this.label20);
+            this.panel9.Controls.Add(this.totalTime);
+            this.panel9.Controls.Add(this.sessionTime);
             this.panel9.Controls.Add(this.label19);
             this.panel9.Controls.Add(this.label18);
             this.panel9.Controls.Add(this.panel11);
@@ -369,17 +369,17 @@
             this.label22.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
             this.label22.Name = "label22";
             // 
-            // label21
+            // totalTime
             // 
-            resources.ApplyResources(this.label21, "label21");
-            this.label21.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.label21.Name = "label21";
+            resources.ApplyResources(this.totalTime, "totalTime");
+            this.totalTime.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.totalTime.Name = "totalTime";
             // 
-            // label20
+            // sessionTime
             // 
-            resources.ApplyResources(this.label20, "label20");
-            this.label20.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
-            this.label20.Name = "label20";
+            resources.ApplyResources(this.sessionTime, "sessionTime");
+            this.sessionTime.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(76)))), ((int)(((byte)(74)))));
+            this.sessionTime.Name = "sessionTime";
             // 
             // label19
             // 
@@ -1123,8 +1123,8 @@
         private System.Windows.Forms.CheckBox backupBeforePlayCheckbox;
         private System.Windows.Forms.Panel panel9;
         private System.Windows.Forms.Label label22;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label totalTime;
+        private System.Windows.Forms.Label sessionTime;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Label label18;
         private ReaLTaiizor.Controls.Panel panel11;
