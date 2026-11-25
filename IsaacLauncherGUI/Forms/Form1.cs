@@ -1,6 +1,5 @@
 ﻿//Form1.cs
 using Microsoft.WindowsAPICodePack.Dialogs;
-using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,6 +21,7 @@ using static IsaacLauncherGUI.Launcher;
             private ModmanagerForm _modManagerForm = null;
             private bool _updatingModeUI = false;
             private PrivateFontCollection customFont = new PrivateFontCollection();
+            private UpdateManager _updateManager;
             private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
             ToolTip mainToolTip = new ToolTip();
             private readonly Timer _sessionTimer = new Timer();
@@ -384,196 +384,6 @@ using static IsaacLauncherGUI.Launcher;
                 }
             }
 
-            private async Task<Panel> CreateUpdateOverlay(Control content)
-            {
-
-                Bitmap screenshot = null;
-                Panel Modal = null;
-                try
-                {
-                    await Task.Delay(100);
-                    screenshot = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
-                    Point topLeft = PointToScreen(Point.Empty);
-                    using (Graphics g = Graphics.FromImage(screenshot))
-                    {;
-                        g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
-                        using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28))) g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
-                    }
-
-                    // We create a modal panel to host the update user control, and add it to the form.
-                    Modal = new Panel();
-
-                    Modal.Dock = DockStyle.Fill;
-                    Modal.BackgroundImage = screenshot;
-                    Modal.TabStop = false;
-
-                    this.Controls.Add(Modal);
-                    Modal.Controls.Add(content);
-
-                    content.Location = new Point(this.ClientSize.Width / 2 - content.Width / 2, this.ClientSize.Height / 2 - content.Height / 2);
-
-                    Modal.BringToFront();
-                    content.BringToFront();
-                    return Modal;
-                }
-                catch
-                {
-                    try
-                    {
-                        if (Modal != null)
-                        {
-                            Modal.BackgroundImage = null;
-                            this.Controls.Remove(Modal);
-                            Modal.Dispose();
-                        }
-                    }
-                    finally {if (screenshot != null) screenshot.Dispose();}
-                    throw;
-                }
-            }
-
-            private void RemoveUpdateOverlay(Panel overlay)
-            {
-                Image img = overlay.BackgroundImage;
-                try
-                {
-                    this.Controls.Remove(overlay);
-                    overlay.BackgroundImage = null;
-                    overlay.Dispose();
-                }
-                finally { img?.Dispose(); }
-            }
-
-
-        private async Task<DialogResult> ShowUpdateDialogAsync(string version)
-        {
-            UpdateUserControl updateUserControl = new UpdateUserControl(version);
-            TaskCompletionSource<DialogResult> result = new TaskCompletionSource<DialogResult>();
-            updateUserControl.ChoiceSelected += choice => result.TrySetResult(choice);
-
-            Panel modal = await CreateUpdateOverlay(updateUserControl);
-
-            try
-            {
-                SystemSounds.Asterisk.Play();
-                return await result.Task;
-            }
-            finally
-            {
-                RemoveUpdateOverlay(modal);
-            }
-        }
-
-
-        private async Task ShowUpdateProgressDialogAsync(Func<IProgress<int>, IProgress<string>, Task> operation)
-            {
-                // We take a screenshot of the current form to use as the background for the modal panel.
-                bool isActive = true;
-                UpdateProgressUserControl updateProgressUserControl = new UpdateProgressUserControl();
-                Progress<int> progressReporter = new Progress<int>(percentage => { if (isActive) updateProgressUserControl.UpdateProgress(percentage); });
-                Progress<string> statusReporter = new Progress<string>(status => { if (isActive) updateProgressUserControl.UpdateStatus(status); });
-
-                Panel Modal = await CreateUpdateOverlay(updateProgressUserControl);
-
-                try { await operation(progressReporter, statusReporter); }
-                finally
-                {
-                    isActive = false;
-                    RemoveUpdateOverlay(Modal);
-                }
-            }
-
-            private bool CooldownCheck(bool autoCheck)
-            {
-                if (!autoCheck) return true;
-                if (_settings.Reminder) return true;
-                if (string.IsNullOrEmpty(_settings.LastUpdateCheck)) return true;
-
-                DateTime lastCheck;
-                if (DateTime.TryParse(_settings.LastUpdateCheck, out lastCheck))
-                {
-                    TimeSpan timeSinceLastCheck = DateTime.Now - lastCheck;
-                    if (timeSinceLastCheck.TotalHours < 0.01) return false;
-                }
-                return true;
-            }
-            private async Task<bool> CheckUpdateAvailabilityAsync(Updater updater)
-            {
-                bool isSuccess = await updater.GetRemoteVersion(_settings.UpdateChannel);
-                NuGetVersion checkForNull = updater.RemoteVersion;
-                if (isSuccess && checkForNull != null)
-                {
-                    // Update the last check time
-                    _settings.LastUpdateCheck = DateTime.Now.ToString("o");
-                    AppConfig.Save(_settings);
-                }
-                return isSuccess && checkForNull != null;
-            }
-            private async Task<bool> HandleUpdateDialogAsync(Updater updater)
-            {
-
-                DialogResult choiceSelected = await ShowUpdateDialogAsync(updater.RemoteVersion.ToString());
-                switch (choiceSelected)
-                    {
-                    case DialogResult.Yes:
-                        _settings.Reminder = false;
-                        AppConfig.Save(_settings);
-                        try { await ShowUpdateProgressDialogAsync((progressReporter, statusReporter) => updater.StartUpdateProcess(progressReporter, statusReporter)); }
-                        catch (Exception ex)
-                        {
-                            await PopupManager.ShowAsync(this, "UPDATE FAILED", $"The update failed: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-                            return false;
-                        }
-                        break;
-                    case DialogResult.No:
-                        _settings.Reminder = false;
-                        _settings.SkippedUpdateVersion = updater.RemoteVersion.ToString();
-                        AppConfig.Save(_settings);
-                        break;
-                    case DialogResult.Cancel:
-                        _settings.Reminder = true;
-                        AppConfig.Save(_settings);
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
-            private async Task<bool> CheckForUpdate(bool autoCheck)
-            {
-                try
-                {
-                    // We check for updates only if the last check was more than 36 seconds ago (0.01 hours)
-                    bool cooldownPassed = CooldownCheck(autoCheck);
-                    if (!cooldownPassed) return false;
-
-                    // We get the remote version and compare it with the local version. If the remote version is newer, we prompt the user to update.
-                    Updater updater = new Updater();
-                    bool checkSucceeded = await CheckUpdateAvailabilityAsync(updater);
-                    if (!checkSucceeded)
-                    {
-                        if (!autoCheck) await PopupManager.ShowAsync(this, "UPDATE CHECK FAILED", "Failed to check for updates. Please check your internet connection and try again.", "OK", null, null, SystemSounds.Hand);
-                        return false;
-                    }
-
-                // If the user has chosen to skip this version, we don't prompt them again unless they manually check for updates.
-                if (updater.IsUpdateAvailable() &&!_settings.Reminder &&_settings.SkippedUpdateVersion == updater.RemoteVersion.ToString() &&autoCheck) return false;
-                
-                if (updater.IsUpdateAvailable()) return await HandleUpdateDialogAsync(updater);
-                    else
-                    {
-                        if (!autoCheck) await PopupManager.ShowAsync(this, "NO UPDATE AVAILABLE", $"You are using the latest version of the launcher: {updater.LocalVersion}.", "OK", null, null, SystemSounds.Asterisk);
-                        return true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (!autoCheck) await PopupManager.ShowAsync(this, "UPDATE CHECK ERROR", $"An error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-                    Debug.WriteLine($"CheckForUpdate error: {ex}");
-                    return false;
-                }
-            }
-
             public async Task StartGame(Launcher launcher)
             {
                 bool BorderlessEnabled = borderless.Checked;
@@ -793,7 +603,7 @@ using static IsaacLauncherGUI.Launcher;
             private async void CheckForUpdatesButton_Click(object sender, EventArgs e)
             {
                 checkForUpdatesButton.Enabled = false;
-                try { await CheckForUpdate(false); }
+                try { await _updateManager.CheckForUpdateAsync(false); }
                 catch (Exception ex) {await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
                 finally {checkForUpdatesButton.Enabled = true;}
             }
@@ -820,7 +630,7 @@ using static IsaacLauncherGUI.Launcher;
 
                 try
                 {
-                    await CheckForUpdate(true);
+                    await _updateManager.CheckForUpdateAsync(true);
                 }
                 finally
                 {
@@ -863,7 +673,7 @@ using static IsaacLauncherGUI.Launcher;
 
             private async void IsaacLauncher_Shown(object sender, EventArgs e)
             {
-                await CheckForUpdate(true);
+                await _updateManager.CheckForUpdateAsync(true);
                 if (startTray.Checked)
                 {
                     this.Hide();
@@ -888,7 +698,8 @@ using static IsaacLauncherGUI.Launcher;
                 _loadingSettings = true;
                 try { LoadSettings(); }
                 finally { _loadingSettings = false; }
-                UpdateUI();
+                _updateManager = new UpdateManager(_settings, this);
+            UpdateUI();
             }
         }
     }

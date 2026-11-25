@@ -149,6 +149,7 @@
     <Compile Include="Classes\Core\SingleInstanceManager.cs" />
     <Compile Include="Classes\Services\BrowserHelper.cs" />
     <Compile Include="Classes\Services\ModConflictDebugger.cs" />
+    <Compile Include="Classes\Services\UpdateManager.cs" />
     <Compile Include="Classes\UI\BBCodeRenderer.cs" />
     <Compile Include="Classes\UI\PopupManager.cs" />
     <Compile Include="Classes\UI\UIHelper.cs" />
