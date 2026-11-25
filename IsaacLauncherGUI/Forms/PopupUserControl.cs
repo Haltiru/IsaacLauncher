@@ -7,14 +7,12 @@ namespace IsaacLauncherGUI
 {
     public partial class PopupUserControl : UserControl
     {
-        private PrivateFontCollection customFont = new PrivateFontCollection();
         public enum PopupChoice { Primary, Secondary, Tertiary }
         public event Action<PopupChoice> ChoiceSelected;
         public PopupUserControl()
         {
             InitializeComponent();
-            customFont.AddFontFile("upheavtt.ttf");
-            UIHelper.ApplyCustomFont(this, customFont.Families[0]);
+            FontManager.ApplyFont(this);
             UIHelper.ApplyHoverEffects(this);
         }
 

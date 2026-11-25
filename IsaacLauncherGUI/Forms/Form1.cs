@@ -20,7 +20,7 @@ using static IsaacLauncherGUI.Launcher;
             private bool _loadingSettings = false;
             private ModmanagerForm _modManagerForm = null;
             private bool _updatingModeUI = false;
-            private PrivateFontCollection customFont = new PrivateFontCollection();
+
             private UpdateManager _updateManager;
             private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
             ToolTip mainToolTip = new ToolTip();
@@ -56,9 +56,9 @@ using static IsaacLauncherGUI.Launcher;
                 this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
                 this.UpdateStyles();
 
-                customFont.AddFontFile("upheavtt.ttf");
+                FontManager.ApplyFont(this);
+                UIHelper.ApplyHoverEffects(this);
                 this.Icon = Properties.Resources.IsaacLauncher_Icon;
-                UIHelper.ApplyCustomFont(this, customFont.Families[0]);
             }
 
 
@@ -639,14 +639,9 @@ using static IsaacLauncherGUI.Launcher;
         }
 
             public void ShowMainWindow()
-                {
-                    this.Show();
-
-                    if (this.WindowState == FormWindowState.Minimized) this.WindowState = FormWindowState.Normal;
-
-                    notifyIcon1.Visible = false;
-                    this.BringToFront();
-                    this.Activate();
+            {
+                WindowActivationManager.TryBringToForeground(this);
+                notifyIcon1.Visible = false;
             }
             private void ShowApp(object sender, EventArgs e)
             {
@@ -693,13 +688,12 @@ using static IsaacLauncherGUI.Launcher;
                 InitializeToolTips();
                 SetPlayButtonState(PlayButtonState.Play);
                 SetGameStatus(GameStatus.Stopped);
-                UIHelper.ApplyHoverEffects(this);
                 SetActiveButton(launcherButton);
                 _loadingSettings = true;
                 try { LoadSettings(); }
                 finally { _loadingSettings = false; }
                 _updateManager = new UpdateManager(_settings, this);
-            UpdateUI();
+                UpdateUI();
             }
         }
     }

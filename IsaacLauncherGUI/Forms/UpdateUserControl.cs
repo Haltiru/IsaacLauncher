@@ -35,7 +35,7 @@ namespace IsaacLauncherGUI
             ChoiceSelected?.Invoke(DialogResult.No);
         }
 
-        private async void onUpdateUserControlLoad(object sender, EventArgs e)
+        private void onUpdateUserControlLoad(object sender, EventArgs e)
         {
             UIHelper.ApplyHoverEffects(this);
         }

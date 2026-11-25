@@ -19,7 +19,7 @@ using System.Windows.Forms;
                 Panel modal = null;
                 try
                 {
-                    modal = await CreateOverlayAsync(owner, popup);
+                    modal = CreateOverlay(owner, popup);
                     if (sound != null) sound.Play();
                     return await popupChoice.Task;
                 }
@@ -32,7 +32,7 @@ using System.Windows.Forms;
                 TaskCompletionSource<DialogResult> result = new TaskCompletionSource<DialogResult>();
                 updateUserControl.ChoiceSelected += choice => result.TrySetResult(choice);
 
-                Panel modal = await CreateOverlayAsync(owner, updateUserControl);
+                Panel modal = CreateOverlay(owner, updateUserControl);
 
                 try
                 {
@@ -51,7 +51,7 @@ using System.Windows.Forms;
                 Progress<int> progressReporter = new Progress<int>(percentage => { if (isActive) updateProgressUserControl.UpdateProgress(percentage); });
                 Progress<string> statusReporter = new Progress<string>(status => { if (isActive) updateProgressUserControl.UpdateStatus(status); });
 
-                Panel modal = await CreateOverlayAsync(owner, updateProgressUserControl);
+                Panel modal = CreateOverlay(owner, updateProgressUserControl);
 
                 try { await operation(progressReporter, statusReporter); }
                 finally
@@ -61,23 +61,31 @@ using System.Windows.Forms;
                 }
             }
 
-            private static async Task<Panel> CreateOverlayAsync(Form owner, Control content)
+            private static Panel CreateOverlay(Form owner, Control content)
             {
 
                 Bitmap screenshot = null;
                 Panel modal = null;
                 try
                 {
-                    await Task.Delay(100);
-                    screenshot = new Bitmap(owner.ClientSize.Width, owner.ClientSize.Height);
-                    Point topLeft = owner.PointToScreen(Point.Empty);
-                    using (Graphics g = Graphics.FromImage(screenshot))
-                    {
-                        g.CopyFromScreen(topLeft, Point.Empty, owner.ClientSize);
-                        using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28))) g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, owner.ClientSize));
-                    }
+                using (Bitmap fullScreenshot = new Bitmap(owner.Width, owner.Height))
+                {
+                    owner.DrawToBitmap(fullScreenshot,new Rectangle(Point.Empty, owner.Size));
+                    Point clientOrigin = owner.PointToScreen(Point.Empty);
+                    Point windowOrigin = owner.Bounds.Location;
+                    Rectangle clientBounds = new Rectangle(clientOrigin.X - windowOrigin.X,clientOrigin.Y - windowOrigin.Y,owner.ClientSize.Width,owner.ClientSize.Height);
 
-                    modal = new Panel();
+                    screenshot = fullScreenshot.Clone(clientBounds,fullScreenshot.PixelFormat);}
+
+                using (Graphics g = Graphics.FromImage(screenshot))
+                {
+                    using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28)))
+                    {
+                        g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, owner.ClientSize));
+                    }
+                }
+
+                modal = new Panel();
 
                     modal.Dock = DockStyle.Fill;
                     modal.BackgroundImage = screenshot;
