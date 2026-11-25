@@ -4,9 +4,23 @@
 
 IsaacLauncherGUI is an unofficial, fan-made Windows application that makes it easier to launch *The Binding of Isaac: Repentance+*, manage mods, back up saves, and customize how the game starts.
 
-**Latest stable version: `v0.11.0` — Live Game Status & Beta Update Channels**
+**Latest stable version: `v0.11.2` — Stability & Quality Improvements**
 
 [📥 Download Latest Stable Release](https://github.com/Haltiru/IsaacLauncher/releases/latest) · [🧪 All Releases (including Betas)](https://github.com/Haltiru/IsaacLauncher/releases) · [🐛 Report a Bug](https://github.com/Haltiru/IsaacLauncher/issues) · [💡 Suggest a Feature](https://github.com/Haltiru/IsaacLauncher/issues)
+
+---
+
+## What's New in v0.11.2
+
+This maintenance release focuses on reliability, visual consistency, and cleaner internal architecture without changing existing features.
+
+- Fixed incorrect custom fonts in update dialogs and dynamically generated popups.
+- Popup backgrounds now render the launcher window directly instead of capturing the screen, preventing other applications from appearing in the background.
+- Corrected popup background alignment and removed unnecessary rendering delays.
+- Improved foreground activation and restoration of the launcher and Mod Manager.
+- Reworked internal update management and simplified system tray, game status, and file selection logic.
+
+See the [release notes](https://github.com/Haltiru/IsaacLauncher/releases/tag/v0.11.2) for more details.
 
 ---
 
@@ -99,7 +113,7 @@ IsaacLauncherGUI is an unofficial, fan-made Windows application that makes it ea
 1. Open the [latest stable release](https://github.com/Haltiru/IsaacLauncher/releases/latest).
 2. Download the release ZIP.
 3. Extract **all files** to a writable folder; keep the included DLLs alongside the executable.
-4. Run `IsaacLauncherGUI.exe`.
+4. Run `IsaacLauncherGUI.exe`. The launcher may request administrator privileges at startup; declining the request allows it to continue with normal permissions, although some operations may be affected.
 5. Configure your game path and preferred launch options.
 
 To try prereleases, enable **Receive Beta Updates** on the **About** tab.
@@ -144,11 +158,18 @@ Improved update installation, recovery, configuration reliability, window positi
 - Stable/Beta update channels with semantic version handling.
 - UI refinements, refactoring, and stability improvements.
 
+### ✅ v0.11.2 — Stability & Quality Improvements
+- Improved popup rendering and custom font consistency.
+- Improved launcher and Mod Manager window activation.
+- Reworked update management and simplified internal UI logic.
+- Reduced duplicated code to improve maintainability.
+
 ### 🔧 Future v0.x Releases
 - [ ] Bug fixes and reliability improvements
 - [ ] Performance optimizations
 - [ ] UI/UX polishing
 - [ ] Quality-of-life features
+- [ ] Investigate administrator privilege requirements and request elevation only where necessary
 
 ### 🎯 v1.0.0 — Major Milestone
 - [ ] **Profile Manager** for gameplay configurations.
