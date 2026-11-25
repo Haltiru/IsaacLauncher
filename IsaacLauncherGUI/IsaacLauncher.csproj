@@ -152,8 +152,9 @@
     <Compile Include="Classes\Services\UpdateManager.cs" />
     <Compile Include="Classes\UI\BBCodeRenderer.cs" />
     <Compile Include="Classes\UI\FontManager.cs" />
+    <Compile Include="Classes\UI\Helpers\FileDialogHelper.cs" />
     <Compile Include="Classes\UI\PopupManager.cs" />
-    <Compile Include="Classes\UI\UIHelper.cs" />
+    <Compile Include="Classes\UI\Helpers\UIHelper.cs" />
     <Compile Include="Classes\Core\AppConfig.cs" />
     <Compile Include="Classes\Services\Updater.cs" />
     <Compile Include="Classes\UI\WindowActivationManager.cs" />
