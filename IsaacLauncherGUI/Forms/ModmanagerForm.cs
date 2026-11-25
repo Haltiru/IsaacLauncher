@@ -15,7 +15,6 @@ namespace IsaacLauncherGUI
     {
         private string _gamePath;
         private string _modsFolderPath;
-        private PrivateFontCollection customFont = new PrivateFontCollection();
         private ModItem _selectedMod;
         private ModItem[] _CachedMods;
         private bool _isSelecting = false;
@@ -36,12 +35,10 @@ namespace IsaacLauncherGUI
 
             _modManager = new ModManager(_gamePath);
             _modManager.ThumbnailDownloaded += OnThumbnailDownloaded;
-
-            customFont.AddFontFile("upheavtt.ttf");
             this.Icon = Properties.Resources.IsaacLauncher_Icon;
 
             UIHelper.ApplyHoverEffects(this);
-            UIHelper.ApplyCustomFont(this, customFont.Families[0]);
+            FontManager.ApplyFont(this);
 
         }
 

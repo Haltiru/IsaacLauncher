@@ -1,11 +1,8 @@
 ﻿//Form1.cs
-using Microsoft.WindowsAPICodePack.Dialogs;
-using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Text;
 using System.IO;
 using System.Media;
 using System.Reflection;
@@ -13,53 +10,54 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static IsaacLauncherGUI.Launcher;
 
-    namespace IsaacLauncherGUI
+namespace IsaacLauncherGUI
+{
+    public partial class IsaacLauncher : Form
     {
-        public partial class IsaacLauncher : Form
+        private AppSettings _settings;
+        private bool _loadingSettings = false;
+        private ModmanagerForm _modManagerForm = null;
+        private bool _updatingModeUI = false;
+
+        private UpdateManager _updateManager;
+        private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
+        ToolTip mainToolTip = new ToolTip();
+        private readonly Timer _sessionTimer = new Timer();
+        private readonly Stopwatch _sessionStopwatch = new Stopwatch();
+        private enum PlayButtonState { Play, Stop, Starting }
+        private enum GameStatus { Stopped, Starting, Running, Stopping }
+        private GameStatus _currentGameStatus = GameStatus.Stopped;
+        private static readonly Color DisabledColor = Color.FromArgb(110, 110, 110);
+        public IsaacLauncher()
         {
-            private AppSettings _settings;
-            private bool _loadingSettings = false;
-            private ModmanagerForm _modManagerForm = null;
-            private bool _updatingModeUI = false;
-            private PrivateFontCollection customFont = new PrivateFontCollection();
-            private Dictionary<Button, TabPage> buttonTabPages = new Dictionary<Button, TabPage>();
-            ToolTip mainToolTip = new ToolTip();
-            private readonly Timer _sessionTimer = new Timer();
-            private readonly Stopwatch _sessionStopwatch = new Stopwatch();
-            private enum PlayButtonState { Play, Stop, Starting }
-            private enum GameStatus { Stopped,Starting,Running,Stopping }
-            private GameStatus _currentGameStatus = GameStatus.Stopped;
-            private static readonly Color DisabledColor = Color.FromArgb(110, 110, 110);
-            public IsaacLauncher()
-            {
-                InitializeComponent();
+            InitializeComponent();
 
-                _sessionTimer.Interval = 1000;
-                _sessionTimer.Tick += SessionTimer_Tick;
+            _sessionTimer.Interval = 1000;
+            _sessionTimer.Tick += SessionTimer_Tick;
 
-                buttonTabPages.Add(launcherButton, launcherPage);
-                buttonTabPages.Add(settingsButton, settingsPage);
-                buttonTabPages.Add(toolsButton, toolsPage);
-                buttonTabPages.Add(aboutButton, aboutPage);
+            buttonTabPages.Add(launcherButton, launcherPage);
+            buttonTabPages.Add(settingsButton, settingsPage);
+            buttonTabPages.Add(toolsButton, toolsPage);
+            buttonTabPages.Add(aboutButton, aboutPage);
 
-    #if !DEBUG
-                label6.Visible = false;
-                portableCreate.Visible = false;
-                label6.Dispose();
-                portableCreate.Dispose();
+#if !DEBUG
+            label6.Visible = false;
+            portableCreate.Visible = false;
+            label6.Dispose();
+            portableCreate.Dispose();
 
-    #elif DEBUG
+#elif DEBUG
                 label6.Visible = true;
                 portableCreate.Visible = true;
                 portableCreate.Click += StartPortable;
-    #endif
-                this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-                this.UpdateStyles();
+#endif
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+            this.UpdateStyles();
 
-                customFont.AddFontFile("upheavtt.ttf");
-                this.Icon = Properties.Resources.IsaacLauncher_Icon;
-                UIHelper.ApplyCustomFont(this, customFont.Families[0]);
-            }
+            FontManager.ApplyFont(this);
+            UIHelper.ApplyHoverEffects(this);
+            this.Icon = Properties.Resources.IsaacLauncher_Icon;
+        }
 
 
 #if DEBUG
@@ -91,24 +89,24 @@ using static IsaacLauncherGUI.Launcher;
 
 #endif
 
-            protected override CreateParams CreateParams
+        protected override CreateParams CreateParams
+        {
+            get
             {
-                get
-                {
-                    CreateParams cp = base.CreateParams;
-                    cp.ExStyle |= 0x02000000;
-                    return cp;
-                }
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;
+                return cp;
             }
+        }
 
-            private void SessionTimer_Tick(object sender, EventArgs e)
-            {
-                PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
-                PlaytimeTracker.UpdateTotalPlaytime(_sessionStopwatch, totalTime, _settings);
-            }
-            private void InitializeToolTips()
-            {
-                var tooltips = new Dictionary<Control, string>
+        private void SessionTimer_Tick(object sender, EventArgs e)
+        {
+            PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
+            PlaytimeTracker.UpdateTotalPlaytime(_sessionStopwatch, totalTime, _settings);
+        }
+        private void InitializeToolTips()
+        {
+            var tooltips = new Dictionary<Control, string>
             {
                 { modsToolTip, "If checked Isaac is going to start with mods." },
                 { smartStartTooltip, "If checked the launcher will try to start Isaac according to the daily challenge timer. (without mods and repentogon when a new daily is available on the first start)" },
@@ -125,770 +123,541 @@ using static IsaacLauncherGUI.Launcher;
                 {backupBeforePlayToolip, "If checked the launcher will backup your saves before starting the game." }
             };
 
-                UIHelper.SetToolTips(mainToolTip, tooltips);
-            }
+            UIHelper.SetToolTips(mainToolTip, tooltips);
+        }
 
-            private void SetCheckBoxEnabled(CheckBox box, bool enabled)
-            {
-                if (!enabled) box.Checked = false;
-                box.AutoCheck = enabled;
-                box.ForeColor = enabled ? Color.White : DisabledColor;
-            }
-
-            private void UpdateLaunchModeUI()
-            {
-                SetCheckBoxEnabled(portable, !custom.Checked);
-                SetCheckBoxEnabled(custom, !portable.Checked);
-
-                bool isSteam = GetLaunchMode() == LaunchMode.Steam;
-
-                SetCheckBoxEnabled(repentogonCheckbox, isSteam);
-            }
-
-            private void UpdateStreakUI()
-            {
-                bool isSmart = smart.Checked;
-
-                label9.Visible = isSmart;
-                label10.Visible = !isSmart;
-
-                label9.Text = _settings.DailyStreak.ToString();
-                label10.Text = _settings.Streak.ToString();
-            }
-
-            private void UpdatePortableUI()
-            {
-                bool isPortable = portable.Checked;
-
-                ghost.Visible = isPortable;
-                ghostModeTooltip.Visible = isPortable;
-
-                gamePathToolTip.Visible = !isPortable;
-                pathText.Visible = !isPortable;
-                pathLine.Visible = !isPortable;
-                gameExeLabel.Visible = !isPortable;
-
-                portableCreate.Enabled = !isPortable;
-
-                if (!isPortable) ghost.Checked = false;
-            }
-
-            private void UpdateModeUI()
-            {
-                if (_updatingModeUI) return;
-
-                _updatingModeUI = true;
-                try
-                {
-                    UpdateLaunchModeUI();
-                    UpdatePortableUI();
-                }
-                finally { _updatingModeUI = false; }
-            }
-
-            public void UpdateUI()
-            {
-                UpdateModeUI();
-                UpdateStreakUI();
-                UpdateGameInfo();
-            }
-
-            private void SetActiveButton(Button selectedButton) { UIHelper.SetActiveNavigationButton(selectedButton, tabControl1, buttonTabPages); }
-            private void NavigationButton_Click(object sender, EventArgs e) { SetActiveButton(sender as Button); }
-
-            private void SaveSettings()
-            {
-                _settings.Mods = mods.Checked;
-                _settings.SmartStart = smart.Checked;
-                _settings.GamePath = pathText.Text;
-                _settings.Custom = custom.Checked;
-                _settings.Borderless = borderless.Checked;
-                _settings.InstantLaunch = instantLaunch.Checked;
-                _settings.Portable = portable.Checked;
-                _settings.OnTray = trayBox.Checked;
-                _settings.StartOnTray = startTray.Checked;
-                _settings.GhostMode = ghost.Checked;
-                _settings.RepentogonChecked = repentogonCheckbox.Checked;
-                _settings.RepentogonPath = repentogonPathText.Text;
-                _settings.AutoBackupBeforePlay = backupBeforePlayCheckbox.Checked;
-                WindowPositionManager.SaveWindowPosition(this, _settings);
-
-                AppConfig.Save(_settings);
-            }
-            private void LoadSettings()
-            {
-                _settings = AppConfig.Load();
-
-                mods.Checked = _settings.Mods;
-                smart.Checked = _settings.SmartStart;
-                pathText.Text = _settings.GamePath;
-                custom.Checked = _settings.Custom;
-                borderless.Checked = _settings.Borderless;
-                instantLaunch.Checked = _settings.InstantLaunch;
-                portable.Checked = _settings.Portable;
-                trayBox.Checked = _settings.OnTray;
-                startTray.Checked = _settings.StartOnTray;
-                ghost.Checked = _settings.GhostMode;
-                repentogonCheckbox.Checked = _settings.RepentogonChecked;
-                repentogonPathText.Text = _settings.RepentogonPath;
-                backupBeforePlayCheckbox.Checked = _settings.AutoBackupBeforePlay;
-                sessionTime.Text = PlaytimeTracker.FormatSessionTime(TimeSpan.FromSeconds(_settings.LastSessionSeconds));
-                totalTime.Text = PlaytimeTracker.FormatTotalPlaytime(_settings.LauncherPlaytimeSeconds);
-                BetaReleaseCheckbox.Checked =_settings.UpdateChannel == UpdateChannel.Beta;
-                WindowPositionManager.LoadWindowPosition(this, _settings);
-            }
-
-            private void SetPlayButtonState(PlayButtonState playButtonState)
-            {
-                switch (playButtonState)
-                {
-                    case PlayButtonState.Play:
-                        playButton.Text = "Play";
-                        playButton.Enabled = true;     
-                        break;
-                    case PlayButtonState.Stop:
-                        playButton.Text = "Stop";
-                        playButton.Enabled = true;
-                        playButton.BackgroundImage = Properties.Resources.redbutton;
-                        playButton.ForeColor = Color.White;
-                        break;
-                    case PlayButtonState.Starting:
-                        playButton.Text = "Starting...";
-                        playButton.Enabled = false;
-                        break;
-                }
-                if (playButtonState != PlayButtonState.Stop)
-                {
-                    playButton.BackgroundImage = Properties.Resources.button;
-                    playButton.ForeColor = Color.FromArgb(84, 76, 74);
-                }
-            }
-
-            private void SetGameStatus(GameStatus gamestatus)
-            {
-                switch (gamestatus)
-                {
-                    case GameStatus.Stopped:
-                        label17.Text = "Stopped";
-                        label17.ForeColor = Color.FromArgb(84, 76, 74); 
-                        _currentGameStatus = GameStatus.Stopped;
-                        break;
-                    case GameStatus.Starting:
-                        label17.Text = "Starting";
-                        label17.ForeColor = Color.FromArgb(125, 72, 0);
-                        _currentGameStatus = GameStatus.Starting;
-                        break;
-                    case GameStatus.Running:
-                        label17.Text = "Running";
-                        label17.ForeColor = Color.Green;
-                        _currentGameStatus = GameStatus.Running;
-                        break;
-                    case GameStatus.Stopping:
-                        label17.Text = "Stopping";
-                        label17.ForeColor = Color.Orange;
-                        _currentGameStatus = GameStatus.Stopping;
-                        break;
-                }
-                if (_currentGameStatus == GameStatus.Stopped && _settings != null && !_loadingSettings) UpdateGameInfo();
-            }
-
-            public async Task<string> FindIsaac(bool enableFullscreen, Launcher launcher, bool ghostMode)
-            {
-                bool hasExited = false;
-                bool isPortable = launcher.CurrentMode == LaunchMode.Portable;
-
-                try
-                {
-                    // 1. Várjuk meg, hogy a játék és a Repentogon elinduljon
-                    StartupLog.Write($"GameStartupMonitor START | Repentogon={launcher.IsRepentogonEnabled}");
-                    GameStartupResult gameProcessResult = await Task.Run(() => GameStartupMonitor.WaitForGameStartupAsync(launcher.IsRepentogonEnabled));
-                    Process Isaac = gameProcessResult.Process;
-
-                    if (Isaac == null)
-                    {
-                        StartupLog.Write($"GameStartupMonitor FAILED: {gameProcessResult.ErrorMessage}");
-                        return gameProcessResult.ErrorMessage;
-                    }
-
-                    StartupLog.Write($"Isaac detected successfully | PID={Isaac.Id}");
-
-
-                    // Most már biztonságosan méretezzük a futó ablakot
-                    if (enableFullscreen)
-                    {
-                        bool result = GameWindowManager.ApplyBorderlessFullscreen(Isaac);
-                        if (!result) Debug.WriteLine("Failed to apply borderless fullscreen.");
-                    }
-
-                    // Megvárjuk, amíg a játék bezáródik (ez is háttérben megy)
-                    if (!Isaac.HasExited) 
-                    {
-                        SetPlayButtonState(PlayButtonState.Stop);
-                        SetGameStatus(GameStatus.Running);
-                        _sessionStopwatch.Restart();
-                        PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
-                        _sessionTimer.Start();
-                    }
-
-                    // Várjuk meg, amíg a játék bezáródik, és ha a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
-                    bool exitResult = await GameProcessMonitor.WaitForExitAsync(Isaac);
-                    if (!exitResult) Debug.WriteLine("Failed to wait for Isaac process exit.");
-                    else hasExited = true;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"FindIsaac error: {ex}");
-                    return $"Failed to monitor Isaac: {ex.Message}";
-                }
-                finally
-                {
-                    _sessionTimer.Stop();
-
-                    if (_sessionStopwatch.IsRunning)
-                    {
-                        _sessionStopwatch.Stop();
-                        _settings.LastSessionSeconds = (long)_sessionStopwatch.Elapsed.TotalSeconds;
-                        _settings.LauncherPlaytimeSeconds += (long)_sessionStopwatch.Elapsed.TotalSeconds;
-                    
-                        AppConfig.Save(_settings);
-
-                        PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
-                        PlaytimeTracker.UpdateTotalPlaytime(_sessionStopwatch, totalTime, _settings);
-
-                    }
-                    StartupLog.Write($"Game monitoring finished | GameExited={hasExited}");
-                    SetPlayButtonState(PlayButtonState.Play);
-                    SetGameStatus(GameStatus.Stopped);
-
-                    // Ha a játék bezárult, és a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
-                    bool cleanupResult = GameCleanupManager.TryCleanup(hasExited, ghostMode, isPortable, launcher);
-                    if (!cleanupResult && ghostMode && isPortable && Process.GetProcessesByName("isaac-ng").Length == 0) Debug.WriteLine("Failed to cleanup after Isaac.");
-                }
-                return null;
-            }
-
-            public LaunchMode GetLaunchMode()
-            {
-                if (custom.Checked) return LaunchMode.Custom;
-                if (portable.Checked) return LaunchMode.Portable;
-                return LaunchMode.Steam;
-            }
-
-            private async Task<bool> CheckForErrors(string errorMessage)
-            {
-                if (string.IsNullOrEmpty(errorMessage)) return false;
-                {
-                    ShowMainWindow();
-                    await PopupManager.ShowAsync(this, "LAUNCH ERROR", errorMessage, "OK", null, null, SystemSounds.Hand);
-                    return true;
-                }
-            }
-
-            private async Task<Panel> CreateUpdateOverlay(Control content)
-            {
-
-                Bitmap screenshot = null;
-                Panel Modal = null;
-                try
-                {
-                    await Task.Delay(100);
-                    screenshot = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
-                    Point topLeft = PointToScreen(Point.Empty);
-                    using (Graphics g = Graphics.FromImage(screenshot))
-                    {;
-                        g.CopyFromScreen(topLeft, Point.Empty, this.ClientSize);
-                        using (SolidBrush semiTransparentBrush = new SolidBrush(Color.FromArgb(170, 40, 30, 28))) g.FillRectangle(semiTransparentBrush, new Rectangle(Point.Empty, this.ClientSize));
-                    }
-
-                    // We create a modal panel to host the update user control, and add it to the form.
-                    Modal = new Panel();
-
-                    Modal.Dock = DockStyle.Fill;
-                    Modal.BackgroundImage = screenshot;
-                    Modal.TabStop = false;
-
-                    this.Controls.Add(Modal);
-                    Modal.Controls.Add(content);
-
-                    content.Location = new Point(this.ClientSize.Width / 2 - content.Width / 2, this.ClientSize.Height / 2 - content.Height / 2);
-
-                    Modal.BringToFront();
-                    content.BringToFront();
-                    return Modal;
-                }
-                catch
-                {
-                    try
-                    {
-                        if (Modal != null)
-                        {
-                            Modal.BackgroundImage = null;
-                            this.Controls.Remove(Modal);
-                            Modal.Dispose();
-                        }
-                    }
-                    finally {if (screenshot != null) screenshot.Dispose();}
-                    throw;
-                }
-            }
-
-            private void RemoveUpdateOverlay(Panel overlay)
-            {
-                Image img = overlay.BackgroundImage;
-                try
-                {
-                    this.Controls.Remove(overlay);
-                    overlay.BackgroundImage = null;
-                    overlay.Dispose();
-                }
-                finally { img?.Dispose(); }
-            }
-
-
-        private async Task<DialogResult> ShowUpdateDialogAsync(string version)
+        private void SetCheckBoxEnabled(CheckBox box, bool enabled)
         {
-            UpdateUserControl updateUserControl = new UpdateUserControl(version);
-            TaskCompletionSource<DialogResult> result = new TaskCompletionSource<DialogResult>();
-            updateUserControl.ChoiceSelected += choice => result.TrySetResult(choice);
+            if (!enabled) box.Checked = false;
+            box.AutoCheck = enabled;
+            box.ForeColor = enabled ? Color.White : DisabledColor;
+        }
 
-            Panel modal = await CreateUpdateOverlay(updateUserControl);
+        private void UpdateLaunchModeUI()
+        {
+            SetCheckBoxEnabled(portable, !custom.Checked);
+            SetCheckBoxEnabled(custom, !portable.Checked);
 
+            bool isSteam = GetLaunchMode() == LaunchMode.Steam;
+
+            SetCheckBoxEnabled(repentogonCheckbox, isSteam);
+        }
+
+        private void UpdateStreakUI()
+        {
+            bool isSmart = smart.Checked;
+
+            label9.Visible = isSmart;
+            label10.Visible = !isSmart;
+
+            label9.Text = _settings.DailyStreak.ToString();
+            label10.Text = _settings.Streak.ToString();
+        }
+
+        private void UpdatePortableUI()
+        {
+            bool isPortable = portable.Checked;
+
+            ghost.Visible = isPortable;
+            ghostModeTooltip.Visible = isPortable;
+
+            gamePathToolTip.Visible = !isPortable;
+            pathText.Visible = !isPortable;
+            pathLine.Visible = !isPortable;
+            gameExeLabel.Visible = !isPortable;
+
+            portableCreate.Enabled = !isPortable;
+
+            if (!isPortable) ghost.Checked = false;
+        }
+
+        private void UpdateModeUI()
+        {
+            if (_updatingModeUI) return;
+
+            _updatingModeUI = true;
             try
             {
-                SystemSounds.Asterisk.Play();
-                return await result.Task;
+                UpdateLaunchModeUI();
+                UpdatePortableUI();
             }
-            finally
+            finally { _updatingModeUI = false; }
+        }
+
+        public void UpdateUI()
+        {
+            UpdateModeUI();
+            UpdateStreakUI();
+            UpdateGameInfo();
+        }
+
+        private void SetActiveButton(Button selectedButton) { UIHelper.SetActiveNavigationButton(selectedButton, tabControl1, buttonTabPages); }
+        private void NavigationButton_Click(object sender, EventArgs e) { SetActiveButton(sender as Button); }
+
+        private void SaveSettings()
+        {
+            _settings.Mods = mods.Checked;
+            _settings.SmartStart = smart.Checked;
+            _settings.GamePath = pathText.Text;
+            _settings.Custom = custom.Checked;
+            _settings.Borderless = borderless.Checked;
+            _settings.InstantLaunch = instantLaunch.Checked;
+            _settings.Portable = portable.Checked;
+            _settings.OnTray = trayBox.Checked;
+            _settings.StartOnTray = startTray.Checked;
+            _settings.GhostMode = ghost.Checked;
+            _settings.RepentogonChecked = repentogonCheckbox.Checked;
+            _settings.RepentogonPath = repentogonPathText.Text;
+            _settings.AutoBackupBeforePlay = backupBeforePlayCheckbox.Checked;
+            WindowPositionManager.SaveWindowPosition(this, _settings);
+
+            AppConfig.Save(_settings);
+        }
+        private void LoadSettings()
+        {
+            _settings = AppConfig.Load();
+
+            mods.Checked = _settings.Mods;
+            smart.Checked = _settings.SmartStart;
+            pathText.Text = _settings.GamePath;
+            custom.Checked = _settings.Custom;
+            borderless.Checked = _settings.Borderless;
+            instantLaunch.Checked = _settings.InstantLaunch;
+            portable.Checked = _settings.Portable;
+            trayBox.Checked = _settings.OnTray;
+            startTray.Checked = _settings.StartOnTray;
+            ghost.Checked = _settings.GhostMode;
+            repentogonCheckbox.Checked = _settings.RepentogonChecked;
+            repentogonPathText.Text = _settings.RepentogonPath;
+            backupBeforePlayCheckbox.Checked = _settings.AutoBackupBeforePlay;
+            sessionTime.Text = PlaytimeTracker.FormatSessionTime(TimeSpan.FromSeconds(_settings.LastSessionSeconds));
+            totalTime.Text = PlaytimeTracker.FormatTotalPlaytime(_settings.LauncherPlaytimeSeconds);
+            BetaReleaseCheckbox.Checked = _settings.UpdateChannel == UpdateChannel.Beta;
+            WindowPositionManager.LoadWindowPosition(this, _settings);
+        }
+
+        private void SetPlayButtonState(PlayButtonState playButtonState)
+        {
+            switch (playButtonState)
             {
-                RemoveUpdateOverlay(modal);
+                case PlayButtonState.Play:
+                    playButton.Text = "Play";
+                    playButton.Enabled = true;
+                    break;
+                case PlayButtonState.Stop:
+                    playButton.Text = "Stop";
+                    playButton.Enabled = true;
+                    playButton.BackgroundImage = Properties.Resources.redbutton;
+                    playButton.ForeColor = Color.White;
+                    break;
+                case PlayButtonState.Starting:
+                    playButton.Text = "Starting...";
+                    playButton.Enabled = false;
+                    break;
+            }
+            if (playButtonState != PlayButtonState.Stop)
+            {
+                playButton.BackgroundImage = Properties.Resources.button;
+                playButton.ForeColor = Color.FromArgb(84, 76, 74);
             }
         }
 
-
-        private async Task ShowUpdateProgressDialogAsync(Func<IProgress<int>, IProgress<string>, Task> operation)
+        private void SetGameStatus(GameStatus gamestatus)
+        {
+            _currentGameStatus = gamestatus;
+            switch (gamestatus)
             {
-                // We take a screenshot of the current form to use as the background for the modal panel.
-                bool isActive = true;
-                UpdateProgressUserControl updateProgressUserControl = new UpdateProgressUserControl();
-                Progress<int> progressReporter = new Progress<int>(percentage => { if (isActive) updateProgressUserControl.UpdateProgress(percentage); });
-                Progress<string> statusReporter = new Progress<string>(status => { if (isActive) updateProgressUserControl.UpdateStatus(status); });
-
-                Panel Modal = await CreateUpdateOverlay(updateProgressUserControl);
-
-                try { await operation(progressReporter, statusReporter); }
-                finally
-                {
-                    isActive = false;
-                    RemoveUpdateOverlay(Modal);
-                }
+                case GameStatus.Stopped:
+                    label17.Text = "Stopped";
+                    label17.ForeColor = Color.FromArgb(84, 76, 74);
+                    break;
+                case GameStatus.Starting:
+                    label17.Text = "Starting";
+                    label17.ForeColor = Color.FromArgb(125, 72, 0);
+                    break;
+                case GameStatus.Running:
+                    label17.Text = "Running";
+                    label17.ForeColor = Color.Green;
+                    break;
+                case GameStatus.Stopping:
+                    label17.Text = "Stopping";
+                    label17.ForeColor = Color.Orange;
+                    break;
             }
+            if (_currentGameStatus == GameStatus.Stopped && _settings != null && !_loadingSettings) UpdateGameInfo();
+        }
 
-            private bool CooldownCheck(bool autoCheck)
+        public async Task<string> FindIsaac(bool enableFullscreen, Launcher launcher, bool ghostMode)
+        {
+            bool hasExited = false;
+            bool isPortable = launcher.CurrentMode == LaunchMode.Portable;
+
+            try
             {
-                if (!autoCheck) return true;
-                if (_settings.Reminder) return true;
-                if (string.IsNullOrEmpty(_settings.LastUpdateCheck)) return true;
+                // 1. Várjuk meg, hogy a játék és a Repentogon elinduljon
+                StartupLog.Write($"GameStartupMonitor START | Repentogon={launcher.IsRepentogonEnabled}");
+                GameStartupResult gameProcessResult = await Task.Run(() => GameStartupMonitor.WaitForGameStartupAsync(launcher.IsRepentogonEnabled));
+                Process Isaac = gameProcessResult.Process;
 
-                DateTime lastCheck;
-                if (DateTime.TryParse(_settings.LastUpdateCheck, out lastCheck))
+                if (Isaac == null)
                 {
-                    TimeSpan timeSinceLastCheck = DateTime.Now - lastCheck;
-                    if (timeSinceLastCheck.TotalHours < 0.01) return false;
+                    StartupLog.Write($"GameStartupMonitor FAILED: {gameProcessResult.ErrorMessage}");
+                    return gameProcessResult.ErrorMessage;
                 }
-                return true;
-            }
-            private async Task<bool> CheckUpdateAvailabilityAsync(Updater updater)
-            {
-                bool isSuccess = await updater.GetRemoteVersion(_settings.UpdateChannel);
-                NuGetVersion checkForNull = updater.RemoteVersion;
-                if (isSuccess && checkForNull != null)
+
+                StartupLog.Write($"Isaac detected successfully | PID={Isaac.Id}");
+
+
+                // Most már biztonságosan méretezzük a futó ablakot
+                if (enableFullscreen)
                 {
-                    // Update the last check time
-                    _settings.LastUpdateCheck = DateTime.Now.ToString("o");
+                    bool result = GameWindowManager.ApplyBorderlessFullscreen(Isaac);
+                    if (!result) Debug.WriteLine("Failed to apply borderless fullscreen.");
+                }
+
+                // Megvárjuk, amíg a játék bezáródik (ez is háttérben megy)
+                if (!Isaac.HasExited)
+                {
+                    SetPlayButtonState(PlayButtonState.Stop);
+                    SetGameStatus(GameStatus.Running);
+                    _sessionStopwatch.Restart();
+                    PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
+                    _sessionTimer.Start();
+                }
+
+                // Várjuk meg, amíg a játék bezáródik, és ha a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
+                bool exitResult = await GameProcessMonitor.WaitForExitAsync(Isaac);
+                if (!exitResult) Debug.WriteLine("Failed to wait for Isaac process exit.");
+                else hasExited = true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"FindIsaac error: {ex}");
+                return $"Failed to monitor Isaac: {ex.Message}";
+            }
+            finally
+            {
+                _sessionTimer.Stop();
+
+                if (_sessionStopwatch.IsRunning)
+                {
+                    _sessionStopwatch.Stop();
+                    _settings.LastSessionSeconds = (long)_sessionStopwatch.Elapsed.TotalSeconds;
+                    _settings.LauncherPlaytimeSeconds += (long)_sessionStopwatch.Elapsed.TotalSeconds;
+
                     AppConfig.Save(_settings);
-                }
-                return isSuccess && checkForNull != null;
-            }
-            private async Task<bool> HandleUpdateDialogAsync(Updater updater)
-            {
 
-                DialogResult choiceSelected = await ShowUpdateDialogAsync(updater.RemoteVersion.ToString());
-                switch (choiceSelected)
-                    {
-                    case DialogResult.Yes:
-                        _settings.Reminder = false;
-                        AppConfig.Save(_settings);
-                        try { await ShowUpdateProgressDialogAsync((progressReporter, statusReporter) => updater.StartUpdateProcess(progressReporter, statusReporter)); }
-                        catch (Exception ex)
-                        {
-                            await PopupManager.ShowAsync(this, "UPDATE FAILED", $"The update failed: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-                            return false;
-                        }
-                        break;
-                    case DialogResult.No:
-                        _settings.Reminder = false;
-                        _settings.SkippedUpdateVersion = updater.RemoteVersion.ToString();
-                        AppConfig.Save(_settings);
-                        break;
-                    case DialogResult.Cancel:
-                        _settings.Reminder = true;
-                        AppConfig.Save(_settings);
-                        break;
-                    default:
-                        return false;
+                    PlaytimeTracker.UpdateSessionTime(_sessionStopwatch, sessionTime);
+                    PlaytimeTracker.UpdateTotalPlaytime(_sessionStopwatch, totalTime, _settings);
+
                 }
+                StartupLog.Write($"Game monitoring finished | GameExited={hasExited}");
+                SetPlayButtonState(PlayButtonState.Play);
+                SetGameStatus(GameStatus.Stopped);
+
+                // Ha a játék bezárult, és a Ghost Mode be van kapcsolva, próbáljuk meg kitakarítani a My Games mappát
+                bool cleanupResult = GameCleanupManager.TryCleanup(hasExited, ghostMode, isPortable, launcher);
+                if (!cleanupResult && ghostMode && isPortable && Process.GetProcessesByName("isaac-ng").Length == 0) Debug.WriteLine("Failed to cleanup after Isaac.");
+            }
+            return null;
+        }
+
+        public LaunchMode GetLaunchMode()
+        {
+            if (custom.Checked) return LaunchMode.Custom;
+            if (portable.Checked) return LaunchMode.Portable;
+            return LaunchMode.Steam;
+        }
+
+        private async Task<bool> CheckForErrors(string errorMessage)
+        {
+            if (string.IsNullOrEmpty(errorMessage)) return false;
+            {
+                ShowMainWindow();
+                await PopupManager.ShowAsync(this, "LAUNCH ERROR", errorMessage, "OK", null, null, SystemSounds.Hand);
                 return true;
             }
-            private async Task<bool> CheckForUpdate(bool autoCheck)
+        }
+
+        public async Task StartGame(Launcher launcher)
+        {
+            bool BorderlessEnabled = borderless.Checked;
+            bool ModsEnabled = mods.Checked;
+            bool RepentogonEnabled = repentogonCheckbox.Checked;
+            bool isBackupBeforePlayEnabled = backupBeforePlayCheckbox.Checked;
+            bool ghostMode = ghost.Checked;
+
+            if (isBackupBeforePlayEnabled)
             {
                 try
                 {
-                    // We check for updates only if the last check was more than 36 seconds ago (0.01 hours)
-                    bool cooldownPassed = CooldownCheck(autoCheck);
-                    if (!cooldownPassed) return false;
-
-                    // We get the remote version and compare it with the local version. If the remote version is newer, we prompt the user to update.
-                    Updater updater = new Updater();
-                    bool checkSucceeded = await CheckUpdateAvailabilityAsync(updater);
-                    if (!checkSucceeded)
-                    {
-                        if (!autoCheck) await PopupManager.ShowAsync(this, "UPDATE CHECK FAILED", "Failed to check for updates. Please check your internet connection and try again.", "OK", null, null, SystemSounds.Hand);
-                        return false;
-                    }
-
-                // If the user has chosen to skip this version, we don't prompt them again unless they manually check for updates.
-                if (updater.IsUpdateAvailable() &&!_settings.Reminder &&_settings.SkippedUpdateVersion == updater.RemoteVersion.ToString() &&autoCheck) return false;
-                
-                if (updater.IsUpdateAvailable()) return await HandleUpdateDialogAsync(updater);
-                    else
-                    {
-                        if (!autoCheck) await PopupManager.ShowAsync(this, "NO UPDATE AVAILABLE", $"You are using the latest version of the launcher: {updater.LocalVersion}.", "OK", null, null, SystemSounds.Asterisk);
-                        return true;
-                    }
+                    SaveManager saveManager = new SaveManager(portable.Checked);
+                    saveManager.Save(true);
                 }
                 catch (Exception ex)
                 {
-                    if (!autoCheck) await PopupManager.ShowAsync(this, "UPDATE CHECK ERROR", $"An error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-                    Debug.WriteLine($"CheckForUpdate error: {ex}");
-                    return false;
-                }
-            }
-
-            public async Task StartGame(Launcher launcher)
-            {
-                bool BorderlessEnabled = borderless.Checked;
-                bool ModsEnabled = mods.Checked;
-                bool RepentogonEnabled = repentogonCheckbox.Checked;
-                bool isBackupBeforePlayEnabled = backupBeforePlayCheckbox.Checked;
-                bool ghostMode = ghost.Checked;
-
-                if (isBackupBeforePlayEnabled)
-                {
-                    try
-                    {
-                        SaveManager saveManager = new SaveManager(portable.Checked);
-                        saveManager.Save(true);
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowMainWindow();
-                        await PopupManager.ShowAsync(this, "BACKUP FAILED", $"An error occurred while backing up your saves: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-                        SetPlayButtonState(PlayButtonState.Play);
-                        SetGameStatus(GameStatus.Stopped);
-                        return;
-                    }
-                }
-
-
-                string hiba = await Task.Run(() => launcher.InitializeAndLaunch(BorderlessEnabled, ModsEnabled, RepentogonEnabled, _settings));
-                UpdateStreakUI();
-                if (await CheckForErrors(hiba))
-                {
+                    ShowMainWindow();
+                    await PopupManager.ShowAsync(this, "BACKUP FAILED", $"An error occurred while backing up your saves: {ex.Message}", "OK", null, null, SystemSounds.Hand);
                     SetPlayButtonState(PlayButtonState.Play);
                     SetGameStatus(GameStatus.Stopped);
                     return;
                 }
-
-                UpdateRunningGameInfo(launcher);
-                hiba = await FindIsaac(BorderlessEnabled, launcher, ghostMode);
-                if (await CheckForErrors(hiba)) return;
             }
 
-            private async Task LaunchGameAsync(bool isInstantLaunch)
+
+            string hiba = await Task.Run(() => launcher.InitializeAndLaunch(BorderlessEnabled, ModsEnabled, RepentogonEnabled, _settings));
+            UpdateStreakUI();
+            if (await CheckForErrors(hiba))
             {
-                try
-                {
-
-                    StartupLog.Write("========== NEW GAME LAUNCH ==========");
-                    StartupLog.Write(
-                        $"Mode={GetLaunchMode()} | Repentogon={repentogonCheckbox.Checked} | " +
-                        $"SmartStart={smart.Checked} | Mods={mods.Checked}");
-
-                    Process[] Isaac = Process.GetProcessesByName("isaac-ng");
-                    if (Isaac.Length > 0)
-                    {
-                        if (isInstantLaunch) return;
-
-                        try
-                        {
-                            Isaac[0].Kill();
-                            return;
-                        }
-                        catch (Exception ex)
-                        {
-                            await PopupManager.ShowAsync(this, "ERROR",$"Failed to stop the game: {ex.Message}","OK", null, null, SystemSounds.Hand);
-                            return;
-                        }
-                    }
-                    SetPlayButtonState(PlayButtonState.Starting);
-                    SetGameStatus(GameStatus.Starting);
-                    LaunchMode ModeRequested = GetLaunchMode();
-                    Launcher isaacLauncher = new Launcher(ModeRequested, mods.Checked, pathText.Text, repentogonCheckbox.Checked, repentogonPathText.Text, smart.Checked);
-                    await StartGame(isaacLauncher);
-
-                }
-                catch (Exception ex)
-                {
-                    StartupLog.Write($"LAUNCH ERROR: {ex}");
-                    ShowMainWindow();
-                    await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-                    SetPlayButtonState(PlayButtonState.Play);
-                    SetGameStatus(GameStatus.Stopped);
-                }
-            }
-
-            private async void PlayButton_Click(object sender, EventArgs e) {await LaunchGameAsync(false);}
-
-            private async void BackupButton_Click(object sender, EventArgs e)
-            {
-                try
-                {
-                    SaveManager saveManager = new SaveManager(portable.Checked);
-                    saveManager.Save();
-                    await PopupManager.ShowAsync(this, "BACKUP COMPLETE", "Your saves have been backed up successfully!", "OK", null, null, SystemSounds.Asterisk);
-                }
-                catch (Exception ex)
-                {
-                    await PopupManager.ShowAsync(this, "BACKUP FAILED", $"An error occurred while backing up your saves: {ex.Message}", "OK", null, null, SystemSounds.Hand);
-                }
-            }
-
-            private async void OpenBackupFolderButton(object sender, EventArgs e)
-            {
-                try
-                {
-                    SaveManager saveManager = new SaveManager(portable.Checked);
-                    saveManager.OpenBackupFolder();
-                }
-                catch (Exception ex) { await PopupManager.ShowAsync(this, "ERROR", $"An error occurred while trying to open the backup folder: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
-            }
-
-            private async void ghost_CheckedChanged(object sender, EventArgs e)
-            {
-                if (!ghost.Checked || _loadingSettings) return;
-
-                var choice = await PopupManager.ShowAsync(this,"ENABLE GHOST MODE?","Ghost Mode automatically deletes temporary Isaac files from the My Games folder after the portable game closes.\n\n" +"This includes options.ini, logs, and save backups stored in that folder.\n\n" +"IMPORTANT: Only use Ghost Mode with a supported portable installation. Make sure your saves are backed up!","YES","NO",null,SystemSounds.Exclamation);
-                if (choice != PopupUserControl.PopupChoice.Primary) ghost.Checked = false;
-            }
-
-            private void UpdateGameInfo()
-            {
-                if (_currentGameStatus != GameStatus.Stopped) return;
-                SetGameInfo(GetLaunchMode(), mods.Checked, repentogonCheckbox.Checked);
-            }
-
-            private void UpdateRunningGameInfo(Launcher launcher)
-            {
-                LaunchMode mode = launcher.CurrentMode;
-                SetGameInfo(mode, launcher.AreModsEnabled, launcher.IsRepentogonEnabled);
-            }
-
-            private void SetGameInfo(LaunchMode mode, bool modsEnabled, bool repentogonEnabled)
-            {
-                label23.Text = mode.ToString();
-                label25.Text = $"{(repentogonEnabled ? "ON" : "OFF")} / {(modsEnabled ? "ON" : "OFF")}";
-            }
-
-            private void CheckBox_CheckedChanged(object sender, EventArgs e) 
-            {
-                if (_loadingSettings || _settings == null) return;
-
-                if (sender == portable || sender == custom) UpdateModeUI();
-                else if (sender == smart) UpdateStreakUI();
-
-                UpdateGameInfo();
-            }
-            private async void BrowseGamePath(object sender, EventArgs e)
-            {
-                using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
-                {
-                    dialog.IsFolderPicker = true;
-                    dialog.Title = "Search for your Isaac folder with the isaac.ng.exe in it!";
-
-                    if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    {
-                        string isaacExePath = Path.Combine(dialog.FileName, "isaac-ng.exe");
-
-                        if (File.Exists(isaacExePath)) pathText.Text = dialog.FileName;
-                        else
-                        {
-                            await PopupManager.ShowAsync(this, "INVALID FOLDER", "The selected folder does not contain isaac-ng.exe. Please select the correct Isaac game folder.", "OK", null, null, SystemSounds.Hand);
-                            pathText.Text = _settings.GamePath;
-                        }
-                    }
-                }
-            }
-
-            private async void BrowseRepentogonPath(object sender, EventArgs e)
-            {
-                using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
-                {
-                    dialog.Title = "Search for your Repentogon Launcher exe!";
-                    dialog.Filters.Add(new CommonFileDialogFilter("Executable", "*.exe"));
-
-                    if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    {
-                        string selected = dialog.FileName;
-
-                        if (Path.GetFileName(selected).Equals("REPENTOGONLauncher.exe", StringComparison.OrdinalIgnoreCase)) repentogonPathText.Text = selected;
-                        else
-                        {
-                            await PopupManager.ShowAsync(this, "INVALID FILE", "The selected file is not REPENTOGONLauncher.exe. Please select the correct Repentogon Launcher executable.", "OK", null, null, SystemSounds.Hand);
-                            repentogonPathText.Text = _settings.RepentogonPath;
-                        }
-                    }
-                }
-            }
-
-            private void OpenModManagerButton_Click(object sender, EventArgs e)
-            {
-                string targetPath = pathText.Text;
-                if (portable.Checked) targetPath = Path.Combine(Application.StartupPath, "portable-saac");
-
-                // Ha még nincs nyitva, VAGY bezárták (IsDisposed), akkor újat nyitunk:
-                if (_modManagerForm == null || _modManagerForm.IsDisposed)
-                {
-                    _modManagerForm = new ModmanagerForm(targetPath);
-                    _modManagerForm.Show();
-                }
-                else
-                {
-                    // Ha már nyitva van, csak fókuszba rakjuk és előrehozzuk!
-                    if (_modManagerForm.WindowState == FormWindowState.Minimized) _modManagerForm.WindowState = FormWindowState.Normal;
-
-                    _modManagerForm.BringToFront();
-                    _modManagerForm.Focus();
-                }
-            }
-
-            private void OpenLinkOnClick(object sender, EventArgs e)
-            {
-                if (sender is Button clickedbutton)
-                {
-                    string url = clickedbutton.Tag as string;
-                    if (!string.IsNullOrWhiteSpace(url)) BrowserHelper.OpenUrl(url);
-                }
-            }
-
-            private async void CheckForUpdatesButton_Click(object sender, EventArgs e)
-            {
-                checkForUpdatesButton.Enabled = false;
-                try { await CheckForUpdate(false); }
-                catch (Exception ex) {await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
-                finally {checkForUpdatesButton.Enabled = true;}
-            }
-
-            private async void betaUpdatesCheckBox_CheckedChanged(object sender, EventArgs e)
-            {
-                if (_loadingSettings || _settings == null) return;
-
-                UpdateChannel newChannel = BetaReleaseCheckbox.Checked ? UpdateChannel.Beta : UpdateChannel.Stable;
-
-                if (_settings.UpdateChannel == newChannel) return;
-
-                _settings.UpdateChannel = newChannel;
-
-                // Reset update preferences when switching channels.
-                _settings.LastUpdateCheck = string.Empty;
-                _settings.Reminder = false;
-                _settings.SkippedUpdateVersion = string.Empty;
-
-                AppConfig.Save(_settings);
-
-                // Immediately check for updates on the selected channel.
-                BetaReleaseCheckbox.Enabled = false;
-
-                try
-                {
-                    await CheckForUpdate(true);
-                }
-                finally
-                {
-                    BetaReleaseCheckbox.Enabled = true;
-                }
-        }
-
-            public void ShowMainWindow()
-                {
-                    this.Show();
-
-                    if (this.WindowState == FormWindowState.Minimized) this.WindowState = FormWindowState.Normal;
-
-                    notifyIcon1.Visible = false;
-                    this.BringToFront();
-                    this.Activate();
-            }
-            private void ShowApp(object sender, EventArgs e)
-            {
-                if (e is MouseEventArgs mouseEvent && mouseEvent.Button != MouseButtons.Left) return;
-                ShowMainWindow();
-            }
-            private void Close_Click(object sender, EventArgs e)
-            {
-                exit = true;
-                Application.Exit();
-            }
-            bool exit;
-            private void IsaacLauncher_FormClosing(object sender, FormClosingEventArgs e)
-            {
-                if (trayBox.Checked && !exit)
-                {
-                    e.Cancel = true;
-                    this.Hide();
-                    notifyIcon1.Visible = true;
-                    notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
-                }
-                else SaveSettings();
-            }
-
-            private async void IsaacLauncher_Shown(object sender, EventArgs e)
-            {
-                await CheckForUpdate(true);
-                if (startTray.Checked)
-                {
-                    this.Hide();
-                    notifyIcon1.Visible = true;
-                    notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
-                }
-                else ShowMainWindow();
-                if (instantLaunch.Checked) await LaunchGameAsync(true);
-            }
-
-            private void IsaacLauncher_Load(object sender, EventArgs e)
-            {
-                string version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-                label7.Text = "Made by Haltiru - v" + version;
-                var _ = ghostModeTooltip.Handle;
-                var __ = gamePathToolTip.Handle;
-                InitializeToolTips();
                 SetPlayButtonState(PlayButtonState.Play);
                 SetGameStatus(GameStatus.Stopped);
-                UIHelper.ApplyHoverEffects(this);
-                SetActiveButton(launcherButton);
-                _loadingSettings = true;
-                try { LoadSettings(); }
-                finally { _loadingSettings = false; }
-                UpdateUI();
+                return;
+            }
+
+            UpdateRunningGameInfo(launcher);
+            hiba = await FindIsaac(BorderlessEnabled, launcher, ghostMode);
+            if (await CheckForErrors(hiba)) return;
+        }
+
+        private async Task LaunchGameAsync(bool isInstantLaunch)
+        {
+            try
+            {
+
+                StartupLog.Write("========== NEW GAME LAUNCH ==========");
+                StartupLog.Write(
+                    $"Mode={GetLaunchMode()} | Repentogon={repentogonCheckbox.Checked} | " +
+                    $"SmartStart={smart.Checked} | Mods={mods.Checked}");
+
+                Process[] Isaac = Process.GetProcessesByName("isaac-ng");
+                if (Isaac.Length > 0)
+                {
+                    if (isInstantLaunch) return;
+
+                    try
+                    {
+                        Isaac[0].Kill();
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        await PopupManager.ShowAsync(this, "ERROR", $"Failed to stop the game: {ex.Message}", "OK", null, null, SystemSounds.Hand);
+                        return;
+                    }
+                }
+                SetPlayButtonState(PlayButtonState.Starting);
+                SetGameStatus(GameStatus.Starting);
+                LaunchMode ModeRequested = GetLaunchMode();
+                Launcher isaacLauncher = new Launcher(ModeRequested, mods.Checked, pathText.Text, repentogonCheckbox.Checked, repentogonPathText.Text, smart.Checked);
+                await StartGame(isaacLauncher);
+
+            }
+            catch (Exception ex)
+            {
+                StartupLog.Write($"LAUNCH ERROR: {ex}");
+                ShowMainWindow();
+                await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred: {ex.Message}", "OK", null, null, SystemSounds.Hand);
+                SetPlayButtonState(PlayButtonState.Play);
+                SetGameStatus(GameStatus.Stopped);
             }
         }
+
+        private async void PlayButton_Click(object sender, EventArgs e) { await LaunchGameAsync(false); }
+
+        private async void BackupButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveManager saveManager = new SaveManager(portable.Checked);
+                saveManager.Save();
+                await PopupManager.ShowAsync(this, "BACKUP COMPLETE", "Your saves have been backed up successfully!", "OK", null, null, SystemSounds.Asterisk);
+            }
+            catch (Exception ex)
+            {
+                await PopupManager.ShowAsync(this, "BACKUP FAILED", $"An error occurred while backing up your saves: {ex.Message}", "OK", null, null, SystemSounds.Hand);
+            }
+        }
+
+        private async void OpenBackupFolderButton(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveManager saveManager = new SaveManager(portable.Checked);
+                saveManager.OpenBackupFolder();
+            }
+            catch (Exception ex) { await PopupManager.ShowAsync(this, "ERROR", $"An error occurred while trying to open the backup folder: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
+        }
+
+        private async void ghost_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!ghost.Checked || _loadingSettings) return;
+
+            var choice = await PopupManager.ShowAsync(this, "ENABLE GHOST MODE?", "Ghost Mode automatically deletes temporary Isaac files from the My Games folder after the portable game closes.\n\n" + "This includes options.ini, logs, and save backups stored in that folder.\n\n" + "IMPORTANT: Only use Ghost Mode with a supported portable installation. Make sure your saves are backed up!", "YES", "NO", null, SystemSounds.Exclamation);
+            if (choice != PopupUserControl.PopupChoice.Primary) ghost.Checked = false;
+        }
+
+        private void UpdateGameInfo()
+        {
+            if (_currentGameStatus != GameStatus.Stopped) return;
+            SetGameInfo(GetLaunchMode(), mods.Checked, repentogonCheckbox.Checked);
+        }
+
+        private void UpdateRunningGameInfo(Launcher launcher)
+        {
+            LaunchMode mode = launcher.CurrentMode;
+            SetGameInfo(mode, launcher.AreModsEnabled, launcher.IsRepentogonEnabled);
+        }
+
+        private void SetGameInfo(LaunchMode mode, bool modsEnabled, bool repentogonEnabled)
+        {
+            label23.Text = mode.ToString();
+            label25.Text = $"{(repentogonEnabled ? "ON" : "OFF")} / {(modsEnabled ? "ON" : "OFF")}";
+        }
+
+        private void CheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_loadingSettings || _settings == null) return;
+
+            if (sender == portable || sender == custom) UpdateModeUI();
+            else if (sender == smart) UpdateStreakUI();
+
+            UpdateGameInfo();
+        }
+        private async void BrowseGamePath(object sender, EventArgs e)
+        {
+            string selectedFolder = FileDialogHelper.SelectFolder("Select your Isaac game folder");
+            if (selectedFolder == null) return;
+            if (File.Exists(Path.Combine(selectedFolder, "isaac-ng.exe"))) pathText.Text = selectedFolder;
+            else
+            {
+                await PopupManager.ShowAsync(this, "INVALID FOLDER", "The selected folder does not contain isaac-ng.exe. Please select the correct Isaac game folder.", "OK", null, null, SystemSounds.Hand);
+                pathText.Text = _settings.GamePath;
+            }
+        }
+
+        private async void BrowseRepentogonPath(object sender, EventArgs e)
+        {
+            string repentogonExePath = FileDialogHelper.SelectFile("Search for your Repentogon Launcher exe!", "Executable", "*.exe");
+            if (repentogonExePath == null) return;
+            if (Path.GetFileName(repentogonExePath).Equals("REPENTOGONLauncher.exe", StringComparison.OrdinalIgnoreCase)) repentogonPathText.Text = repentogonExePath;
+            else
+            {
+                await PopupManager.ShowAsync(this, "INVALID FILE", "The selected file is not REPENTOGONLauncher.exe. Please select the correct Repentogon Launcher executable.", "OK", null, null, SystemSounds.Hand);
+                repentogonPathText.Text = _settings.RepentogonPath;
+            }
+        }
+        private void OpenModManagerButton_Click(object sender, EventArgs e)
+        {
+            string targetPath = pathText.Text;
+            if (portable.Checked) targetPath = Path.Combine(Application.StartupPath, "portable-saac");
+
+            // Ha még nincs nyitva, VAGY bezárták (IsDisposed), akkor újat nyitunk:
+            if (_modManagerForm == null || _modManagerForm.IsDisposed)
+            {
+                _modManagerForm = new ModmanagerForm(targetPath);
+                _modManagerForm.Show();
+            }
+            // Ha már nyitva van, csak fókuszba rakjuk és előrehozzuk!
+            else WindowActivationManager.TryBringToForeground(_modManagerForm);
+        }
+
+        private void OpenLinkOnClick(object sender, EventArgs e)
+        {
+            if (sender is Button clickedbutton)
+            {
+                string url = clickedbutton.Tag as string;
+                if (!string.IsNullOrWhiteSpace(url)) BrowserHelper.OpenUrl(url);
+            }
+        }
+
+        private async void CheckForUpdatesButton_Click(object sender, EventArgs e)
+        {
+            checkForUpdatesButton.Enabled = false;
+            try { await _updateManager.CheckForUpdateAsync(false); }
+            catch (Exception ex) { await PopupManager.ShowAsync(this, "ERROR", $"An unexpected error occurred while checking for updates: {ex.Message}", "OK", null, null, SystemSounds.Hand); }
+            finally { checkForUpdatesButton.Enabled = true; }
+        }
+
+        private async void betaUpdatesCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_loadingSettings || _settings == null) return;
+
+            UpdateChannel newChannel = BetaReleaseCheckbox.Checked ? UpdateChannel.Beta : UpdateChannel.Stable;
+
+            if (_settings.UpdateChannel == newChannel) return;
+
+            _settings.UpdateChannel = newChannel;
+
+            // Reset update preferences when switching channels.
+            _settings.LastUpdateCheck = string.Empty;
+            _settings.Reminder = false;
+            _settings.SkippedUpdateVersion = string.Empty;
+
+            AppConfig.Save(_settings);
+
+            // Immediately check for updates on the selected channel.
+            BetaReleaseCheckbox.Enabled = false;
+
+            try { await _updateManager.CheckForUpdateAsync(true); }
+            finally { BetaReleaseCheckbox.Enabled = true; }
+        }
+
+        public void ShowMainWindow()
+        {
+            WindowActivationManager.TryBringToForeground(this);
+            notifyIcon1.Visible = false;
+        }
+        private void ShowApp(object sender, EventArgs e)
+        {
+            if (e is MouseEventArgs mouseEvent && mouseEvent.Button != MouseButtons.Left) return;
+            ShowMainWindow();
+        }
+        private void Close_Click(object sender, EventArgs e)
+        {
+            exit = true;
+            Application.Exit();
+        }
+        bool exit;
+
+        private void MinimizeToTray()
+        {
+            this.Hide();
+            notifyIcon1.Visible = true;
+            notifyIcon1.ShowBalloonTip(1000, "Isaac Launcher", "The launcher is still running in the background.", ToolTipIcon.Info);
+        }
+        private void IsaacLauncher_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (trayBox.Checked && !exit)
+            {
+                e.Cancel = true;
+                MinimizeToTray();
+            }
+            else SaveSettings();
+        }
+
+        private async void IsaacLauncher_Shown(object sender, EventArgs e)
+        {
+            await _updateManager.CheckForUpdateAsync(true);
+            if (startTray.Checked) MinimizeToTray();
+            else ShowMainWindow();
+            if (instantLaunch.Checked) await LaunchGameAsync(true);
+        }
+
+        private void IsaacLauncher_Load(object sender, EventArgs e)
+        {
+            string version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            label7.Text = "Made by Haltiru - v" + version;
+            var _ = ghostModeTooltip.Handle;
+            var __ = gamePathToolTip.Handle;
+            InitializeToolTips();
+            SetPlayButtonState(PlayButtonState.Play);
+            SetGameStatus(GameStatus.Stopped);
+            SetActiveButton(launcherButton);
+            _loadingSettings = true;
+            try { LoadSettings(); }
+            finally { _loadingSettings = false; }
+            _updateManager = new UpdateManager(_settings, this);
+            UpdateUI();
+        }
     }
+}
