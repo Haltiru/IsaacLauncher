@@ -9,8 +9,8 @@ namespace IsaacLauncherGUI
         {
             try
             {
-                if  (ghostMode && isPortable && Process.GetProcessesByName("isaac-ng").Length == 0 && hasExited) return launcher.DeleteNotExistedFolders();
-                return false;
+                if (!ghostMode || !isPortable || !hasExited || Process.GetProcessesByName("isaac-ng").Length > 0) return false;
+                return launcher.DeleteNotExistedFolders();
             }
             catch (Exception ex)
             {

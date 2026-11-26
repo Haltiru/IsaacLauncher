@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace IsaacLauncherGUI
@@ -23,7 +19,7 @@ namespace IsaacLauncherGUI
             int seconds = elapsed.Seconds;
 
             if (hours == 0) return $"{minutes:00}:{seconds:00}";
-            else return $"{hours:00}:{minutes:00}:{seconds:00}";
+            return $"{hours:00}:{minutes:00}:{seconds:00}";
         }
 
         public static string FormatTotalPlaytime(long totalSeconds)

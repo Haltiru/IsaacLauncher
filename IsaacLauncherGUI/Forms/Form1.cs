@@ -637,8 +637,11 @@ namespace IsaacLauncherGUI
 
         private async void IsaacLauncher_Shown(object sender, EventArgs e)
         {
+            if (!startTray.Checked) ShowMainWindow();
             await _updateManager.CheckForUpdateAsync(true);
+
             if (startTray.Checked) MinimizeToTray();
+            
             else ShowMainWindow();
             if (instantLaunch.Checked) await LaunchGameAsync(true);
         }
