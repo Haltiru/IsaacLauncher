@@ -1,29 +1,26 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
-
-namespace IsaacLauncherGUI
+﻿namespace IsaacLauncherGUI
 {
     public static class FileDialogHelper
     {
-
         public static string SelectFolder(string title)
         {
-            using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
+            using (var dialog = new FolderBrowserDialog())
             {
-                dialog.IsFolderPicker = true;
-                dialog.Title = title;
+                dialog.Description = title;
+                dialog.UseDescriptionForTitle = true;
 
-                return dialog.ShowDialog() == CommonFileDialogResult.Ok ? dialog.FileName : null;
+                return dialog.ShowDialog() == DialogResult.OK ? dialog.SelectedPath : null;
             }
         }
 
         public static string SelectFile(string title, string filterName, string filterPattern)
         {
-            using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
+            using (var dialog = new OpenFileDialog())
             {
                 dialog.Title = title;
-                dialog.Filters.Add(new CommonFileDialogFilter(filterName, filterPattern));
+                dialog.Filter = $"{filterName} ({filterPattern})|{filterPattern}";
 
-                return dialog.ShowDialog() == CommonFileDialogResult.Ok ? dialog.FileName : null;
+                return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
             }
         }
     }

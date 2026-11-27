@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-
-namespace IsaacLauncherGUI
+﻿namespace IsaacLauncherGUI
 {
     public static class UIHelper
     {
@@ -58,7 +52,7 @@ namespace IsaacLauncherGUI
             if (!navigationMap.TryGetValue(selectedButton, out TabPage selectedPage)) return;
             tabControl.SelectedTab = selectedPage;
 
-            foreach(var button in navigationMap.Keys)
+            foreach (var button in navigationMap.Keys)
             {
                 if (button == selectedButton)
                 {

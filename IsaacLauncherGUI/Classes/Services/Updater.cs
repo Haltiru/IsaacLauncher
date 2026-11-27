@@ -1,16 +1,4 @@
-﻿// Updater.cs - IsaacLauncherGUI (.NET Framework 4.8)
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using NuGet.Versioning;
-using System.Reflection;
+﻿// Updater.cs
 
 namespace IsaacLauncherGUI
 {
@@ -42,7 +30,7 @@ namespace IsaacLauncherGUI
         public Updater(string installationDirectory, string updateDirectory)
         {
             installPath = Path.GetFullPath(installationDirectory);
-            workPath = updateDirectory == null ? Path.Combine(Path.GetTempPath(), "IsaacLauncher_Update_" + Guid.NewGuid().ToString("N")): Path.GetFullPath(updateDirectory);
+            workPath = updateDirectory == null ? Path.Combine(Path.GetTempPath(), "IsaacLauncher_Update_" + Guid.NewGuid().ToString("N")) : Path.GetFullPath(updateDirectory);
             string localVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
             if (!NuGetVersion.TryParse(localVersion, out NuGetVersion parsedVersion)) throw new InvalidOperationException("Invalid launcher version: " + localVersion);
 
@@ -93,7 +81,7 @@ namespace IsaacLauncherGUI
                             if (!NuGetVersion.TryParse(versionText, out NuGetVersion version)) continue;
 
                             // Stable must never accept a SemVer prerelease.
-                            if (channel == UpdateChannel.Stable &&version.IsPrerelease) continue;
+                            if (channel == UpdateChannel.Stable && version.IsPrerelease) continue;
 
                             // GitHub's prerelease flag and SemVer label
                             // should agree. Never expose a beta to Stable.
@@ -102,19 +90,19 @@ namespace IsaacLauncherGUI
 
                             string assetUrl = "";
 
-                            foreach (JsonElement asset in release .GetProperty("assets").EnumerateArray())
+                            foreach (JsonElement asset in release.GetProperty("assets").EnumerateArray())
                             {
                                 string name = asset.GetProperty("name").GetString();
-                                if (string.IsNullOrWhiteSpace(name) ||!name.EndsWith(".zip",StringComparison.OrdinalIgnoreCase)) continue;
+                                if (string.IsNullOrWhiteSpace(name) || !name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) continue;
 
-                                string candidate = asset .GetProperty("browser_download_url").GetString();
-                                if (!Uri.TryCreate(candidate, UriKind.Absolute, out Uri uri) ||uri.Scheme != Uri.UriSchemeHttps ||!string.Equals(uri.Host, "github.com",StringComparison.OrdinalIgnoreCase))continue;
+                                string candidate = asset.GetProperty("browser_download_url").GetString();
+                                if (!Uri.TryCreate(candidate, UriKind.Absolute, out Uri uri) || uri.Scheme != Uri.UriSchemeHttps || !string.Equals(uri.Host, "github.com", StringComparison.OrdinalIgnoreCase)) continue;
 
                                 assetUrl = candidate;
                                 break;
                             }
 
-                            if (string.IsNullOrEmpty(assetUrl))continue;
+                            if (string.IsNullOrEmpty(assetUrl)) continue;
 
                             bestVersion = version;
                             bestDownloadUrl = assetUrl;
@@ -183,7 +171,7 @@ namespace IsaacLauncherGUI
             return destination;
         }
 
-        public async Task  DownloadNewVersion(IProgress<int> progressReporter)
+        public async Task DownloadNewVersion(IProgress<int> progressReporter)
         {
             Uri uri;
             if (!Uri.TryCreate(downloadUrl, UriKind.Absolute, out uri) || uri.Scheme != Uri.UriSchemeHttps) throw new InvalidOperationException("Missing or insecure update URL.");
@@ -398,7 +386,7 @@ namespace IsaacLauncherGUI
             var start = new ProcessStartInfo
             {
                 FileName = helperExe,
-                Arguments = "--update " + Process.GetCurrentProcess().Id+ " \"" + installPath.TrimEnd('\\') + "\""+ " \"" + workPath.TrimEnd('\\') + "\"",
+                Arguments = "--update " + Process.GetCurrentProcess().Id + " \"" + installPath.TrimEnd('\\') + "\"" + " \"" + workPath.TrimEnd('\\') + "\"",
                 WorkingDirectory = helperDirectory,
                 UseShellExecute = true
             };

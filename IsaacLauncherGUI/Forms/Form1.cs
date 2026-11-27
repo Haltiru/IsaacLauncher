@@ -1,13 +1,5 @@
 ﻿//Form1.cs
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Media;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+
 using static IsaacLauncherGUI.Launcher;
 
 namespace IsaacLauncherGUI
@@ -641,7 +633,7 @@ namespace IsaacLauncherGUI
             await _updateManager.CheckForUpdateAsync(true);
 
             if (startTray.Checked) MinimizeToTray();
-            
+
             else ShowMainWindow();
             if (instantLaunch.Checked) await LaunchGameAsync(true);
         }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IsaacLauncherGUI
+﻿namespace IsaacLauncherGUI
 {
     public class GameStartupMonitor
     {
@@ -16,14 +9,14 @@ namespace IsaacLauncherGUI
             if (isRepentogonEnabled)
             {
                 Process Repentogon = await GameProcessMonitor.WaitForProcessAsync("REPENTOGONLauncher", 10000);
-                if (Repentogon == null) 
+                if (Repentogon == null)
                 {
                     gameStartupResult.ErrorMessage = "Repentogon process did not start in time!";
                     return gameStartupResult;
                 }
 
                 bool repentogonWindowAppeared = await GameProcessMonitor.WaitForResponsiveAsync(Repentogon, 10000);
-                if (!repentogonWindowAppeared) 
+                if (!repentogonWindowAppeared)
                 {
                     gameStartupResult.ErrorMessage = "Repentogon did not become responsive in time!";
                     return gameStartupResult;
@@ -32,7 +25,7 @@ namespace IsaacLauncherGUI
 
             // 1. Megvárjuk, amíg elindul a processz
             Process Isaac = await GameProcessMonitor.WaitForProcessAsync("isaac-ng", 60000);
-            if (Isaac == null) 
+            if (Isaac == null)
             {
                 gameStartupResult.ErrorMessage = "Isaac process did not start in time!";
                 return gameStartupResult;
@@ -48,7 +41,7 @@ namespace IsaacLauncherGUI
 
             // 3. Várjuk meg, hogy reagáljon is (itt tölt be a Repentogon és a modok)
             bool responding = await GameProcessMonitor.WaitForResponsiveAsync(Isaac, 120000);
-            if (!responding) 
+            if (!responding)
             {
                 gameStartupResult.ErrorMessage = "Isaac did not become responsive in time!";
                 return gameStartupResult;

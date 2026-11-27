@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.Text;
+﻿//BBCodeRenderer.cs
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 
 namespace IsaacLauncherGUI
 {

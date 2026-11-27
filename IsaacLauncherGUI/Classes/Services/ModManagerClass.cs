@@ -1,14 +1,4 @@
 ﻿//ModManagerClass.cs
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml.Linq;
-using System.Text.Json;
 
 namespace IsaacLauncherGUI
 {
@@ -116,7 +106,7 @@ namespace IsaacLauncherGUI
                             if (!string.IsNullOrEmpty(WorkshopId))
                             {
                                 string localThumbPath = "";
-                                foreach (var ext in new[] { ".jpg", ".png", ".gif"})
+                                foreach (var ext in new[] { ".jpg", ".png", ".gif" })
                                 {
                                     string pathTest = Path.Combine(thumbPath, $"{WorkshopId}{ext}");
                                     if (File.Exists(pathTest))
@@ -158,8 +148,8 @@ namespace IsaacLauncherGUI
 
         private string DetectImageExtension(byte[] bytes)
         {
-            if (bytes.Length >= 12 && Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF" &&Encoding.ASCII.GetString(bytes, 8, 4) == "WEBP") return ".webp";
-            if (bytes.Length >= 8 && bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47 &&bytes[4] == 0x0D && bytes[5] == 0x0A && bytes[6] == 0x1A && bytes[7] == 0x0A) return ".png";
+            if (bytes.Length >= 12 && Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF" && Encoding.ASCII.GetString(bytes, 8, 4) == "WEBP") return ".webp";
+            if (bytes.Length >= 8 && bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47 && bytes[4] == 0x0D && bytes[5] == 0x0A && bytes[6] == 0x1A && bytes[7] == 0x0A) return ".png";
             if (bytes.Length >= 3 && bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) return ".jpg";
             if (bytes.Length >= 6 && bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x38 && (bytes[4] == 0x37 || bytes[4] == 0x39) && bytes[5] == 0x61) return ".gif";
             return null;
@@ -191,7 +181,7 @@ namespace IsaacLauncherGUI
 
                                 foreach (JsonElement mod in details.EnumerateArray())
                                 {
-                                    if (!mod.TryGetProperty("result", out JsonElement result) ||result.GetInt32() != 1) continue;
+                                    if (!mod.TryGetProperty("result", out JsonElement result) || result.GetInt32() != 1) continue;
                                     if (!mod.TryGetProperty("publishedfileid", out JsonElement idElement) || idElement.ValueKind != JsonValueKind.String) continue;
                                     if (!mod.TryGetProperty("preview_url", out JsonElement urlElement) || urlElement.ValueKind != JsonValueKind.String) continue;
 
@@ -211,8 +201,8 @@ namespace IsaacLauncherGUI
                                     OnThumbnailDownloaded(id, savePath);
                                 }
                             }
-                        }        
-                        
+                        }
+
                     }
                     catch
                     {
@@ -267,7 +257,7 @@ namespace IsaacLauncherGUI
                     var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
                     encoder.Frames.Add(decoder.Frames[0]);
 
-                    
+
 
                     using (var output = File.Create(pngPath))
                     {
@@ -318,7 +308,8 @@ namespace IsaacLauncherGUI
                     string modFolderPath = Path.Combine(ModsPath, mod.FolderName);
                     string disabledModPath = Path.Combine(modFolderPath, "disable.it");
                     bool modState = mod.IsEnabled;
-                    if (modState) {
+                    if (modState)
+                    {
                         if (File.Exists(disabledModPath)) File.Delete(disabledModPath);
                         else File.Create(disabledModPath).Dispose();
                     }

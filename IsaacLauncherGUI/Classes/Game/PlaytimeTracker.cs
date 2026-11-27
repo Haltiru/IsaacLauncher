@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Windows.Forms;
-
-namespace IsaacLauncherGUI
+﻿namespace IsaacLauncherGUI
 {
     public static class PlaytimeTracker
     {

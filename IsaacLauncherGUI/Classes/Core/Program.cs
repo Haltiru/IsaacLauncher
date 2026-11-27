@@ -1,12 +1,4 @@
 ﻿//Program.cs
-using IsaacLauncherGUI.Classes;
-using Microsoft.Win32;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Security.Principal;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace IsaacLauncherGUI
 {
@@ -52,7 +44,7 @@ namespace IsaacLauncherGUI
         private bool IsSteamReady()
         {
             // 1. Csekkoljuk, hogy létezik-e egyáltalán a steam processz a gépén
-            if (!IsSteamProcessRunning()) {return false;}
+            if (!IsSteamProcessRunning()) { return false; }
 
             //// 2. Kiolvassuk az ActiveUser értéket a registry-ből (alapértelmezett 0, ha nincs)
             object activeUserObj = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess", "ActiveUser", 0);
@@ -83,7 +75,7 @@ namespace IsaacLauncherGUI
 
             if (!IsSteamProcessRunning())
             {
-                string steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam","SteamExe", null) as string;
+                string steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamExe", null) as string;
 
                 if (string.IsNullOrEmpty(steamPath) || !File.Exists(steamPath))
                 {
@@ -109,7 +101,7 @@ namespace IsaacLauncherGUI
                 while (!IsSteamReady() && waitTimer.ElapsedMilliseconds < 60000) await Task.Delay(250);
                 bool ready = IsSteamReady();
 
-                object activeUser = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess","ActiveUser", 0);
+                object activeUser = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess", "ActiveUser", 0);
 
                 StartupLog.Write($"Steam check END | Ready={ready} | ActiveUser={activeUser} | " + $"Wait={waitTimer.ElapsedMilliseconds}ms | Total={timer.ElapsedMilliseconds}ms");
 
@@ -209,8 +201,8 @@ namespace IsaacLauncherGUI
             }
             return false;
         }
-            
-            
+
+
 
         public void ChangeIni(LaunchMode startMode, bool forceWindowed, AppSettings settings)
         {
@@ -351,8 +343,8 @@ namespace IsaacLauncherGUI
 
         public async Task<string> InitializeAndLaunch(bool fullscreenEnabled, bool areModsEnabled, bool isRepentogonEnabled, AppSettings settings)
         {
-           
-            
+
+
             if (CurrentMode == LaunchMode.Steam)
             {
                 string steamErr = await EnsureSteamRunning();
@@ -367,7 +359,7 @@ namespace IsaacLauncherGUI
 
     internal static class Program
     {
-        
+
         private static void CleanupLegacyFiles()
         {
             string installDir = AppDomain.CurrentDomain.BaseDirectory;
@@ -423,7 +415,7 @@ namespace IsaacLauncherGUI
                 try
                 {
                     if (args.Length != 4 || !int.TryParse(args[1], out int originalPid) || originalPid <= 0)
-                        throw new InvalidOperationException("Invalid updater arguments.\n" +"Received " + args.Length + " arguments:\n" +string.Join("\n", args));
+                        throw new InvalidOperationException("Invalid updater arguments.\n" + "Received " + args.Length + " arguments:\n" + string.Join("\n", args));
 
                     try
                     {
@@ -490,12 +482,12 @@ namespace IsaacLauncherGUI
                     return;
                 }
 
-                CleanupLegacyFiles();   
+                CleanupLegacyFiles();
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 IsaacLauncher form = new IsaacLauncher();
-                manager.ShowWindowRequested += () => {if (!form.IsDisposed && form.IsHandleCreated)form.BeginInvoke(new Action(() => form.ShowMainWindow()));};
+                manager.ShowWindowRequested += () => { if (!form.IsDisposed && form.IsHandleCreated) form.BeginInvoke(new Action(() => form.ShowMainWindow())); };
 
                 var handle = form.Handle;
                 manager.StartListening();
@@ -509,7 +501,7 @@ namespace IsaacLauncherGUI
                 {
                     manager.StopListeningAsync().GetAwaiter().GetResult();
                 }
-            }      
+            }
         }
 
         private static bool IsRunningAsAdmin()

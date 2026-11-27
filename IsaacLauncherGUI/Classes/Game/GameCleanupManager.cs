@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace IsaacLauncherGUI
+﻿namespace IsaacLauncherGUI
 {
     public class GameCleanupManager
     {

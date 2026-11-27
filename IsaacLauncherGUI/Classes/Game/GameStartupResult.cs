@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace IsaacLauncherGUI 
+﻿namespace IsaacLauncherGUI
 {
     public class GameStartupResult
     {

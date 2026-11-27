@@ -1,4 +1,5 @@
-﻿namespace IsaacLauncherGUI
+﻿//UpdateChannel.cs
+namespace IsaacLauncherGUI
 {
     public enum UpdateChannel
     {

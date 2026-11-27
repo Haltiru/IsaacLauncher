@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-
-namespace IsaacLauncherGUI
+﻿namespace IsaacLauncherGUI
 {
     public class GameProcessMonitor
     {

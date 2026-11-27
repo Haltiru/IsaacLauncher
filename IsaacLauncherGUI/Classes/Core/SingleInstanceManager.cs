@@ -1,12 +1,7 @@
-﻿
-using System;
-using System.Threading;
+﻿//SingleInstanceManager.cs
 using System.IO.Pipes;
-using System.Threading.Tasks;
-using System.IO;
-using System.Diagnostics;
 using System.Security.AccessControl;
-using System.Security.Principal;
+using System.Threading;
 
 namespace IsaacLauncherGUI.Classes
 {
@@ -63,17 +58,7 @@ namespace IsaacLauncherGUI.Classes
 
                     security.AddAccessRule(new PipeAccessRule(user, PipeAccessRights.FullControl, AccessControlType.Allow));
 
-                    pipe = new NamedPipeServerStream(
-                        PipeName,
-                        PipeDirection.In,
-                        1,
-                        PipeTransmissionMode.Byte,
-                        PipeOptions.Asynchronous,
-                        0,
-                        0,
-                        security
-                    );
-
+                    pipe = NamedPipeServerStreamAcl.Create(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 0, 0, security);
                     lock (_pipeLock)
                     {
                         if (_cts.IsCancellationRequested) return;

@@ -1,13 +1,4 @@
 ﻿// ModmanagerForm.cs
-using System;
-using System.Data;
-using System.Drawing;
-using System.Drawing.Text;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
-using System.Diagnostics;
-using System.Media;
 
 namespace IsaacLauncherGUI
 {
@@ -46,7 +37,7 @@ namespace IsaacLauncherGUI
         {
             Debug.WriteLine($"Downloaded: {e.WorkshopId} - {e.ImagePath}");
             if (IsDisposed || Disposing || !IsHandleCreated) return;
-            BeginInvoke (new Action(() =>
+            BeginInvoke(new Action(() =>
             {
                 if (IsDisposed || _CachedMods == null) return;
                 var mod = _CachedMods.FirstOrDefault(m => m.WorkShopId == e.WorkshopId);
@@ -84,8 +75,8 @@ namespace IsaacLauncherGUI
                 enabledModsListBox.Items.AddRange(filteredMods.Where(m => m.IsEnabled).ToArray());
                 disabledModsListBox.Items.AddRange(filteredMods.Where(m => !m.IsEnabled).ToArray());
 
-                if (enabledModsListBox.Items.Count > 0) enabledModsListBox.TopIndex = Math.Min(enabledTop,enabledModsListBox.Items.Count - 1);
-                if (disabledModsListBox.Items.Count > 0)disabledModsListBox.TopIndex = Math.Min(disabledTop,disabledModsListBox.Items.Count - 1);
+                if (enabledModsListBox.Items.Count > 0) enabledModsListBox.TopIndex = Math.Min(enabledTop, enabledModsListBox.Items.Count - 1);
+                if (disabledModsListBox.Items.Count > 0) disabledModsListBox.TopIndex = Math.Min(disabledTop, disabledModsListBox.Items.Count - 1);
 
                 UpdateModCounters();
             }
@@ -94,7 +85,7 @@ namespace IsaacLauncherGUI
                 enabledModsListBox.EndUpdate();
                 disabledModsListBox.EndUpdate();
             }
-     
+
         }
 
         public void UpdateModCounters()
@@ -120,8 +111,8 @@ namespace IsaacLauncherGUI
 
         private async void selectedMod(object sender, EventArgs e)
         {
-            
-            if (_isSelecting) return; 
+
+            if (_isSelecting) return;
             _isSelecting = true;
 
             try
@@ -183,7 +174,7 @@ namespace IsaacLauncherGUI
             _gifStream?.Dispose();
             _gifStream = null;
 
-            if (string.IsNullOrEmpty(_selectedMod.ImagePath) ||!File.Exists(_selectedMod.ImagePath)) return;
+            if (string.IsNullOrEmpty(_selectedMod.ImagePath) || !File.Exists(_selectedMod.ImagePath)) return;
 
             try
             {
@@ -212,7 +203,7 @@ namespace IsaacLauncherGUI
         {
             var mod = ((ListBox)sender).SelectedItem as ModItem;
             _selectedMod = mod;
-            if (mod != null) 
+            if (mod != null)
             {
                 _modManager.ToggleModState(mod);
                 RefreshLists();
@@ -220,7 +211,7 @@ namespace IsaacLauncherGUI
         }
 
         private void WorkshopButton_Click(object sender, EventArgs e)
-        { 
+        {
             if (!string.IsNullOrEmpty(_selectedMod.WorkShopLink))
             {
                 Process.Start(_selectedMod.WorkShopLink);

@@ -1,9 +1,4 @@
-﻿using NuGet.Versioning;
-using System;
-using System.Diagnostics;
-using System.Media;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿//UpdateManager.cs
 
 namespace IsaacLauncherGUI
 {
@@ -11,7 +6,7 @@ namespace IsaacLauncherGUI
     {
         private readonly AppSettings _settings;
         private readonly Form _form;
-        
+
         public UpdateManager(AppSettings settings, Form form)
         {
             _settings = settings;

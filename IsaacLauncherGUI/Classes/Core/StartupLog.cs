@@ -1,7 +1,4 @@
-﻿
-using System;
-using System.Diagnostics;
-using System.IO;
+﻿//StartupLog.cs
 
 namespace IsaacLauncherGUI
 {
@@ -18,12 +15,12 @@ namespace IsaacLauncherGUI
                 lock (Lock)
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(LogPath));
-                    File.AppendAllText(LogPath,$"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {message}{Environment.NewLine}");
+                    File.AppendAllText(LogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {message}{Environment.NewLine}");
                 }
             }
             catch (Exception ex)
             {
-               Debug.WriteLine($"Logging failed: {ex}");
+                Debug.WriteLine($"Logging failed: {ex}");
             }
         }
     }

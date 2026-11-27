@@ -1,6 +1,5 @@
-﻿using System.Drawing.Text;
-using System.IO;
-using System.Windows.Forms;
+﻿//FontManager.cs
+using System.Drawing.Text;
 
 namespace IsaacLauncherGUI
 {

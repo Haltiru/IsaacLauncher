@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿//BrowserHelper.cs
 
 namespace IsaacLauncherGUI
 {
@@ -9,7 +8,7 @@ namespace IsaacLauncherGUI
         {
             try
             {
-                if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri) && uri.Scheme == Uri.UriSchemeHttps) Process.Start(new ProcessStartInfo{FileName = uri.ToString(),UseShellExecute = true});
+                if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri) && uri.Scheme == Uri.UriSchemeHttps) Process.Start(new ProcessStartInfo { FileName = uri.ToString(), UseShellExecute = true });
             }
             catch (Exception ex)
             {

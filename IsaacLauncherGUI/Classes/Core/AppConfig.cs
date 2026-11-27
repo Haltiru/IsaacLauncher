@@ -1,9 +1,4 @@
 ﻿//Appconfig.cs
-using System;
-using System.IO;
-using System.Text.Json;
-using System.Windows.Forms;
-
 
 namespace IsaacLauncherGUI
 {
@@ -81,14 +76,14 @@ namespace IsaacLauncherGUI
         {
             string filePath = GetConfigPath();
             if (!File.Exists(filePath)) return new AppSettings();
-           try
+            try
             {
                 string json = File.ReadAllText(filePath);
                 return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
             }
             catch (JsonException ex)
             {
-                string backupPath = filePath + ".corrupted-" +DateTime.Now.ToString("yyyyMMdd-HHmmssfff") + ".bak";
+                string backupPath = filePath + ".corrupted-" + DateTime.Now.ToString("yyyyMMdd-HHmmssfff") + ".bak";
 
                 File.Copy(filePath, backupPath);
 
