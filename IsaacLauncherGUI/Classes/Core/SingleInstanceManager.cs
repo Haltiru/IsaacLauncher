@@ -1,5 +1,6 @@
 ﻿//SingleInstanceManager.cs
 using System.IO.Pipes;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Threading;
 
@@ -7,6 +8,10 @@ namespace IsaacLauncherGUI.Classes
 {
     public class SingleInstanceManager : IDisposable
     {
+        [DllImport("user32.dll")]
+        private static extern bool AllowSetForegroundWindow(int dwProcessId);
+
+        private const int ASFW_ANY = -1;
         private Mutex _mutex;
         private bool _ownsMutex = false;
         private bool _disposed = false;
@@ -112,6 +117,7 @@ namespace IsaacLauncherGUI.Classes
                 using (var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.Asynchronous))
                 {
                     await pipe.ConnectAsync(500).ConfigureAwait(false);
+                    AllowSetForegroundWindow(ASFW_ANY);
 
                     using (var writer = new StreamWriter(pipe))
                     {

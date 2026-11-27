@@ -1,11 +1,18 @@
 ﻿//Form1.cs
-
+using System.Runtime.InteropServices;
 using static IsaacLauncherGUI.Launcher;
 
 namespace IsaacLauncherGUI
 {
     public partial class IsaacLauncher : Form
     {
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        private const int SW_RESTORE = 9;
         private AppSettings _settings;
         private bool _loadingSettings = false;
         private ModmanagerForm _modManagerForm = null;
@@ -89,6 +96,20 @@ namespace IsaacLauncherGUI
                 cp.ExStyle |= 0x02000000;
                 return cp;
             }
+        }
+        private void ShowAndFocusWindow()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(ShowAndFocusWindow);
+                return;
+            }
+
+            if (!Visible)Show();
+            if (WindowState == FormWindowState.Minimized)ShowWindow(Handle, SW_RESTORE);
+
+            SetForegroundWindow(Handle);
+            Activate();
         }
 
         private void SessionTimer_Tick(object sender, EventArgs e)

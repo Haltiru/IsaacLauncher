@@ -21,3 +21,4 @@ global using System.Threading.Tasks;
 global using System.Windows.Forms;
 global using System.Xml.Linq;
 global using Registry = Microsoft.Win32.Registry;
+using System.Runtime.InteropServices;
